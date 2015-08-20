@@ -1,0 +1,64 @@
+#' GWAS Mappings
+#'
+#' \code{gwas_mappings} uses the rrBLUP package function \code{GWAS} to perform association mapping
+#' for C. elegans. Uses 5% MAF SNPs from RADseq dataset from Andersen et al. 2012 and a 
+#' kinship matrix generated from whole-genome sequence data.
+#'
+#' This is the detail section if you want to fill out in the future
+#'
+#' @param data two element list. element 1 : traits. element 2: trait values with strains in columns
+#' with each row corresponding to trait in element 1
+#' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
+#' @param only_sig logical to return only significant mappings. Default is TRUE
+#' @return Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.
+#' @export
+
+gwas_mappings <- function(data, cores = 4, only_sig = TRUE){
+  
+  # phenotype prep
+  x <- data.frame(trait = data[[1]], data[[2]])%>%
+    tidyr::gather(strain, value, -trait)%>%
+    tidyr::spread(trait, value)# extract phenotypes from phenotype object
+  
+  # add marker column to snp set
+  y <- data.frame(marker = paste(snps$CHROM,snps$POS,sep="_"),
+                  snps)
+  # encode 0 as 1 in SNP set
+  y[y == 0] <- -1
+  # run mappings
+  system.time(
+    maps <- rrBLUP::GWAS(pheno = x,
+                 geno = y,
+                 K = kinship,
+                 min.MAF = .05,
+                 n.core = cores,
+                 P3D = FALSE,
+                 plot = FALSE)
+  )
+  
+  mappings <- maps %>%
+    tidyr::gather(trait, log10p, -marker, -CHROM, -POS)
+  
+  if(only_sig == T){
+    mappings <- keep_sig_maps(mappings)
+  }
+  
+  return(mappings)
+}
+
+
+# only keep significant mappings
+keep_sig_maps <- function(mapping_df){
+  
+  sig_maps <- mapping_df %>%
+    dplyr::group_by( trait ) %>%
+    dplyr::filter( max(log10p) > -log10(.05/n()))
+  
+  return(sig_maps)
+}
+
+
+
+
+
+

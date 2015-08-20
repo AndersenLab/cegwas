@@ -1,0 +1,17 @@
+{
+    "contents" : "#' GWAS Mappings\n#'\n#' \\code{gwas_mappings} uses the rrBLUP package function \\code{GWAS} to perform association mapping\n#' for C. elegans. Uses 5% MAF SNPs from RADseq dataset from Andersen et al. 2012 and a \n#' kinship matrix generated from whole-genome sequence data.\n#'\n#' This is the detail section if you want to fill out in the future\n#'\n#' @param data two element list. element 1 : traits. element 2: trait values with strains in columns\n#' with each row corresponding to trait in element 1\n#' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4\n#' @param only_sig logical to return only significant mappings. Default is TRUE\n#' @return Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.\n#' @export\n\ngwas_mappings <- function(data, cores = 4, only_sig = TRUE){\n  \n  # phenotype prep\n  x <- data.frame(trait = data[[1]], data[[2]])%>%\n    tidyr::gather(strain, value, -trait)%>%\n    tidyr::spread(trait, value)# extract phenotypes from phenotype object\n  \n  # add marker column to snp set\n  y <- data.frame(marker = paste(snps$CHROM,snps$POS,sep=\"_\"),\n                  snps)\n  # encode 0 as 1 in SNP set\n  y[y == 0] <- -1\n  # run mappings\n  system.time(\n    maps <- rrBLUP::GWAS(pheno = x,\n                 geno = y,\n                 K = kinship,\n                 min.MAF = .05,\n                 n.core = cores,\n                 P3D = FALSE,\n                 plot = FALSE)\n  )\n  \n  mappings <- maps %>%\n    tidyr::gather(trait, log10p, -marker, -CHROM, -POS)\n  \n  if(only_sig == T){\n    mappings <- keep_sig_maps(mappings)\n  }\n  \n  return(mappings)\n}\n\n\n# only keep significant mappings\nkeep_sig_maps <- function(mapping_df){\n  \n  sig_maps <- mapping_df %>%\n    dplyr::group_by( trait ) %>%\n    dplyr::filter( max(log10p) > -log10(.05/n()))\n  \n  return(sig_maps)\n}\n\n\n\n\n\n\n",
+    "created" : 1440002026588.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1310522080",
+    "id" : "F4074AFF",
+    "lastKnownWriteTime" : 1440096934,
+    "path" : "~/Dropbox/AndersenLab/RCode/GWAS/cegwas/R/gwas_mappings.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
