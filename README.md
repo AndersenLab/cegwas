@@ -34,7 +34,7 @@ The input data sets for this step are:
 
 _**Example Usage**_
 
-`processed_mapping_df <- process_mappings(mapping_df, snp_df = snps, phenotype_df, CI_size = 50, snp_grouping = 200)`
+`processed_mapping_df <- process_mappings(mapping_df, snp_df = snps, processed_phenotypes, CI_size = 50, snp_grouping = 200)`
 
 The resulting dataframe contains all information output from the `gwas_mappings` function as well as 
 
