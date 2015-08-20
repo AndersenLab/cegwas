@@ -5,7 +5,7 @@
 #' This function takes raw phenotype data and eliminates outlier strains with a modified version of \code{bamf_prune} from the easysorter package.
 #' Additionally it eliminates any traits that have the same values for >95% of the strains (important for binary traits)
 #'
-#' @param data is a dataframe containing phenotype data. The first column should be names \code{trait}
+#' @param data is a dataframe containing phenotype data. The first column should be named \code{trait}
 #' all additional columns should be strains. One row corresponding to one trait for all strains.
 #' @return Outputs a list. The first element of the list is an ordered vector of traits. 
 #' The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.
