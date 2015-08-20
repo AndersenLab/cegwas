@@ -1,10 +1,29 @@
-# mapping_df <- sig_maps
-# snp_df <- snps
-# phenotype_df <- test
+#' Calcule Variance Explained for Significant SNPs
+#'
+#' \code{calculate_VE} calculates the variance explained (VE) for significant SNPs by using the 
+#' the spearman rank correlation coefficient.
+#'
+#' This function requires three inputs, two of which are provided by the user and the other is loaded by the package.
+#'
+#' @param mapping_df the output from the \code{gwas_mappings} function. User input
+#' @param snp_df genotype information for 124 wild isolates. Provided by package
+#' @param phenotype_df two element list. element 1 : traits. element 2: trait values with strains in columns
+#' with each row corresponding to trait in element 1
+#' @return Outputs a two element list that contains two dataframes. 
+#' The first data frame is a processed mappings dataframe that contains the same columns
+#' as the output of \code{gwas_mappings} with two additional columns. One that contains
+#' the bonferroni corrected p-value (BF) and another that contains an identifier 1,0 if 
+#' the indicated SNP has a higher -log10 value than the bonferroni cut off or not, respectively
+#' The second data frame contains the variance explained data as well as all of the information from the first element.
+#' @export
 
 calculate_VE <- function( mapping_df,
-                          snp_df,
+                          snp_df = snps,
                           phenotype_df ) {
+  
+  # mapping_df <- sig_maps
+  # snp_df <- snps
+  # phenotype_df <- test
   
     # format phenotypes
     pheno <- phenotype_df[[2]]
@@ -75,13 +94,32 @@ calculate_VE <- function( mapping_df,
   return( list(Processed, CORmaps) )
 }
 
-# processed_mapping_df <- Processed
-# snp_grouping <- 200
-# CI_size <- 50
+#' Find Peaks from GWAS Peaks
+#'
+#' \code{find_peaks} Identifies QTL from GWAS mapping data set.
+#'
+#' This function identifies QTL by looking at SNPs above the bonferroni corrected p-value.
+#' If only one SNP passed the significance cutoff, then the confidence interval is defined
+#' as +/- \code{CI_size} (number of SNPs; default 50) away from that SNP. If multiple SNPs 
+#' are above the cutoff, the function asks if SNPs are within an arbitrary number of SNPs away
+#' \code{snp_grouping} - default 200. If the significant SNPs are within this range, they are grouped into the same peak.
+#' If they are greater than this distance, then the peaks are considered unique. 
+#' 
+#' @param processed_mapping_df The first element of the output list from the \code{calculate_VE} function.
+#' @param CI_size defines the size (in # SNPs) of confidence intervals. Default is 50 and is defined in more detail below.
+#' @param snp_grouping defines grouping of peaks. Defined further below, default is 200.
+#' @return Outputs a two element list that contains. 
+#' First element - data frame containing all identified intervals
+#' Second element - list containing one element for each interval
+#' @export
 
 find_peaks <- function( processed_mapping_df, 
                         CI_size = 50,
                         snp_grouping = 200 ) {
+  
+  # processed_mapping_df <- Processed
+  # snp_grouping <- 200
+  # CI_size <- 50
   
   # # # IDENTIFY PEAKS
   
@@ -216,15 +254,30 @@ find_peaks <- function( processed_mapping_df,
   return( list(intervalDF, intervals) )
 }
 
-# processed_mapping_df <- Processed
-# peak_df = intervalDF 
-# peak_list = intervals
-# correlation_df = CORmaps 
+#' Identify confidence intervals associated with QTL. 
+#'
+#' \code{identify_CI} Identifies confidence intervals for identified QTL
+#'
+#' Function to combine all of the previously generated data into one data frame. Converts SNP index confidence intervals
+#' into genomic position confidence intervals.
+#' 
+#' @param processed_mapping_df The first element of the \code{calculate_VE} function output
+#' @param peak_df The first element of the \code{find_peaks} function output
+#' @param peak_list The second element of the \code{find_peaks} function output 
+#' @param correlation_df The second element of the \code{calculate_VE} function output
+#' @return Outputs processed mapping dataframe that contains original mapping dataframe with appended information for significant SNPs only, including:
+#' variance explained, confidence interval information, genotype information
+#' @export
 
 identify_CI <- function( processed_mapping_df, 
                          peak_df, 
                          peak_list, 
                          correlation_df ) {
+  
+  # processed_mapping_df <- Processed
+  # peak_df = intervalDF 
+  # peak_list = intervals
+  # correlation_df = CORmaps 
   
   # FILTER COMPLETE MAPPING SET TO ONLY CONTAIN INTERVAL INDICIES TO SAVE COMPUTATIONAL TIME BELOW
   Pos_Index_Reference  <- processed_mapping_df %>%
