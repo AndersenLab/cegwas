@@ -1,4 +1,16 @@
-
+#' Process Phenotype Data
+#'
+#' \code{process_pheno} Process raw data file for GWAS mapping using \code{gwas_mappings} function
+#'
+#' This function takes raw phenotype data and eliminates outlier strains with a modified version of \code{bamf_prune} from the easysorter package.
+#' Additionally it eliminates any traits that have the same values for >95% of the strains (important for binary traits)
+#'
+#' @param data is a dataframe containing phenotype data. The first column should be names \code{trait}
+#' all additional columns should be strains. One row corresponding to one trait for all strains.
+#' @return Outputs a list. The first element of the list is an ordered vector of traits. 
+#' The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.
+#' @export
+#' 
 process_pheno <- function(data){
   
   # identify an traits that only have 1 unique value
@@ -40,7 +52,7 @@ process_pheno <- function(data){
 }
 
 # called functions
-
+# function to remove phenotypes with low frequencies (only important for binary traits)
 remove_lowFreq_phenotypes <- function(data, wide = TRUE){
   
   if(wide == T){
@@ -83,6 +95,8 @@ remove_lowFreq_phenotypes <- function(data, wide = TRUE){
   return(output)
 }
 
+# modified version of bamf_prune
+# works the same as from the easysorter package, but with different input format
 mod_bamf_prune <- function(data){
   
   napheno <- data[is.na(data$value), ] %>%
