@@ -84,3 +84,75 @@ manplot <- function(plot_df) {
     
   }
 }
+
+
+#' PxG plot
+#'
+#' \code{pxg_plot} generates a boxplot of phenotypes split by genotype at QTL peak position using \code{ggplot2}
+#'
+#'
+#' @param plot_df the output from the \code{gwas_mappings} function. 
+#' @return Ouput is a ggplot object facetted by peak SNP (if there are multiple peaks in a mapping). 
+#' Genotypes are encoded as 1 or 0 and are on the x-axis. Phenotypes are on y-axis.
+#' @export
+
+pxg_plot <- function(plot_df){
+  
+  if(length(unique(plot_df$trait)) == 1){
+  plot_df %>%
+    na.omit()%>%
+    dplyr::distinct(strain, value, peakPOS)%>%
+    dplyr::select(strain, value, CHROM, peakPOS, allele)%>%
+    dplyr::mutate(chr_pos = paste(CHROM, peakPOS, sep="_"))%>%
+    ggplot2::ggplot(.)+
+    ggplot2::aes(x = factor(allele), y = value)+
+    ggplot2::scale_fill_brewer(palette = "Set1")+
+    ggplot2::geom_boxplot( aes(fill = factor(allele)))+
+    ggplot2::theme_bw()+
+    ggplot2::geom_jitter(alpha = .7)+
+    ggplot2::facet_grid(.~chr_pos, scales = "free")+
+    ggplot2::theme(axis.text.x = element_text(size=24, face="bold", color="black"),
+                   axis.text.y = element_text(size=24, face="bold", color="black"),
+                   axis.title.x = element_text(size=24, face="bold", color="black", vjust=-.3),
+                   axis.title.y = element_text(size=24, face="bold", color="black"),
+                   strip.text.x = element_text(size=24, face="bold", color="black"),
+                   strip.text.y = element_text(size=16, face="bold", color="black"),
+                   plot.title = element_text(size=24, face="bold", vjust = 1),
+                   legend.position="none",
+                   panel.background = element_rect( color="black",size=1.2),
+                   strip.background = element_rect(color = "black", size = 1.2))+
+    ggplot2::labs(y = "Phenotype", x = "Genotype", title = unique(plot_df$trait))
+  }
+  else
+  {
+    plot_traits <- unique(plot_df$trait)
+    for(i in length(plot_traits)){
+      plot_df %>%
+        na.omit()%>%
+        dplyr::filter(trait == plot_traits[i]) %>%
+        dplyr::distinct(strain, value, peakPOS) %>%
+        dplyr::select(strain, value, CHROM, peakPOS, allele) %>%
+        dplyr::mutate(chr_pos = paste(CHROM, peakPOS, sep="_")) %>%
+        ggplot2::ggplot(.) + 
+        ggplot2::aes(x = factor(allele), y = value) +
+        ggplot2::scale_fill_brewer(palette = "Set1") +
+        ggplot2::geom_boxplot( aes(fill = factor(allele))) +
+        ggplot2::theme_bw() +
+        ggplot2::geom_jitter(alpha = .7) +
+        ggplot2::facet_grid(.~chr_pos, scales = "free") +
+        ggplot2::theme(axis.text.x = element_text(size=24, face="bold", color="black"),
+                       axis.text.y = element_text(size=24, face="bold", color="black"),
+                       axis.title.x = element_text(size=24, face="bold", color="black", vjust=-.3),
+                       axis.title.y = element_text(size=24, face="bold", color="black"),
+                       strip.text.x = element_text(size=24, face="bold", color="black"),
+                       strip.text.y = element_text(size=16, face="bold", color="black"),
+                       plot.title = element_text(size=24, face="bold", vjust = 1),
+                       legend.position="none",
+                       panel.background = element_rect( color="black",size=1.2),
+                       strip.background = element_rect(color = "black", size = 1.2)) +
+        ggplot2::labs(y = "Phenotype", x = "Genotype", title = plot_traits[i])
+    }
+  }
+}
+
+
