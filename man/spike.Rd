@@ -4,16 +4,12 @@
 \alias{spike}
 \title{Spike in an effect for GWAS mapping}
 \usage{
-spike(meandiff, sd, snps, snpindex)
+spike(snps, snpindex)
 }
 \arguments{
-\item{sd}{The standard deviation for both populations}
-
 \item{snps}{The snp set being used}
 
 \item{snpindex}{The index of the snp upon which to spike the effect}
-
-\item{meadiff}{The abolute difference in means for the two allele populations}
 }
 \value{
 A phenotype data frame with the fake spiked data, ready for process_pheno
