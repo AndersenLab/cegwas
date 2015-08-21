@@ -34,6 +34,7 @@ calculate_VE <- function( mapping_df,
     dplyr::mutate( BF = -log10(.05/n()) ) %>% #  add BF threshold
     dplyr::group_by( trait ) %>%
     dplyr::mutate( aboveBF = ifelse(log10p >= BF, 1, 0) ) %>% #  label SNPs as significant
+    dplyr::filter(sum(aboveBF) > 0) %>% # keep only significant mappings
     dplyr::ungroup()
   
   ## Select SNPs above BF
@@ -382,6 +383,7 @@ process_mappings <- function(mapping_df,
     dplyr::mutate( BF = -log10(.05/n()) ) %>% #  add BF threshold
     dplyr::group_by( trait ) %>%
     dplyr::mutate( aboveBF = ifelse(log10p >= BF, 1, 0) ) %>% #  label SNPs as significant
+    dplyr::filter(sum(aboveBF) > 0) %>% # keep only significant mappings
     dplyr::ungroup()
   
   ## Select SNPs above BF
