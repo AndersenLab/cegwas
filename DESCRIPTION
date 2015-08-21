@@ -1,6 +1,6 @@
 Package: cegwas
 Title: A set of functions to process phenotype data, perform GWAS, and perform post-mapping data processing for C. elegans. 
-Version: 1.0
+Version: 1.01
 Authors@R: person("Stefan", "Zdraljevic", email = "stefanzdraljevic2018@u.northwestern.edu", role = c("aut", "cre"))
 Description: Functions to process data, perform GWA mappings, identify confidence intervals, and genes with variants within the confidence interval.
 Depends: R (>= 3.2.0)
