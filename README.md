@@ -69,3 +69,14 @@ The resulting dataframe contains all information output from the `gwas_mappings`
 1. `calculate_VE`
 2. `find_peaks`
 3. `identify_CI`
+
+
+## Example Script
+
+```r
+pheno <- spike(snps, c(80, 1020))
+processed_phenotypes <- process_pheno(pheno)
+mapping_df <- gwas_mappings(processed_phenotypes, cores = 4, only_sig = FALSE)
+processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = 200)
+manplot(processed_mapping_df)
+```
