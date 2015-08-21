@@ -9,8 +9,9 @@
 #' all additional columns should be strains. One row corresponding to one trait for all strains.
 #' @return Outputs a list. The first element of the list is an ordered vector of traits. 
 #' The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.
+#' @importFrom dplyr %>%
 #' @export
-#' 
+
 process_pheno <- function(data){
   
   # identify an traits that only have 1 unique value

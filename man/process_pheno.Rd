@@ -7,7 +7,7 @@
 process_pheno(data)
 }
 \arguments{
-\item{data}{is a dataframe containing phenotype data. The first column should be names \code{trait}
+\item{data}{is a dataframe containing phenotype data. The first column should be named \code{trait}
 all additional columns should be strains. One row corresponding to one trait for all strains.}
 }
 \value{
