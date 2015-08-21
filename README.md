@@ -1,5 +1,22 @@
 # cegwas
 
+## Installation
+
+**NOTE**
+
+This package requires the installation of the `biomaRt` package from bioconducter::
+
+```r
+source("http://bioconductor.org/biocLite.R")
+biocLite("biomaRt")
+```
+
+Install package:
+
+```r
+devtools::install_github("AndersenLab/cegwas")
+```
+
 A set of functions to process phenotype data, perform GWAS, and perform post-mapping data processing for C. elegans.
 
 ##### The pipeline is split into three steps
@@ -12,7 +29,9 @@ Input data frame for this step contains properly formatted phenotype data. The f
 
 _**Example Usage**_
 
-`processed_phenotypes <- process_pheno(data)` 
+```r
+processed_phenotypes <- process_pheno(data)
+``` 
 
 This function outputs a list object. Outputs a list. The first element of the list is an ordered vector of traits. The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.
 
@@ -21,7 +40,9 @@ Input data for this step is the output from the `process_pheno` function. GWAS m
 
 _**Example Usage**_
 
-`mapping_df <- gwas_mappings(processed_phenotypes, cores = 4, only_sig = TRUE)` 
+```r
+mapping_df <- gwas_mappings(processed_phenotypes, cores = 4, only_sig = TRUE)
+``` 
 
 The output for function is a data frame that contains SNP information, trait information, and log transformed p-values.
 
@@ -34,7 +55,9 @@ The input data sets for this step are:
 
 _**Example Usage**_
 
-`processed_mapping_df <- process_mappings(mapping_df, snp_df = snps, processed_phenotypes, CI_size = 50, snp_grouping = 200)`
+```r
+processed_mapping_df <- process_mappings(mapping_df, snp_df = snps, processed_phenotypes, CI_size = 50, snp_grouping = 200)
+```
 
 The resulting dataframe contains all information output from the `gwas_mappings` function as well as 
 
