@@ -13,6 +13,7 @@ Imports: doParallel,
 	tidyr,
 	data.table,
 	biomaRt,
+	ggplot2,
 	dplyr
 License: GPL
 LazyData: true

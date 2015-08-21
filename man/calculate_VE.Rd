@@ -4,12 +4,10 @@
 \alias{calculate_VE}
 \title{Calcule Variance Explained for Significant SNPs}
 \usage{
-calculate_VE(mapping_df, snp_df = snps, phenotype_df)
+calculate_VE(mapping_df, phenotype_df)
 }
 \arguments{
 \item{mapping_df}{the output from the \code{gwas_mappings} function. User input}
-
-\item{snp_df}{genotype information for 124 wild isolates. Provided by package}
 
 \item{phenotype_df}{two element list. element 1 : traits. element 2: trait values with strains in columns
 with each row corresponding to trait in element 1}
