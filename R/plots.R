@@ -16,18 +16,18 @@ manplot <- function(plot_df) {
       ggplot2::ggplot(.) +
       ggplot2::aes(x = POS/1e6, y = log10p) +
       ggplot2::scale_color_manual(values = c("black","blue","red")) +
-      ggplot2::geom_rect(aes(xmin = startPOS/1e6, 
+      ggplot2::geom_rect(ggplot2::aes(xmin = startPOS/1e6, 
                              xmax = endPOS/1e6, 
                              ymin = 0, 
                              ymax = Inf, 
                              fill = "blue", 
                              alpha=.1), 
                          color = NA)+
-      ggplot2::geom_hline(aes(yintercept = BF),
+      ggplot2::geom_hline(ggplot2::aes(yintercept = BF),
                           color = "gray", 
                           alpha = .75,  
                           size = 1)+
-      ggplot2::geom_point( aes(color= factor(aboveBF)) ) +
+      ggplot2::geom_point( ggplot2::aes(color= factor(aboveBF)) ) +
       ggplot2::facet_grid( . ~ CHROM, scales = "free_x" ) +
       ggplot2::theme_bw() +
       ggplot2::theme(axis.text.x = element_text(size=24, face="bold", color="black"),
@@ -53,18 +53,18 @@ manplot <- function(plot_df) {
         ggplot2::ggplot(.) +
         ggplot2::aes(x = POS/1e6, y = log10p) +
         ggplot2::scale_color_manual(values = c("black","blue","red")) +
-        ggplot2::geom_rect(aes(xmin = startPOS/1e6, 
+        ggplot2::geom_rect(ggplot2::aes(xmin = startPOS/1e6, 
                                xmax = endPOS/1e6, 
                                ymin = 0, 
                                ymax = Inf, 
                                fill = "blue", 
                                alpha=.1), 
                            color = NA)+
-        ggplot2::geom_hline(aes(yintercept = BF),
+        ggplot2::geom_hline(ggplot2::aes(yintercept = BF),
                             color = "gray", 
                             alpha = .75,  
                             size = 1)+
-        ggplot2::geom_point( aes(color= factor(aboveBF)) ) +
+        ggplot2::geom_point( ggplot2::aes(color= factor(aboveBF)) ) +
         ggplot2::facet_grid( . ~ CHROM, scales = "free_x" ) +
         ggplot2::theme_bw() +
         ggplot2::theme(axis.text.x = element_text(size=24, face="bold", color="black"),
@@ -107,7 +107,7 @@ pxg_plot <- function(plot_df){
     ggplot2::ggplot(.)+
     ggplot2::aes(x = factor(allele), y = value)+
     ggplot2::scale_fill_brewer(palette = "Set1")+
-    ggplot2::geom_boxplot( aes(fill = factor(allele)))+
+    ggplot2::geom_boxplot( ggplot2::aes(fill = factor(allele)))+
     ggplot2::theme_bw()+
     ggplot2::geom_jitter(alpha = .7)+
     ggplot2::facet_grid(.~chr_pos, scales = "free")+
@@ -136,7 +136,7 @@ pxg_plot <- function(plot_df){
         ggplot2::ggplot(.) + 
         ggplot2::aes(x = factor(allele), y = value) +
         ggplot2::scale_fill_brewer(palette = "Set1") +
-        ggplot2::geom_boxplot( aes(fill = factor(allele))) +
+        ggplot2::geom_boxplot( ggplot2::aes(fill = factor(allele))) +
         ggplot2::theme_bw() +
         ggplot2::geom_jitter(alpha = .7) +
         ggplot2::facet_grid(.~chr_pos, scales = "free") +
