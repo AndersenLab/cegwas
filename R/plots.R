@@ -30,16 +30,16 @@ manplot <- function(plot_df) {
       ggplot2::geom_point( ggplot2::aes(color= factor(aboveBF)) ) +
       ggplot2::facet_grid( . ~ CHROM, scales = "free_x" ) +
       ggplot2::theme_bw() +
-      ggplot2::theme(axis.text.x = element_text(size=24, face="bold", color="black"),
-                     axis.text.y = element_text(size=24, face="bold", color="black"),
-                     axis.title.x = element_text(size=24, face="bold", color="black", vjust=-.3),
-                     axis.title.y = element_text(size=24, face="bold", color="black"),
-                     strip.text.x = element_text(size=24, face="bold", color="black"),
-                     strip.text.y = element_text(size=16, face="bold", color="black"),
-                     plot.title = element_text(size=24, face="bold", vjust = 1),
+      ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+                     axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
+                     axis.title.x = ggplot2::element_text(size=24, face="bold", color="black", vjust=-.3),
+                     axis.title.y = ggplot2::element_text(size=24, face="bold", color="black"),
+                     strip.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+                     strip.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
+                     plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
                      legend.position="none",
-                     panel.background = element_rect( color="black",size=1.2),
-                     strip.background = element_rect(color = "black", size = 1.2)) +
+                     panel.background = ggplot2::element_rect( color="black",size=1.2),
+                     strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
       ggplot2::labs(x = "Genomic Position (Mb)",
                     y = expression(log[10](p)),
                     title = unique(plot_df$trait))
@@ -67,16 +67,16 @@ manplot <- function(plot_df) {
         ggplot2::geom_point( ggplot2::aes(color= factor(aboveBF)) ) +
         ggplot2::facet_grid( . ~ CHROM, scales = "free_x" ) +
         ggplot2::theme_bw() +
-        ggplot2::theme(axis.text.x = element_text(size=24, face="bold", color="black"),
-                       axis.text.y = element_text(size=24, face="bold", color="black"),
-                       axis.title.x = element_text(size=24, face="bold", color="black", vjust=-.3),
-                       axis.title.y = element_text(size=24, face="bold", color="black"),
-                       strip.text.x = element_text(size=24, face="bold", color="black"),
-                       strip.text.y = element_text(size=16, face="bold", color="black"),
-                       plot.title = element_text(size=24, face="bold", vjust = 1),
+        ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+                       axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
+                       axis.title.x = ggplot2::element_text(size=24, face="bold", color="black", vjust=-.3),
+                       axis.title.y = ggplot2::element_text(size=24, face="bold", color="black"),
+                       strip.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+                       strip.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
+                       plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
                        legend.position="none",
-                       panel.background = element_rect( color="black",size=1.2),
-                       strip.background = element_rect(color = "black", size = 1.2)) +
+                       panel.background = ggplot2::element_rect( color="black",size=1.2),
+                       strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
         ggplot2::labs(x = "Genomic Position (Mb)",
                       y = expression(log[10](p)),
                       title = plot_traits[i])
@@ -111,16 +111,16 @@ pxg_plot <- function(plot_df){
     ggplot2::theme_bw()+
     ggplot2::geom_jitter(alpha = .7)+
     ggplot2::facet_grid(.~chr_pos, scales = "free")+
-    ggplot2::theme(axis.text.x = element_text(size=24, face="bold", color="black"),
-                   axis.text.y = element_text(size=24, face="bold", color="black"),
-                   axis.title.x = element_text(size=24, face="bold", color="black", vjust=-.3),
-                   axis.title.y = element_text(size=24, face="bold", color="black"),
-                   strip.text.x = element_text(size=24, face="bold", color="black"),
-                   strip.text.y = element_text(size=16, face="bold", color="black"),
-                   plot.title = element_text(size=24, face="bold", vjust = 1),
+    ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+                   axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
+                   axis.title.x = ggplot2::element_text(size=24, face="bold", color="black", vjust=-.3),
+                   axis.title.y = ggplot2::element_text(size=24, face="bold", color="black"),
+                   strip.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+                   strip.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
+                   plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
                    legend.position="none",
-                   panel.background = element_rect( color="black",size=1.2),
-                   strip.background = element_rect(color = "black", size = 1.2))+
+                   panel.background = ggplot2::element_rect( color="black",size=1.2),
+                   strip.background = ggplot2::element_rect(color = "black", size = 1.2))+
     ggplot2::labs(y = "Phenotype", x = "Genotype", title = unique(plot_df$trait))
   }
   else
@@ -140,16 +140,16 @@ pxg_plot <- function(plot_df){
         ggplot2::theme_bw() +
         ggplot2::geom_jitter(alpha = .7) +
         ggplot2::facet_grid(.~chr_pos, scales = "free") +
-        ggplot2::theme(axis.text.x = element_text(size=24, face="bold", color="black"),
-                       axis.text.y = element_text(size=24, face="bold", color="black"),
-                       axis.title.x = element_text(size=24, face="bold", color="black", vjust=-.3),
-                       axis.title.y = element_text(size=24, face="bold", color="black"),
-                       strip.text.x = element_text(size=24, face="bold", color="black"),
-                       strip.text.y = element_text(size=16, face="bold", color="black"),
-                       plot.title = element_text(size=24, face="bold", vjust = 1),
+        ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+                       axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
+                       axis.title.x = ggplot2::element_text(size=24, face="bold", color="black", vjust=-.3),
+                       axis.title.y = ggplot2::element_text(size=24, face="bold", color="black"),
+                       strip.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+                       strip.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
+                       plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
                        legend.position="none",
-                       panel.background = element_rect( color="black",size=1.2),
-                       strip.background = element_rect(color = "black", size = 1.2)) +
+                       panel.background = ggplot2::element_rect( color="black",size=1.2),
+                       strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
         ggplot2::labs(y = "Phenotype", x = "Genotype", title = plot_traits[i])
     }
   }
