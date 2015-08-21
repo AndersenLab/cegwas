@@ -317,7 +317,7 @@ identify_CI <- function( processed_mapping_df,
       # YOU WILL GET UNWANTED SNP INDEX INFORMATION IN SITUATIONS WHERE YOU HAVE MULTIPLE PEAKS 
       # ELIMINATE THOSE BY MATCHING START AND END FROM INDEX DATAFRAME TO INDEX FROM POSITION DATAFRAME
       # FIRST FLAG
-      dplyr::mutate(issues = ifelse(start == index.x | end == index.x, 1, 0))%>%
+      dplyr::mutate(issues = ifelse(start == index.y | end == index.y, 1, 0))%>%
       # THEN REMOVE
       dplyr::filter(issues != 0)%>%
       # SELECT COLUMNS OF INTEREST
@@ -617,7 +617,7 @@ process_mappings <- function(mapping_df,
       # YOU WILL GET UNWANTED SNP INDEX INFORMATION IN SITUATIONS WHERE YOU HAVE MULTIPLE PEAKS 
       # ELIMINATE THOSE BY MATCHING START AND END FROM INDEX DATAFRAME TO INDEX FROM POSITION DATAFRAME
       # FIRST FLAG
-      dplyr::mutate(issues = ifelse(start == index.x | end == index.x, 1, 0))%>%
+      dplyr::mutate(issues = ifelse(start == index.y | end == index.y, 1, 0))%>%
       # THEN REMOVE
       dplyr::filter(issues != 0)%>%
       # SELECT COLUMNS OF INTEREST
