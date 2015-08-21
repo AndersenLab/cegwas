@@ -302,6 +302,8 @@ identify_CI <- function( processed_mapping_df,
     
     peak_list[[i]]$trait <- as.character(peak_list[[i]]$trait)
     
+    peak_list[[i]] <- dplyr::distinct(peak_list[[i]], pID)
+    
     # FILTER TO LOOK AT ONE PHENOTYPE AT A TIME
     # FILTER APPROPRIATE INTERVAL INDICIES AND CHROMOSOMES FOR THAT PHENOTYPE
     trait_i <- unique(peak_list[[i]]$trait)
@@ -601,6 +603,8 @@ process_mappings <- function(mapping_df,
     print(paste(100*signif(i/length(peak_list),3), "%",sep=""))
     
     peak_list[[i]]$trait <- as.character(peak_list[[i]]$trait)
+    
+    peak_list[[i]] <- dplyr::distinct(peak_list[[i]], pID)
     
     # FILTER TO LOOK AT ONE PHENOTYPE AT A TIME
     # FILTER APPROPRIATE INTERVAL INDICIES AND CHROMOSOMES FOR THAT PHENOTYPE
