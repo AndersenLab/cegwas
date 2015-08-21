@@ -18,7 +18,6 @@
 #' @export
 
 calculate_VE <- function( mapping_df,
-                          snp_df = snps,
                           phenotype_df ) {
   
   # mapping_df <- sig_maps
@@ -61,6 +60,9 @@ calculate_VE <- function( mapping_df,
   rawTr$strain <- as.character(rawTr$strain)
   
   # Trim snps to only contain those that are significant from mappings
+  
+  snp_df <- snps
+  
   gINFO <- snp_df %>%
     dplyr::mutate( marker = paste(CHROM, POS, sep = "_")) %>%
     dplyr::filter( marker %in% snpsForVE$marker ) %>%
