@@ -13,6 +13,7 @@ manplot <- function(plot_df) {
   
   if(length(unique(plot_df$trait)) == 1){
     plot_df %>%
+      dplyr::distinct(marker) %>%
       ggplot2::ggplot(.) +
       ggplot2::aes(x = POS/1e6, y = log10p) +
       ggplot2::scale_color_manual(values = c("black","blue","red")) +
@@ -50,6 +51,7 @@ manplot <- function(plot_df) {
     for(i in length(plot_traits)){
       plot_df %>%
         dplyr::filter(trait == plot_traits[i]) %>%
+        dplyr::distinct(marker) %>%
         ggplot2::ggplot(.) +
         ggplot2::aes(x = POS/1e6, y = log10p) +
         ggplot2::scale_color_manual(values = c("black","blue","red")) +
