@@ -48,8 +48,8 @@ manplot <- function(plot_df) {
   else
   {
     plot_traits <- unique(plot_df$trait)
-    for(i in length(plot_traits)){
-      plot_df %>%
+    for(i in 1:length(plot_traits)){
+      p<-plot_df %>%
         dplyr::filter(trait == plot_traits[i]) %>%
         dplyr::distinct(marker) %>%
         ggplot2::ggplot(.) +
@@ -82,6 +82,7 @@ manplot <- function(plot_df) {
         ggplot2::labs(x = "Genomic Position (Mb)",
                       y = expression(log[10](p)),
                       title = plot_traits[i])
+      print(p)
     }
     
   }
