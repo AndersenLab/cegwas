@@ -48,8 +48,8 @@ manplot <- function(plot_df) {
   else
   {
     plot_traits <- unique(plot_df$trait)
-    for(i in 1:length(plot_traits)){
-      p<-plot_df %>%
+    lapply(1:length(plot_traits), function(i) {
+      p <- plot_df %>%
         dplyr::filter(trait == plot_traits[i]) %>%
         dplyr::distinct(marker) %>%
         ggplot2::ggplot(.) +
@@ -65,7 +65,7 @@ manplot <- function(plot_df) {
         ggplot2::geom_hline(ggplot2::aes(yintercept = BF),
                             color = "gray", 
                             alpha = .75,  
-                            size = 1)+
+                            size = 1) +
         ggplot2::geom_point( ggplot2::aes(color= factor(aboveBF)) ) +
         ggplot2::facet_grid( . ~ CHROM, scales = "free_x" ) +
         ggplot2::theme_bw() +
@@ -82,8 +82,8 @@ manplot <- function(plot_df) {
         ggplot2::labs(x = "Genomic Position (Mb)",
                       y = expression(log[10](p)),
                       title = plot_traits[i])
-      print(p)
-    }
+      p
+    })
     
   }
 }
