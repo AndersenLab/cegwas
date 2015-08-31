@@ -42,7 +42,7 @@ manplot <- function(plot_df) {
                      panel.background = ggplot2::element_rect( color="black",size=1.2),
                      strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
       ggplot2::labs(x = "Genomic Position (Mb)",
-                    y = expression(log[10](p)),
+                    y = expression(-log[10](p)),
                     title = unique(plot_df$trait))
   } 
   else
@@ -80,7 +80,7 @@ manplot <- function(plot_df) {
                        panel.background = ggplot2::element_rect( color="black",size=1.2),
                        strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
         ggplot2::labs(x = "Genomic Position (Mb)",
-                      y = expression(log[10](p)),
+                      y = expression(-log[10](p)),
                       title = plot_traits[i])
       p
     })
