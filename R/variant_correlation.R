@@ -1,5 +1,6 @@
 
 
+
 variant_correlation <- function(df, 
                                 quantile_cutoff_high = .9, 
                                 quantile_cutoff_low = .1){
@@ -10,7 +11,7 @@ variant_correlation <- function(df,
   # loosely identify unique peaks
     intervals <- df %>%
       na.omit() %>%
-      dplyr::distinct(CHROM, startPOS, endPOS ) %>%
+      dplyr::distinct(CHROM, startPOS, endPOS) %>%
       dplyr::distinct(CHROM, startPOS ) %>%
       dplyr::distinct(CHROM, endPOS ) %>%
       dplyr::arrange(CHROM, startPOS) 
@@ -32,7 +33,7 @@ variant_correlation <- function(df,
     
     nstrains <- data.frame(df) %>%
       na.omit() %>%
-      dplyr::filter(trait == intervals[i,"trait"]) 
+      dplyr::filter(trait == as.character(intervals[i,"trait"]))
     
     nstrains <- length(unique(nstrains$strain))
     
@@ -74,7 +75,7 @@ variant_correlation <- function(df,
       # pull unique interval from processed mapping DF to recover, phenotypes, strains, log10p, phenotype value
       # this is useful to pull out all intervals with the same confidence interval that were pruned above.
       interval_df <- df %>%
-        dplyr::filter(CHROM == chr, startPOS == left, endPOS = right)%>% # filter for confidence interval of interest
+        dplyr::filter(CHROM == chr, startPOS == left, endPOS == right)%>% # filter for confidence interval of interest
         dplyr::group_by(trait, CHROM, startPOS,endPOS) %>% # group by unique phenotype and interval
         dplyr::filter(log10p == max(log10p)) %>% # pull out most significant snp to minimize redundancy
         dplyr::distinct(trait, startPOS, endPOS, peakPOS, strain) %>% 
@@ -87,7 +88,7 @@ variant_correlation <- function(df,
       
       pheno_snpeff_df <- pruned_snpeff_output %>%
         dplyr::left_join(., interval_df, by = "strain", copy = TRUE) %>% # join snpeff variant df to phenotype df for a particular interval
-        dplyr::distinct(strain, trait, pheno_value, gene_name) %>% # remove redundancy
+        dplyr::distinct(strain, trait, pheno_value, gene_id,CHROM,POS, aa_change) %>% # remove redundancy
         dplyr::group_by(trait, CHROM, POS, effect, feature_type) %>% # group_by unique variant and phenotype
         dplyr::mutate(spearman_cor = cor(pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs"))%>% # calculate correlation
         dplyr::ungroup()%>% # ungroup to calculate quantiles of correlations
