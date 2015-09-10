@@ -18,7 +18,7 @@ variant_correlation <- function(df,
                                 quantile_cutoff_high = .9, 
                                 quantile_cutoff_low = .1){
   
-  source("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/read_vcf.R") # Get snpeff function
+  # source("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/read_vcf.R") # Get snpeff function
   
   
   # loosely identify unique peaks
@@ -150,4 +150,55 @@ variant_correlation <- function(df,
   return(intervalGENES)
 }
 
+
+
+snpeff <- function(region = "II:14524173..14525111",
+                   severity = c("HIGH","MODERATE"),
+                   long = TRUE,
+                   impute = TRUE) {
+  
+  if (impute == T) {
+    vcf_file = "20150731_WI_PASS.impute.snpeff.vcf.gz"
+  } else {
+    vcf_file = "20150731_WI_PASS.snpeff.vcf.gz"
+  }
+  
+  
+  
+  if (!grepl("(I|II|III|IV|V|X|MtDNA).*", region)) {
+    gene_ids <- read_tsv("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/wb_gene.txt")
+    wb_id <- filter(gene_ids, name == region)$ID
+    wb_url <- paste0("http://api.wormbase.org/rest/field/gene/",wb_id, "/location/")
+    wb_ret <- GET(wb_url, add_headers("Content-Type"="application/json"))
+    region <- content(wb_ret)$location$genomic_position$data[[1]]$pos_string
+  } 
+  
+  # Fix region to allow wb type spec.
+  region <- gsub("\\.\\.", "-", region)
+  
+  script_dir <- list.dirs("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/")[[1]]
+  command <- paste("python",
+                   "~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/query.py", 
+                   region,
+                   paste0(script_dir,vcf_file),
+                   paste(severity, collapse=","))
+  
+  tsv <- read_tsv( pipe(command), na = "None") 
+  if (long == FALSE) {
+    tsv
+  } else {
+    tsv <- tidyr::gather_(tsv, "strain", "GT", names(tsv)[21:length(tsv)])  %>%
+      tidyr::separate(GT, into=c("a1","a2"), sep="/|\\|", remove=T) %>%
+      dplyr::mutate(a1=ifelse(a1 == ".", NA, a1)) %>%
+      dplyr::mutate(a2=ifelse(a2 == ".", NA, a2)) %>%
+      dplyr::mutate(GT = NA) %>%
+      dplyr::mutate(GT = ifelse(a1 == REF & a2 == REF & !is.na(a1), "REF",GT)) %>%
+      dplyr::mutate(GT = ifelse(a1 != a2 & !is.na(a1), "HET",GT)) %>%
+      dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
+      dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, everything()) %>%
+      dplyr::arrange(CHROM, POS) 
+    
+    tsv
+  }
+}
 

@@ -14,6 +14,11 @@ Imports: doParallel,
 	data.table,
 	biomaRt,
 	ggplot2,
+	jsonlite,
+	Rcurl,
+	httr,
+	stringr,
+	plyr,
 	dplyr
 License: GPL
 LazyData: true
