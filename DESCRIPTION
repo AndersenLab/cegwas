@@ -18,7 +18,6 @@ Imports: doParallel,
 	Rcurl,
 	httr,
 	stringr,
-	plyr,
 	dplyr
 License: GPL
 LazyData: true
