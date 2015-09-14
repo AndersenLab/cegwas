@@ -26,7 +26,7 @@
 process_pheno <- function(data){
   
   # Reshape data from wide to long
-  if (sum(row.names(cegwas::kinship) %in% df[,1]) > 3) {
+  if (sum(row.names(cegwas::kinship) %in% data[,1]) > 3) {
     names(data) <- stringr::str_to_lower(names(data))
     if ("isotype" %in% stringr::str_to_lower(names(data))) {
       data <- dplyr::rename(data, strain=isotype)
