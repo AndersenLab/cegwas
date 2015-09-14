@@ -4,7 +4,8 @@
 \alias{process_mappings}
 \title{Fully process GWAS mapping output}
 \usage{
-process_mappings(mapping_df, phenotype_df, CI_size = 50, snp_grouping = 200)
+process_mappings(mapping_df, phenotype_df, CI_size = 50, snp_grouping = 200,
+  BF = NA)
 }
 \arguments{
 \item{mapping_df}{Output from \code{gwas_mappings} function}
@@ -15,6 +16,8 @@ with each row corresponding to trait in element 1}
 \item{CI_size}{defines the size (in # SNPs) of confidence intervals. Default is 50 and is defined in more detail below.}
 
 \item{snp_grouping}{defines grouping of peaks. Defined further below, default is 200.}
+
+\item{BF}{defines a custom bonferroni correction.}
 }
 \value{
 Outputs processed mapping dataframe that contains original mapping dataframe with appended information for significant SNPs only, including:

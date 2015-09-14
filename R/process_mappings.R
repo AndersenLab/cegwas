@@ -364,6 +364,7 @@ identify_CI <- function( processed_mapping_df,
 #' with each row corresponding to trait in element 1
 #' @param CI_size defines the size (in # SNPs) of confidence intervals. Default is 50 and is defined in more detail below.
 #' @param snp_grouping defines grouping of peaks. Defined further below, default is 200.
+#' @param BF defines a custom bonferroni correction.
 #' @return Outputs processed mapping dataframe that contains original mapping dataframe with appended information for significant SNPs only, including:
 #' variance explained, confidence interval information, genotype information
 #' @export
@@ -372,7 +373,8 @@ identify_CI <- function( processed_mapping_df,
 process_mappings <- function(mapping_df,
                              phenotype_df,
                              CI_size = 50,
-                             snp_grouping = 200){
+                             snp_grouping = 200,
+                             BF = NA){
   
   # format phenotypes
   pheno <- phenotype_df[[2]]
@@ -382,7 +384,7 @@ process_mappings <- function(mapping_df,
   
   Processed <- mapping_df %>%
     dplyr::group_by( trait ) %>%
-    dplyr::mutate( BF = -log10(.05/n()) ) %>% #  add BF threshold
+    dplyr::mutate( BF = ifelse(is.na(BF), -log10(.05/n()), BF) ) %>% #  add BF threshold
     dplyr::group_by( trait ) %>%
     dplyr::mutate( aboveBF = ifelse(log10p >= BF, 1, 0) ) %>% #  label SNPs as significant
     dplyr::filter(sum(aboveBF) > 0) %>% # keep only significant mappings
