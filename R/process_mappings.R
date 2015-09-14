@@ -389,6 +389,10 @@ process_mappings <- function(mapping_df,
     dplyr::mutate( aboveBF = ifelse(log10p >= BF, 1, 0) ) %>% #  label SNPs as significant
     dplyr::filter(sum(aboveBF) > 0) %>% # keep only significant mappings
     dplyr::ungroup()
+
+  if (nrow(Processed) == 0) {
+    stop("No significant peaks identified. Try using a custom BF with the process_mappings() function.")
+  }
   
   ## Select SNPs above BF
   snpsForVE <- Processed %>%
