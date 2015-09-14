@@ -29,7 +29,7 @@ process_pheno <- function(data){
   if (sum(row.names(cegwas::kinship) %in% df[,1]) > 3) {
     names(data) <- stringr::str_to_lower(names(data))
     if ("isotype" %in% stringr::str_to_lower(names(data))) {
-      data <- rename(data, strain=isotype)
+      data <- dplyr::rename(data, strain=isotype)
     }
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
