@@ -2,7 +2,7 @@
 % Please edit documentation in R/process_mappings.R
 \name{calculate_VE}
 \alias{calculate_VE}
-\title{Calcule Variance Explained for Significant SNPs}
+\title{Calculate Variance Explained for Significant SNPs}
 \usage{
 calculate_VE(mapping_df, phenotype_df)
 }
