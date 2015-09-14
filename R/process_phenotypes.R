@@ -14,7 +14,16 @@
 
 process_pheno <- function(data){
   
-  # identify an traits that only have 1 unique value
+  # Reshape data from wide to long
+  if (dim(data)[1] > dim(data)[2]) {
+    names(data) <- stringr::str_to_lower(names(data))
+    if ("strain" %in% stringr::str_to_lower(names(data))) {
+      data <- rename(data, isotype=strain)
+    }
+    data <- data %>% tidyr::gather(trait,value,-isotype) %>% tidyr::spread(isotype, value)  
+  }
+  
+  # identify any traits that only have 1 unique value
   pheno <- data.frame(data.frame(data)[,1:ncol(data)], 
                       uniq = data.frame(uniq = c(apply(data.frame(data)[,2:ncol(data)], 1, function(x) length(unique(x))))),
                       row.names = data$trait)
