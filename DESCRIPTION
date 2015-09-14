@@ -15,7 +15,7 @@ Imports: doParallel,
 	biomaRt,
 	ggplot2,
 	jsonlite,
-	Rcurl,
+	RCurl,
 	httr,
 	stringr,
 	dplyr
