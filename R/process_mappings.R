@@ -1,4 +1,4 @@
-#' Calcule Variance Explained for Significant SNPs
+#' Calculate Variance Explained for Significant SNPs
 #'
 #' \code{calculate_VE} calculates the variance explained (VE) for significant SNPs by using the 
 #' the spearman rank correlation coefficient.
