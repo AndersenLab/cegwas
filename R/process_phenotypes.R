@@ -5,8 +5,19 @@
 #' This function takes raw phenotype data and eliminates outlier strains with a modified version of \code{bamf_prune} from the easysorter package.
 #' Additionally it eliminates any traits that have the same values for >95% of the strains (important for binary traits)
 #'
-#' @param data is a dataframe containing phenotype data. The first column should be named \code{trait}
+#' @param data is a dataframe containing phenotype data. The dataframe can be structured in wide or long format. %
+#' \cr
+#' \cr
+#' \bold{long format} - The first columns should be \code{strain} whereas additional columns are traits. 
+#' One row list a strain followed by all of that strains phenotypes.
+#' \cr\cr
+#' \code{strain}, \code{trait1}, \code{trait2}, \code{...}
+#' \cr\cr
+#' \bold{wide format} - The first column should be named \code{trait} and subsequent 
 #' all additional columns should be strains. One row corresponding to one trait for all strains.
+#' \cr\cr
+#' \code{trait}, \code{strain1}, \code{strain2}, \code{...}
+#' \cr\cr
 #' @return Outputs a list. The first element of the list is an ordered vector of traits. 
 #' The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.
 #' @importFrom dplyr %>%
@@ -15,12 +26,12 @@
 process_pheno <- function(data){
   
   # Reshape data from wide to long
-  if (dim(data)[1] > dim(data)[2]) {
+  if (sum(row.names(cegwas::kinship) %in% df[,1]) > 3) {
     names(data) <- stringr::str_to_lower(names(data))
-    if ("strain" %in% stringr::str_to_lower(names(data))) {
-      data <- rename(data, isotype=strain)
+    if ("isotype" %in% stringr::str_to_lower(names(data))) {
+      data <- rename(data, strain=isotype)
     }
-    data <- data %>% tidyr::gather(trait,value,-isotype) %>% tidyr::spread(isotype, value)  
+    data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
   
   # identify any traits that only have 1 unique value

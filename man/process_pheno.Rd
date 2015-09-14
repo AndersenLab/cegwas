@@ -7,8 +7,19 @@
 process_pheno(data)
 }
 \arguments{
-\item{data}{is a dataframe containing phenotype data. The first column should be named \code{trait}
-all additional columns should be strains. One row corresponding to one trait for all strains.}
+\item{data}{is a dataframe containing phenotype data. The dataframe can be structured in wide or long format. %
+\cr
+\cr
+\bold{long format} - The first columns should be \code{strain} whereas additional columns are traits.
+One row list a strain followed by all of that strains phenotypes.
+\cr\cr
+\code{strain}, \code{trait1}, \code{trait2}, \code{...}
+\cr\cr
+\bold{wide format} - The first column should be named \code{trait} and subsequent
+all additional columns should be strains. One row corresponding to one trait for all strains.
+\cr\cr
+\code{trait}, \code{strain1}, \code{strain2}, \code{...}
+\cr\cr}
 }
 \value{
 Outputs a list. The first element of the list is an ordered vector of traits.
