@@ -150,6 +150,51 @@ variant_correlation <- function(df,
   return(intervalGENES)
 }
 
+#' Combine Variant Correlation Data
+#'
+#' \code{process_correlations} Combines all variant correlation information with phenotype data from GWAS mappings
+#'
+#' Function to combine phenotype, mapping, and gene information from \code{variant_correlation} function output. 
+#'
+#' @param df is a list object that is output from the \code{variant_correlation} function
+#' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
+#' @export
+
+process_correlations <- function(df){
+  
+  # initialize list
+  cors <-list()
+  genes <- list()
+  
+  # separate list objects and remove green traits
+  for(i in 1:length(df)){
+    
+    if(length(unique(df[[i]])) > 1){
+      
+      cors[[i]] <- df[[i]][[1]] %>%
+        dplyr::filter(!grepl("green",trait)) %>%
+        dplyr::filter(trait != "")
+      
+      genes[[i]] <- df[[i]][[2]] 
+      
+    }
+  }
+  
+  # bind phenotype data
+  variant_pheno <- dplyr::rbind_all(cors)%>%
+    dplyr::select(CHROM, POS, REF, ALT, aa_change, gene_name, gene_id, num_alt_allele, num_strains, strain, GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, abs_spearman_cor) %>%
+    dplyr::arrange(desc(abs_spearman_cor),desc(pheno_value))
+  
+  
+  # bind gene data and join to phenotype data
+  max_cor <- dplyr::rbind_all(genes) %>%
+    dplyr::select(gene_id, external_gene_name, external_transcript_name, description, family_description, name_1006)%>%
+    dplyr::left_join(variant_pheno, ., by = "gene_id") %>%
+    dplyr::distinct(CHROM, POS, REF, ALT, strain, gene_id, trait, external_transcript_name) %>%
+    dplyr::arrange(desc(abs_spearman_cor), CHROM, POS, desc(pheno_value))
+ 
+  return(max_cor) 
+}
 
 
 snpeff <- function(region = "II:14524173..14525111",
