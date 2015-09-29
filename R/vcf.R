@@ -23,15 +23,15 @@ generate_kinship <- function(vcf) {
                     "sed 's/1\\/0/NA/g' | ",
                     "sed 's/.\\/./NA/g'  > ", gt_file)
   system(command, intern = T)
-  df <- tbl_df(fread(gt_file))
+  df <- dplyr::tbl_df(data.table::fread(gt_file))
   names(df) <- gsub(":GT","",gsub("[\\# ]{0,2}\\[[0-9]+\\]","",names(df)))
   
   # Fix position and unite columns.
-  df <- mutate(df, POS=as.character(POS)) %>%
-    unite(CHROM_POS, CHROM, POS, sep = "_")
+  df <- dplyr::mutate(df, POS=as.character(POS)) %>%
+    dplyr::unite(CHROM_POS, CHROM, POS, sep = "_")
   row.names(df) <- df$CHROM_POS
-  df <- select(df, -CHROM_POS)
-  kinship <- A.mat(t(data.matrix(df)))
+  df <- dplyr::select(df, -CHROM_POS)
+  kinship <- rrBLUP::A.mat(t(data.matrix(df)))
 }
 
 

@@ -18,6 +18,7 @@ Imports: doParallel,
 	RCurl,
 	httr,
 	stringr,
+	rrBLUP,
 	dplyr
 License: GPL
 LazyData: true
