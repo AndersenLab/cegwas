@@ -61,7 +61,29 @@ keep_sig_maps <- function(mapping_df){
   return(sig_maps)
 }
 
+#' map
+#'
+#' \code{map} is a convenience function takes trait data for a set of strains and performs
+#' a mapping - returning a processed mapping data frame. \code{map} wraps \code{\link{process_pheno}}, \code{\link{gwas_mappings}}, 
+#' and \code{\link{process_mappings}} into a single function. 
+#'
+#' @param data two element list. element 1 : traits. element 2: trait values with strains in columns
+#' with each row corresponding to trait in element 1
+#' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
+#' @param only_sig logical to return only significant mappings. Default is TRUE
+#' @return #' @return Outputs a two element list that contains two dataframes. 
+#' The first data frame is a processed mappings dataframe that contains the same columns
+#' as the output of \code{gwas_mappings} with two additional columns. One that contains
+#' the bonferroni corrected p-value (BF) and another that contains an identifier 1,0 if 
+#' the indicated SNP has a higher -log10 value than the bonferroni cut off or not, respectively
+#' The second data frame contains the variance explained data as well as all of the information from the first element.
+#' @export
 
+map <- function(trait_data, cores = 4, only_sig = FALSE) {
+  processed_phenotypes <- process_pheno(trait_data)
+  mapping_df <- gwas_mappings(processed_phenotypes, cores = cores, only_sig = only_sig)
+  processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = 200)
+}
 
 
 
