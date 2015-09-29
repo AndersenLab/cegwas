@@ -2,7 +2,7 @@
 #'
 #' \code{gwas_mappings} uses the rrBLUP package function \code{GWAS} to perform association mapping
 #' for C. elegans. Uses 5% MAF SNPs from RADseq dataset from Andersen et al. 2012 and a 
-#' kinship matrix generated from whole-genome sequence data.
+#' kinship matrix generated from whole-genome sequence data. Can use user developed kinship matrix as well. 
 #'
 #' This is the detail section if you want to fill out in the future
 #'
@@ -10,10 +10,11 @@
 #' with each row corresponding to trait in element 1
 #' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
 #' @param only_sig logical to return only significant mappings. Default is TRUE
+#' @param kin_matrix is a strainXstrain matrix. default kinship matrix is described above.
 #' @return Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.
 #' @export
 
-gwas_mappings <- function(data, cores = 4, only_sig = TRUE){
+gwas_mappings <- function(data, cores = 4, only_sig = TRUE, kin_matrix = kinship){
   
   # phenotype prep
   x <- data.frame(trait = data[[1]], data[[2]])%>%
@@ -25,11 +26,14 @@ gwas_mappings <- function(data, cores = 4, only_sig = TRUE){
                   snps)
   # encode 0 as 1 in SNP set
   y[y == 0] <- -1
+  
+  kin <- as.matrix(kin_matrix)
+  
   # run mappings
   system.time(
     maps <- rrBLUP::GWAS(pheno = x,
                  geno = y,
-                 K = kinship,
+                 K = kin,
                  min.MAF = .05,
                  n.core = cores,
                  P3D = FALSE,
