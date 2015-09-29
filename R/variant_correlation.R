@@ -196,39 +196,87 @@ process_correlations <- function(df){
   return(max_cor) 
 }
 
+#' Browse Variant Info
+#'
+#' \code{snpeff} enables you to query variants called and annotated by the \href{http://www.andersenlab.org}{Andersen Lab}. 
+#' 
+#'
+#' @param query A gene name, region, or wormbase identifier to query.
+#' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
+#' @examples snpeff(c("pot-2","II:1-10000","WBGene00010785"))
+#' @export
 
-snpeff <- function(region = "II:14524173..14525111",
+snpeff <- function(regions,
                    severity = c("HIGH","MODERATE"),
                    long = TRUE,
                    impute = TRUE) {
   
+  results <- lapply(regions, function(region) {
+  # Fix region to allow wb type spec.
+  
+  # Set vcf path; determine whether local or remote
   if (impute == T) {
-    vcf_file = "20150731_WI_PASS.impute.snpeff.vcf.gz"
+    vcf_name = "20150731_WI_PASS.impute.snpeff.vcf.gz"
   } else {
-    vcf_file = "20150731_WI_PASS.snpeff.vcf.gz"
+    vcf_name = "20150731_WI_PASS.snpeff.vcf.gz"
   }
   
-  
-  
+  # Resolve region names
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", region)) {
-    gene_ids <- read_tsv("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/wb_gene.txt")
-    wb_id <- filter(gene_ids, name == region)$ID
+    # Resolve WB name if necessary
+    gene_id <- names(which(gene_ids == region))
+    if (length(gene_id) == 1) {
+      wb_id <- gene_id
+      region <- wb_id
+    }
+    
+    if (gene_ids[wb_id] != "") {
+      gene_message <- paste0("(", gene_ids[wb_id][[1]], ")")
+    } else {
+      gene_message <- ""
+    }
+    message(paste("Looking up", region, gene_message, "position"))
     wb_url <- paste0("http://api.wormbase.org/rest/field/gene/",wb_id, "/location/")
-    wb_ret <- GET(wb_url, add_headers("Content-Type"="application/json"))
-    region <- content(wb_ret)$location$genomic_position$data[[1]]$pos_string
+    wb_ret <- httr::GET(wb_url, add_headers("Content-Type"="application/json"))
+    region <- httr::content(wb_ret)$location$genomic_position$data[[1]]$label
   } 
   
-  # Fix region to allow wb type spec.
+  # Fix region specifications
   region <- gsub("\\.\\.", "-", region)
   
-  script_dir <- list.dirs("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/")[[1]]
-  command <- paste("python",
-                   "~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/query.py", 
-                   region,
-                   paste0(script_dir,vcf_file),
-                   paste(severity, collapse=","))
+  vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/", vcf_name)
+  # Use remote if not available.
+  local_or_remote <- "locally"
+  if (!file.exists(vcf_path)) {
+    vcf_path <- paste0("http://storage.googleapis.com/andersen/", vcf_name)
+    local_or_remote <- "remotely"
+  }
   
-  tsv <- read_tsv( pipe(command), na = "None") 
+  sample_names <- read_lines(pipe(paste("bcftools","query","-l",vcf_path)))
+  base_header <- c("CHROM", "POS", "REF","ALT","FILTER")
+  ANN_header = c("allele", "effect", "impact",
+                "gene_name", "gene_id", "feature_type", 
+                "feature_id", "transcript_biotype","exon_intron_rank",
+                "nt_change", "aa_change", "cDNA_position/cDNA_len", 
+                "protein_position", "distance_to_feature", "error", "extra")
+  command <- paste("bcftools","query","--regions", region, "-f", "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT]\n'",vcf_path)
+  
+  message(paste("Querying", region, local_or_remote))
+  tsv <- try(readr::read_tsv(pipe(command), col_names = c(base_header, "ANN", sample_names)), silent = T)
+  # If no results are returned, stop.
+  if (typeof(tsv) == "character") {
+    stop("No Variants")
+  } 
+  tsv <-  dplyr::mutate(tsv, ANN=strsplit(ANN,",")) %>%
+          tidyr::unnest(ANN) %>%
+          tidyr::separate(ANN, into = ANN_header, sep = "\\|") %>%
+          dplyr::select(one_of(c(base_header, ANN_header)), everything(), -extra) %>%
+          dplyr::mutate(gene_name = gene_ids[gene_name][[1]])
+  
+  tsv <-  dplyr::filter(tsv, impact %in% severity) 
+  if (nrow(tsv) == 0) {
+    message(paste("No Results for", region, "after filtering"))
+  }
   if (long == FALSE) {
     tsv
   } else {
@@ -242,8 +290,10 @@ snpeff <- function(region = "II:14524173..14525111",
       dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
       dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, everything()) %>%
       dplyr::arrange(CHROM, POS) 
-    
-    tsv
   }
+    tsv
+  })
+  results <- do.call(rbind, results)
+  results
 }
 

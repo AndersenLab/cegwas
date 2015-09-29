@@ -5,7 +5,7 @@
 \title{Generate Mapping variant set}
 \usage{
 generate_mapping(vcf, allele_freq = 0.05,
-  tag_snps = paste0(path.package("cegwas"), "/R/5percent_snps.WS245.tsv"))
+  tag_snps = paste0(path.package("cegwas"), "/data/5percent_snps.WS245.tsv"))
 }
 \arguments{
 \item{vcf}{a bcf, vcf.gz, or vcf file}
