@@ -4,7 +4,7 @@
 \alias{gwas_mappings}
 \title{GWAS Mappings}
 \usage{
-gwas_mappings(data, cores = 4, only_sig = TRUE)
+gwas_mappings(data, cores = 4, only_sig = TRUE, kin_matrix = kinship)
 }
 \arguments{
 \item{data}{two element list. element 1 : traits. element 2: trait values with strains in columns
@@ -13,6 +13,8 @@ with each row corresponding to trait in element 1}
 \item{cores}{number of cores on computer that you want to allocate for mapping. Default value is 4}
 
 \item{only_sig}{logical to return only significant mappings. Default is TRUE}
+
+\item{kin_matrix}{is a strainXstrain matrix. default kinship matrix is described above.}
 }
 \value{
 Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.
@@ -20,7 +22,7 @@ Outputs a data frame with the following columns : marker, CHROM, POS, trait, log
 \description{
 \code{gwas_mappings} uses the rrBLUP package function \code{GWAS} to perform association mapping
 for C. elegans. Uses 5% MAF SNPs from RADseq dataset from Andersen et al. 2012 and a
-kinship matrix generated from whole-genome sequence data.
+kinship matrix generated from whole-genome sequence data. Can use user developed kinship matrix as well.
 }
 \details{
 This is the detail section if you want to fill out in the future

@@ -7,13 +7,14 @@
 generate_kinship(vcf)
 }
 \arguments{
-\item{vcf}{- a bcf/vcf/vcf.gz file}
+\item{a}{vcf file.
+\code{\link{vcf_to_matrix}}, \code{\link{generate_kinship}}}
 }
 \value{
 A kinship matrix.
 }
 \description{
-\code{generate_kinship} uses the rrBLUP package function \code{A.mat} to generate a kinship matrix for mapping.
-Requires bcftools. Heterozygous calls and missing genotypes are ignored.
+\code{generate_kinship} uses \code{\link{vcf_to_matrix}} and the \code{\link[rrBLUP]{A.mat}} function from \code{\link{rrBLUP}}.
+This function is used to generate a kinship matrix for mapping in conjunction with \code{\link{gwas_mappings}}.
 }
 
