@@ -1,3 +1,5 @@
+
+# gene Ids
 library("readr")
 
 # Download
@@ -11,3 +13,8 @@ gene_ids <- as.list(gene_info$name)
 names(gene_ids) <- gene_info$WBID
 
 save(gene_ids, file = "data/gene_ids.Rda")
+
+# Isotypes
+
+strain_isotype <- read_tsv("data-raw/mapping_strain_isotype.tsv")
+save(strain_isotype, file = "data/strain_isotype.Rda")
