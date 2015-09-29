@@ -70,6 +70,9 @@ The resulting dataframe contains all information output from the `gwas_mappings`
 2. `find_peaks`
 3. `identify_CI`
 
+## Generate custom kinship and mapping datasets
+
+Although this package comes with pre-built kinship and mapping datasets, it is possible to generate your own for use. This functionality requires [bcftools](https://samtools.github.io/bcftools/bcftools.html). Use `generate_mapping` and `generate_kinship` to generate mapping and kinship dataframes, respectively. These data can be used in conjunction with `gwas_mappings`.
 
 ## Example Script
 
