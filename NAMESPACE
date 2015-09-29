@@ -2,6 +2,7 @@
 
 export(calculate_VE)
 export(find_peaks)
+export(generate_kinship)
 export(gwas_mappings)
 export(identify_CI)
 export(manplot)
