@@ -258,7 +258,7 @@ snpeff <- function(regions,
     local_or_remote <- "remotely"
   }
   
-  sample_names <- read_lines(pipe(paste("bcftools","query","-l",vcf_path)))
+  sample_names <- readr::read_lines(pipe(paste("bcftools","query","-l",vcf_path)))
   base_header <- c("CHROM", "POS", "REF","ALT","FILTER")
   ANN_header = c("allele", "effect", "impact",
                 "gene_name", "gene_id", "feature_type", 
