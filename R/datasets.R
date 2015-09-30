@@ -19,11 +19,3 @@ NULL
 #' @name kinship
 #' @format A Strain x Strain data frame for 124 strains
 NULL
-
-#' Gene IDs
-#'
-#' Mapping between wormbase ids and common names.
-#' @name gene_ids
-#' @format list
-NULL
-

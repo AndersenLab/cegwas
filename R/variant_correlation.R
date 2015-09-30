@@ -200,8 +200,11 @@ process_correlations <- function(df){
 #'
 #' \code{snpeff} enables you to query variants called and annotated by the \href{http://www.andersenlab.org}{Andersen Lab}. 
 #' 
-#'
 #' @param query A gene name, region, or wormbase identifier to query.
+#' @param severity A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high.
+#' @param long Return dataset in long or wide format. Default is to return in long format.
+#' @param impute Use imputed dataset. True by default.
+#' @param remote Use remote data. Checks for local data if possible. False by default.
 #' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
 #' @examples snpeff(c("pot-2","II:1-10000","WBGene00010785"))
 #' @export
@@ -209,7 +212,8 @@ process_correlations <- function(df){
 snpeff <- function(regions,
                    severity = c("HIGH","MODERATE"),
                    long = TRUE,
-                   impute = TRUE) {
+                   impute = TRUE,
+                   remote = FALSE) {
   
   results <- lapply(regions, function(region) {
   # Fix region to allow wb type spec.
@@ -228,6 +232,8 @@ snpeff <- function(regions,
     if (length(gene_id) == 1) {
       wb_id <- gene_id
       region <- wb_id
+    } else {
+      wb_id <- region
     }
     
     if (gene_ids[wb_id] != "") {
@@ -247,7 +253,7 @@ snpeff <- function(regions,
   vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/", vcf_name)
   # Use remote if not available.
   local_or_remote <- "locally"
-  if (!file.exists(vcf_path)) {
+  if (!file.exists(vcf_path) | remote == T) {
     vcf_path <- paste0("http://storage.googleapis.com/andersen/", vcf_name)
     local_or_remote <- "remotely"
   }

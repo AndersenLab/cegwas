@@ -5,9 +5,17 @@
 \title{Browse Variant Info}
 \usage{
 snpeff(regions, severity = c("HIGH", "MODERATE"), long = TRUE,
-  impute = TRUE)
+  impute = TRUE, remote = FALSE)
 }
 \arguments{
+\item{severity}{A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high.}
+
+\item{long}{Return dataset in long or wide format. Default is to return in long format.}
+
+\item{impute}{Use imputed dataset. True by default.}
+
+\item{remote}{Use remote data. Checks for local data if possible. False by default.}
+
 \item{query}{A gene name, region, or wormbase identifier to query.}
 }
 \value{

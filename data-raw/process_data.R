@@ -17,4 +17,4 @@ save(gene_ids, file = "data/gene_ids.Rda")
 
 strain_isotype <- read_tsv("data-raw/mapping_strain_isotype.tsv")
 save(strain_isotype, file = "data/strain_isotype.Rda")
-devtools::use_data(kinship,snps,gene_ids,strain_isotype, mtcars, internal = TRUE, overwrite = T)
+devtools::use_data(kinship, snps, gene_ids, strain_isotype, internal = TRUE, overwrite = T)
