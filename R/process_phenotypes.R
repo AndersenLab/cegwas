@@ -34,6 +34,7 @@ process_pheno <- function(data){
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
   
+  
   # identify any traits that only have 1 unique value
   pheno <- data.frame(data.frame(data)[,1:ncol(data)], 
                       uniq = data.frame(uniq = c(apply(data.frame(data)[,2:ncol(data)], 1, function(x) length(unique(x))))),
@@ -51,6 +52,28 @@ process_pheno <- function(data){
   phen2 <- mod_bamf_prune(phen1)
   # removes binary phenotypes where one phenotype is in less than 5% of strains
   phen3 <- remove_lowFreq_phenotypes(phen2, wide = FALSE)
+  
+  # Remap user strains to isotypes
+  user_strain_names <- phen3$strain
+  phen3 <- mutate(phen3, strain = strain_isotype[as.character(strain)])
+  
+  # See if any strains with no known isotypes are used and drop.
+  if (sum(is.na(phen3$strain)) > 0) { 
+    stop("Missing isotypes for the following strains: ",
+            paste(unique(user_strain_names[is.na(phen3$strain)]), collapse = ", "),
+            "\nNo known isotype! Please remove strain(s).")
+            
+  }
+  
+  # Warn user of potential issues with strains
+  sapply(phen3$strain, function(x) {
+    if (x %in% names(strain_warnings)) {
+      warning(paste(x, ":", strain_warnings[x]), call. = F)
+    }
+  })
+  
+  
+  # Notify user of any issues
   
   # make into long formated data
   phen4 <- phen3%>%

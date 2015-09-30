@@ -15,6 +15,12 @@ names(gene_ids) <- gene_info$WBID
 save(gene_ids, file = "data/gene_ids.Rda")
 # Isotypes
 
-strain_isotype <- read_tsv("data-raw/mapping_strain_isotype.tsv")
-save(strain_isotype, file = "data/strain_isotype.Rda")
-devtools::use_data(kinship, snps, gene_ids, strain_isotype, internal = TRUE, overwrite = T)
+strain_warnings <- read_tsv("data-raw/mapping_strain_isotype.tsv")
+strain_isotype <- strain_warnings$isotype
+names(strain_isotype) <- strain_warnings$strain
+strain_warnings <- filter(strain_warnings, warning_msg != "") %>%
+                   select(strain, warning_msg)
+sw <- strain_warnings$warning_msg
+names(sw) <- strain_warnings$strain
+strain_warnings <- sw
+devtools::use_data(kinship, snps, gene_ids, strain_isotype, strain_warnings, internal = TRUE, overwrite = T)

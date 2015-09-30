@@ -19,7 +19,7 @@ gwas_mappings <- function(data, cores = 4, only_sig = TRUE, kin_matrix = kinship
   # phenotype prep
   x <- data.frame(trait = data[[1]], data[[2]])%>%
     tidyr::gather(strain, value, -trait)%>%
-    tidyr::spread(trait, value)# extract phenotypes from phenotype object
+    tidyr::spread(trait, value) # extract phenotypes from phenotype object
   
   # add marker column to snp set
   y <- data.frame(marker = paste(snps$CHROM,snps$POS,sep="_"),
