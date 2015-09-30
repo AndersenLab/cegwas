@@ -237,7 +237,7 @@ snpeff <- function(regions,
     }
     message(paste("Looking up", region, gene_message, "position"))
     wb_url <- paste0("http://api.wormbase.org/rest/field/gene/",wb_id, "/location/")
-    wb_ret <- httr::GET(wb_url, add_headers("Content-Type"="application/json"))
+    wb_ret <- httr::GET(wb_url, httr::add_headers("Content-Type"="application/json"))
     region <- httr::content(wb_ret)$location$genomic_position$data[[1]]$label
   } 
   
