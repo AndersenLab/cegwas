@@ -61,9 +61,9 @@ keep_sig_maps <- function(mapping_df){
   return(sig_maps)
 }
 
-#' map
+#' cegwas_map
 #'
-#' \code{map} is a convenience function takes trait data for a set of strains and performs
+#' \code{cegwas_map} is a convenience function takes trait data for a set of strains and performs
 #' a mapping - returning a processed mapping data frame. \code{map} wraps \code{\link{process_pheno}}, \code{\link{gwas_mappings}}, 
 #' and \code{\link{process_mappings}} into a single function. 
 #'
@@ -79,7 +79,7 @@ keep_sig_maps <- function(mapping_df){
 #' The second data frame contains the variance explained data as well as all of the information from the first element.
 #' @export
 
-map <- function(trait_data, cores = 4, only_sig = FALSE) {
+cegwas_map <- function(trait_data, cores = 4, only_sig = FALSE) {
   processed_phenotypes <- process_pheno(trait_data)
   mapping_df <- gwas_mappings(processed_phenotypes, cores = cores, only_sig = only_sig)
   processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = 200)

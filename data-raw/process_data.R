@@ -12,7 +12,6 @@ gene_info <- readr::read_csv(gzfile(tmp), col_names = c("taxon","WBID","name","p
 gene_ids <- as.list(gene_info$name)
 names(gene_ids) <- gene_info$WBID
 
-save(gene_ids, file = "data/gene_ids.Rda")
 # Isotypes
 
 strain_warnings <- read_tsv("data-raw/mapping_strain_isotype.tsv")
