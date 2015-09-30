@@ -13,10 +13,8 @@ gene_ids <- as.list(gene_info$name)
 names(gene_ids) <- gene_info$WBID
 
 save(gene_ids, file = "data/gene_ids.Rda")
-devtools::use_data(gene_ids, mtcars, internal = TRUE, overwrite = T)
-
 # Isotypes
 
 strain_isotype <- read_tsv("data-raw/mapping_strain_isotype.tsv")
 save(strain_isotype, file = "data/strain_isotype.Rda")
-devtools::use_data(strain_isotype, mtcars, internal = TRUE, overwrite = T)
+devtools::use_data(kinship,snps,gene_ids,strain_isotype, mtcars, internal = TRUE, overwrite = T)
