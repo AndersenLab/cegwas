@@ -5,7 +5,7 @@
 \title{Browse Variant Info}
 \usage{
 snpeff(regions, severity = c("HIGH", "MODERATE"), long = TRUE,
-  impute = TRUE, remote = FALSE)
+  impute = FALSE, remote = FALSE)
 }
 \arguments{
 \item{severity}{A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high.}

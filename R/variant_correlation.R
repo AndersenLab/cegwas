@@ -212,7 +212,7 @@ process_correlations <- function(df){
 snpeff <- function(regions,
                    severity = c("HIGH","MODERATE"),
                    long = TRUE,
-                   impute = TRUE,
+                   impute = FALSE,
                    remote = FALSE) {
   
   results <- lapply(regions, function(region) {
@@ -277,7 +277,7 @@ snpeff <- function(regions,
           tidyr::unnest(ANN) %>%
           tidyr::separate(ANN, into = ANN_header, sep = "\\|") %>%
           dplyr::select(one_of(c(base_header, ANN_header)), everything(), -extra) %>%
-          dplyr::mutate(gene_name = gene_ids[gene_name][[1]])
+          dplyr::mutate(gene_name = as.character(gene_ids[gene_name]))
   
   tsv <-  dplyr::filter(tsv, impact %in% severity) 
   if (nrow(tsv) == 0) {
