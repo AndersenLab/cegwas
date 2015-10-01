@@ -71,7 +71,10 @@ keep_sig_maps <- function(mapping_df){
 #' with each row corresponding to trait in element 1
 #' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
 #' @param only_sig logical to return only significant mappings. Default is TRUE
-#' @return #' @return Outputs a two element list that contains two dataframes. 
+#' @param BF defines a custom bonferroni correction.
+#' @param remove_strains Remove strains with no known isotype. Default is FALSE.
+#' @param duplicate_method Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} to average phenotypes or \code{"first"} to take the first observation.
+#' @return Outputs a two element list that contains two dataframes. 
 #' The first data frame is a processed mappings dataframe that contains the same columns
 #' as the output of \code{gwas_mappings} with two additional columns. One that contains
 #' the bonferroni corrected p-value (BF) and another that contains an identifier 1,0 if 
@@ -79,10 +82,16 @@ keep_sig_maps <- function(mapping_df){
 #' The second data frame contains the variance explained data as well as all of the information from the first element.
 #' @export
 
-cegwas_map <- function(trait_data, cores = 4, only_sig = FALSE) {
-  processed_phenotypes <- process_pheno(trait_data)
+cegwas_map <- function(trait_data, 
+                       cores = 4,
+                       only_sig = is.na(BF),
+                       remove_strains = FALSE, 
+                       duplicate_method = "first",
+                       BF = NA) {
+  print(BF)
+  processed_phenotypes <- process_pheno(trait_data, remove_strains = remove_strains, duplicate_method = "first")
   mapping_df <- gwas_mappings(processed_phenotypes, cores = cores, only_sig = only_sig)
-  processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = 200)
+  processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = 200, BF = BF)
 }
 
 

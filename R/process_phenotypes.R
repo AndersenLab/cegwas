@@ -1,9 +1,10 @@
 #' Process Phenotype Data
 #'
-#' \code{process_pheno} Process raw data file for GWAS mapping using \code{gwas_mappings} function
+#' \code{process_pheno} Processes raw data file for GWAS mapping using \code{\link{gwas_mappings}} function
 #'
-#' This function takes raw phenotype data and eliminates outlier strains with a modified version of \code{bamf_prune} from the easysorter package.
-#' Additionally it eliminates any traits that have the same values for >95% of the strains (important for binary traits)
+#' This function takes raw phenotype data and eliminates outlier strains with a modified version of \code{\link{bamf_prune}} from the easysorter package.
+#' Additionally it eliminates any traits that have the same values for >95% of the strains (important for binary traits).
+#' If multiple strains are present that fall into the same isotype, they can be removed by setting \code{\link{remove_strains}} to 
 #'
 #' @param data is a dataframe containing phenotype data. The dataframe can be structured in wide or long format. %
 #' \cr
@@ -18,15 +19,17 @@
 #' \cr\cr
 #' \code{trait}, \code{strain1}, \code{strain2}, \code{...}
 #' \cr\cr
+#' @param remove_strains Remove strains with no known isotype. Default is FALSE.
+#' @param duplicate_method Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} or \code{"first"}.
 #' @return Outputs a list. The first element of the list is an ordered vector of traits. 
 #' The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.
 #' @importFrom dplyr %>%
 #' @export
 
-process_pheno <- function(data){
+process_pheno <- function(data, remove_strains = FALSE, duplicate_method = "first"){
   
   # Reshape data from wide to long
-  if (sum(row.names(cegwas::kinship) %in% data[,1]) > 3) {
+  if (sum(row.names(cegwas::kinship) %in% data[[1]]) > 3) {
     names(data) <- stringr::str_to_lower(names(data))
     if ("isotype" %in% stringr::str_to_lower(names(data))) {
       data <- dplyr::rename(data, strain=isotype)
@@ -34,6 +37,67 @@ process_pheno <- function(data){
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
   
+  # Strain - Isotype Issues; Duplicate check
+  data <- tidyr::gather(data, "strain", "val", 2:ncol(data)) %>%
+          dplyr::mutate(strain = as.character(strain)) %>%
+          dplyr::mutate(isotype = strain_isotype[strain]) %>%
+          dplyr::mutate(warnings = strain_warnings[strain]) %>%
+          dplyr::group_by(trait, isotype) %>% 
+          dplyr::mutate(iso_count = n()) 
+
+  # Warn user of potential issues with strains
+  issue_warnings <- dplyr::filter(dplyr::ungroup(data), !is.na(warnings)) %>% 
+                    dplyr::select(strain, warnings) %>%
+                    dplyr::group_by(strain, warnings) %>%
+                    unique()
+  
+  for(x in 1:nrow(issue_warnings)) {
+      warn <- issue_warnings[x,]
+      warn <- paste(warn$strain, ":", warn$warnings)
+      warning(warn, call. = F)
+  }
+  
+  # See if any strains with no known isotypes are used and drop.
+  if (sum(is.na(data$isotype)) > 0) { 
+    if (remove_strains == T) {
+      warning("Missing isotypes for the following strains: ",
+              paste(unique(data$strain[is.na(data$isotype)]), collapse = ", "),
+              "\nNo known isotype! Removing strains.")
+      data <- dplyr::filter(data, !is.na(isotype))
+    } else {
+      stop("Missing isotypes for the following strains: ",
+           paste(unique(data$strain[is.na(data$isotype)]), collapse = ", "),
+           "\nNo known isotype! Please remove strain(s) or set remove_strains = TRUE.")
+    }
+  }
+
+  # Handle duplicates
+  repeat_isotypes <- dplyr::filter(dplyr::ungroup(data), iso_count > 1) %>% 
+  dplyr::select(isotype, strain) %>%
+  dplyr::distinct()
+  if (nrow(repeat_isotypes) > 0) {
+    warning("Strains were phenotyped that belong to the same isotype:", immediate. = T)
+    write.table(repeat_isotypes, "", quote = F, row.names = F, sep = "\t")
+    if (duplicate_method == "first") {
+      data <- group_by(data, trait, isotype) %>% 
+        dplyr::mutate(first = row_number()) %>%
+        dplyr::filter(first == 1) %>%
+        dplyr::select(-first)
+      message("Using the first strain in each isotype group.")
+    } else if (duplicate_method == "average") {
+      data <- group_by(data, trait, isotype) %>% 
+        dplyr::mutate(val = mean(val)) %>%
+        dplyr::distinct()
+      message("Taking average of strains belonging to the same isotype group.")
+    }
+  }
+  
+  
+  
+  # Return data frame to previous state
+  data <- dplyr::select(data, -strain, -warnings, -iso_count) %>%
+  dplyr::rename(strain = isotype) %>%
+  tidyr::spread(strain, val)
   
   # identify any traits that only have 1 unique value
   pheno <- data.frame(data.frame(data)[,1:ncol(data)], 
@@ -54,29 +118,11 @@ process_pheno <- function(data){
   phen3 <- remove_lowFreq_phenotypes(phen2, wide = FALSE)
   
   # Remap user strains to isotypes
-  user_strain_names <- phen3$strain
   phen3 <- mutate(phen3, strain = strain_isotype[as.character(strain)])
   
-  # See if any strains with no known isotypes are used and drop.
-  if (sum(is.na(phen3$strain)) > 0) { 
-    stop("Missing isotypes for the following strains: ",
-            paste(unique(user_strain_names[is.na(phen3$strain)]), collapse = ", "),
-            "\nNo known isotype! Please remove strain(s).")
-            
-  }
-  
-  # Warn user of potential issues with strains
-  sapply(phen3$strain, function(x) {
-    if (x %in% names(strain_warnings)) {
-      warning(paste(x, ":", strain_warnings[x]), call. = F)
-    }
-  })
-  
-  
-  # Notify user of any issues
   
   # make into long formated data
-  phen4 <- phen3%>%
+  phen4 <- phen3 %>%
     tidyr::spread(strain,value)
   
   # generate traits list

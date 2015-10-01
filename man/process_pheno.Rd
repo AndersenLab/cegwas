@@ -4,7 +4,7 @@
 \alias{process_pheno}
 \title{Process Phenotype Data}
 \usage{
-process_pheno(data)
+process_pheno(data, remove_strains = FALSE, duplicate_method = "first")
 }
 \arguments{
 \item{data}{is a dataframe containing phenotype data. The dataframe can be structured in wide or long format. %
@@ -20,16 +20,21 @@ all additional columns should be strains. One row corresponding to one trait for
 \cr\cr
 \code{trait}, \code{strain1}, \code{strain2}, \code{...}
 \cr\cr}
+
+\item{remove_strains}{Remove strains with no known isotype. Default is FALSE.}
+
+\item{duplicate_method}{Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} or \code{"first"}.}
 }
 \value{
 Outputs a list. The first element of the list is an ordered vector of traits.
 The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.
 }
 \description{
-\code{process_pheno} Process raw data file for GWAS mapping using \code{gwas_mappings} function
+\code{process_pheno} Processes raw data file for GWAS mapping using \code{\link{gwas_mappings}} function
 }
 \details{
-This function takes raw phenotype data and eliminates outlier strains with a modified version of \code{bamf_prune} from the easysorter package.
-Additionally it eliminates any traits that have the same values for >95% of the strains (important for binary traits)
+This function takes raw phenotype data and eliminates outlier strains with a modified version of \code{\link{bamf_prune}} from the easysorter package.
+Additionally it eliminates any traits that have the same values for >95% of the strains (important for binary traits).
+If multiple strains are present that fall into the same isotype, they can be removed by setting \code{\link{remove_strains}} to
 }
 

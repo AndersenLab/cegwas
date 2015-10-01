@@ -7,7 +7,7 @@
 calculate_VE(mapping_df, phenotype_df)
 }
 \arguments{
-\item{mapping_df}{the output from the \code{gwas_mappings} function. User input}
+\item{mapping_df}{the output from the \code{\link{gwas_mappings}} function. User input}
 
 \item{phenotype_df}{two element list. element 1 : traits. element 2: trait values with strains in columns
 with each row corresponding to trait in element 1}
@@ -15,7 +15,7 @@ with each row corresponding to trait in element 1}
 \value{
 Outputs a two element list that contains two dataframes.
 The first data frame is a processed mappings dataframe that contains the same columns
-as the output of \code{gwas_mappings} with two additional columns. One that contains
+as the output of \code{\link{gwas_mappings}} with two additional columns. One that contains
 the bonferroni corrected p-value (BF) and another that contains an identifier 1,0 if
 the indicated SNP has a higher -log10 value than the bonferroni cut off or not, respectively
 The second data frame contains the variance explained data as well as all of the information from the first element.
