@@ -200,7 +200,7 @@ process_correlations <- function(df){
 #'
 #' \code{snpeff} enables you to query variants called and annotated by the \href{http://www.andersenlab.org}{Andersen Lab}. 
 #' 
-#' @param query A gene name, region, or wormbase identifier to query.
+#' @param regions query A gene name, region, or wormbase identifier to query.
 #' @param severity A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high.
 #' @param long Return dataset in long or wide format. Default is to return in long format.
 #' @param impute Use imputed dataset. True by default.

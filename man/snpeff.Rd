@@ -8,6 +8,8 @@ snpeff(regions, severity = c("HIGH", "MODERATE"), long = TRUE,
   impute = FALSE, remote = FALSE)
 }
 \arguments{
+\item{regions}{query A gene name, region, or wormbase identifier to query.}
+
 \item{severity}{A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high.}
 
 \item{long}{Return dataset in long or wide format. Default is to return in long format.}
@@ -15,8 +17,6 @@ snpeff(regions, severity = c("HIGH", "MODERATE"), long = TRUE,
 \item{impute}{Use imputed dataset. True by default.}
 
 \item{remote}{Use remote data. Checks for local data if possible. False by default.}
-
-\item{query}{A gene name, region, or wormbase identifier to query.}
 }
 \value{
 Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
