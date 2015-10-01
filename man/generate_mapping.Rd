@@ -18,17 +18,12 @@ generate_mapping(vcf, allele_freq = 0.05,
 Mapping Snpset
 }
 \description{
-\code{generate_mapping} generates a dataframe suitable for mapping.
-This function uses bcftools to filter out variants with low allele frequencies <5%. This can be customized by setting
-the af parameter.
-
-Additionally, this function uses a subset of variants from the \emph{C. elegans} genome that tag haplotype blocks.
+\code{generate_mapping} generates a dataframe suitable for mapping. This function uses bcftools to filter out variants with low allele frequencies <5%. This can be customized by setting
+the af parameter. Additionally, this function uses a subset of variants from the \emph{C. elegans} genome that tag haplotype blocks.
 Tag SNPs were generated in \emph{\href{https://dx.doi.org/10.1038/ng.1050}{Andersen 2012 et al}}. Tag snps used can
-be adjusted using a text file that specifies \emph{CHROM}\t\emph{POS}
-
-A custom set of variants can be used with the \code{variants} parameter.
+be adjusted using a text file that specifies \emph{CHROM}\t\emph{POS}. A custom set of variants can be used with the \code{variants} parameter.
 }
 \seealso{
-\code{\link{vcf_to_matrix}}, \code{\link{generate_mapping}}
+\link{vcf_to_matrix}, \link{generate_mapping}
 }
 

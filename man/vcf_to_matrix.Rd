@@ -21,6 +21,6 @@ Matrix of genotype calls
 Uses only biallelic variants. Heterozygous calls are ignored. Requires bcftools.
 }
 \seealso{
-\code{\link{generate_kinship}}, \code{\link{generate_mapping}}
+\link{generate_kinship}, \link{generate_mapping}
 }
 

@@ -1,14 +1,13 @@
 #' VCF To Matrix
 #'
-#' @description
 #' \code{vcf_to_matrix} converts variant calls from a bcf, vcf.gz or vcf file into an R dataframe. 
 #' Uses only biallelic variants. Heterozygous calls are ignored. Requires bcftools. 
 #'
 #' @param vcf a bcf, vcf, or vcf.gz file
 #' @param allele_freq allele frequency to filter on. Default is 0
 #' @param variants A set of variants to filter on. By default, all variants are taken.
-#' @seealso \code{\link{generate_kinship}}, \code{\link{generate_mapping}}
 #' @return Matrix of genotype calls
+#' @seealso \link{generate_kinship}, \link{generate_mapping}
 #' @export
 
 vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA) {
@@ -46,13 +45,12 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA) {
 
 #' Generate Kinship
 #'
-#' @description
 #' \code{generate_kinship} uses \code{\link{vcf_to_matrix}} and the \code{\link[rrBLUP]{A.mat}} function from \code{\link{rrBLUP}}.
 #' This function is used to generate a kinship matrix for mapping in conjunction with \code{\link{gwas_mappings}}.
 #'
 #' @param a vcf file.
-#' \code{\link{vcf_to_matrix}}, \code{\link{generate_kinship}}
 #' @return A kinship matrix. 
+#' @seealso \link{vcf_to_matrix}, \link{generate_kinship}
 #' @export
 
 generate_kinship <- function(vcf) {
@@ -62,22 +60,16 @@ generate_kinship <- function(vcf) {
 
 #' Generate Mapping variant set
 #'
-#' @description
-#' \code{generate_mapping} generates a dataframe suitable for mapping. 
-#' This function uses bcftools to filter out variants with low allele frequencies <5%. This can be customized by setting
-#' the af parameter. 
-#' 
-#' Additionally, this function uses a subset of variants from the \emph{C. elegans} genome that tag haplotype blocks. 
+#' \code{generate_mapping} generates a dataframe suitable for mapping. This function uses bcftools to filter out variants with low allele frequencies <5%. This can be customized by setting
+#' the af parameter. Additionally, this function uses a subset of variants from the \emph{C. elegans} genome that tag haplotype blocks. 
 #' Tag SNPs were generated in \emph{\href{https://dx.doi.org/10.1038/ng.1050}{Andersen 2012 et al}}. Tag snps used can
-#' be adjusted using a text file that specifies \emph{CHROM}\t\emph{POS}
-#' 
-#' A custom set of variants can be used with the \code{variants} parameter.
+#' be adjusted using a text file that specifies \emph{CHROM}\t\emph{POS}. A custom set of variants can be used with the \code{variants} parameter.
 #'
 #' @param vcf a bcf, vcf.gz, or vcf file
 #' @param allele_freq minimum allele frequency. Default is >= 5%
 #' @param tag_snps A set of variants to filter on. By default, a set of tag snps is used 
-#' @seealso \code{\link{vcf_to_matrix}}, \code{\link{generate_mapping}}
 #' @return Mapping Snpset
+#' @seealso \link{vcf_to_matrix}, \link{generate_mapping}
 #' @export
 
 generate_mapping <- function(vcf, allele_freq = 0.05, tag_snps = paste0(path.package("cegwas"),"/data/5percent_snps.WS245.tsv")) {
