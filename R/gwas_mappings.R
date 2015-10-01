@@ -88,7 +88,6 @@ cegwas_map <- function(trait_data,
                        remove_strains = FALSE, 
                        duplicate_method = "first",
                        BF = NA) {
-  print(BF)
   processed_phenotypes <- process_pheno(trait_data, remove_strains = remove_strains, duplicate_method = "first")
   mapping_df <- gwas_mappings(processed_phenotypes, cores = cores, only_sig = only_sig)
   processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = 200, BF = BF)
