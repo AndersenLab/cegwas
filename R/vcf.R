@@ -7,7 +7,7 @@
 #' @param allele_freq allele frequency to filter on. Default is 0
 #' @param variants A set of variants to filter on. By default, all variants are taken.
 #' @return Matrix of genotype calls
-#' @seealso \link{generate_kinship}, \link{generate_mapping}
+#' @seealso \link{generate_kinship} \link{generate_mapping}
 #' @export
 
 vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA) {
@@ -50,7 +50,7 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA) {
 #'
 #' @param a vcf file.
 #' @return A kinship matrix. 
-#' @seealso \link{vcf_to_matrix}, \link{generate_kinship}
+#' @seealso \link{vcf_to_matrix} \link{generate_kinship}
 #' @export
 
 generate_kinship <- function(vcf) {
@@ -63,13 +63,13 @@ generate_kinship <- function(vcf) {
 #' \code{generate_mapping} generates a dataframe suitable for mapping. This function uses bcftools to filter out variants with low allele frequencies <5%. This can be customized by setting
 #' the af parameter. Additionally, this function uses a subset of variants from the \emph{C. elegans} genome that tag haplotype blocks. 
 #' Tag SNPs were generated in \emph{\href{https://dx.doi.org/10.1038/ng.1050}{Andersen 2012 et al}}. Tag snps used can
-#' be adjusted using a text file that specifies \emph{CHROM}\t\emph{POS}. A custom set of variants can be used with the \code{variants} parameter.
+#' be adjusted using a text file that specifies \emph{CHROM}    \emph{POS}. A custom set of variants can be used with the \code{variants} parameter.
 #'
-#' @param vcf a bcf, vcf.gz, or vcf file
-#' @param allele_freq minimum allele frequency. Default is >= 5%
-#' @param tag_snps A set of variants to filter on. By default, a set of tag snps is used 
 #' @return Mapping Snpset
-#' @seealso \link{vcf_to_matrix}, \link{generate_mapping}
+#' @param vcf a bcf, vcf.gz, or vcf file
+#' @param allele_freq minimum allele frequency. Default is >= 5\%
+#' @param tag_snps A set of variants to filter on. By default, a set of tag snps is used 
+#' @seealso \link{vcf_to_matrix} \link{generate_mapping}
 #' @export
 
 generate_mapping <- function(vcf, allele_freq = 0.05, tag_snps = paste0(path.package("cegwas"),"/data/5percent_snps.WS245.tsv")) {

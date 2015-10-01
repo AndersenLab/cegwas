@@ -17,6 +17,6 @@ A kinship matrix.
 This function is used to generate a kinship matrix for mapping in conjunction with \code{\link{gwas_mappings}}.
 }
 \seealso{
-\link{vcf_to_matrix}, \link{generate_kinship}
+\link{vcf_to_matrix} \link{generate_kinship}
 }
 

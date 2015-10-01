@@ -10,7 +10,7 @@ generate_mapping(vcf, allele_freq = 0.05,
 \arguments{
 \item{vcf}{a bcf, vcf.gz, or vcf file}
 
-\item{allele_freq}{minimum allele frequency. Default is >= 5%}
+\item{allele_freq}{minimum allele frequency. Default is >= 5\%}
 
 \item{tag_snps}{A set of variants to filter on. By default, a set of tag snps is used}
 }
@@ -21,9 +21,9 @@ Mapping Snpset
 \code{generate_mapping} generates a dataframe suitable for mapping. This function uses bcftools to filter out variants with low allele frequencies <5%. This can be customized by setting
 the af parameter. Additionally, this function uses a subset of variants from the \emph{C. elegans} genome that tag haplotype blocks.
 Tag SNPs were generated in \emph{\href{https://dx.doi.org/10.1038/ng.1050}{Andersen 2012 et al}}. Tag snps used can
-be adjusted using a text file that specifies \emph{CHROM}\t\emph{POS}. A custom set of variants can be used with the \code{variants} parameter.
+be adjusted using a text file that specifies \emph{CHROM}    \emph{POS}. A custom set of variants can be used with the \code{variants} parameter.
 }
 \seealso{
-\link{vcf_to_matrix}, \link{generate_mapping}
+\link{vcf_to_matrix} \link{generate_mapping}
 }
 
