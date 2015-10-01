@@ -159,3 +159,53 @@ pxg_plot <- function(plot_df){
 }
 
 
+#' Plot variants for gene
+#'
+#' \code{gene_variants} generates a plot to visualize presence of variants for a particular gene of interest
+#'
+#'
+#' @param gene is the gene of interest in gene name (e.g. "top-2", "pot-2") or wormbase gene ID (e.g. "WBGene00010785") format. 
+#' @return Ouput is a list of ggplot objects with strains on the Y axis and variants for gene of interest on X axis. Tiles are colored by variant or reference call. 
+#' @examples  gene_variants(gene = c("top-2","pot-2"))
+#' @examples  test[[1]]
+#' @examples test[[2]]
+#' @export
+
+gene_variants <- function(gene){
+  
+  gene_variant_plot <- list()
+  
+  for(i in 1:length(gene)){
+    
+    gene_to_plot <- snpeff(gene[i]) %>%
+      dplyr::arrange(POS, GT) %>%
+      dplyr::mutate(fac_aa = factor(aa_change, 
+                                    ordered = is.ordered(aa_change),
+                                    levels = aa_change,
+                                    labels = aa_change)) %>%
+      dplyr::filter(!is.na(GT), GT != "HET")
+    
+    gene_variant_plot[[i]] <- ggplot2::ggplot(gene_to_plot)+
+      ggplot2::aes(x = fac_aa, 
+                   y = factor(strain, 
+                              ordered = is.ordered(GT),
+                              levels = strain,
+                              labels = strain), 
+                   fill = GT)+
+      ggplot2::scale_fill_brewer(palette = "Spectral")+
+      ggplot2::geom_tile(color = "black")+
+      ggplot2::theme_bw() +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(size=12, face="bold", color="black", angle = 60, vjust= 1.2, hjust = 1.2),
+                     axis.text.y = ggplot2::element_text(size=12, face="bold", color="black"),
+                     axis.title.x = ggplot2::element_text(size=18, face="bold", color="black", vjust=-.3),
+                     axis.title.y = ggplot2::element_text(size=18, face="bold", color="black"),
+                     strip.text.x = ggplot2::element_text(size=14, face="bold", color="black"),
+                     strip.text.y = ggplot2::element_text(size=14, face="bold", color="black"),
+                     plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
+                     panel.background = ggplot2::element_rect( color="black",size=1.2),
+                     strip.background = ggplot2::element_rect(color = "black", size = 1.2))+
+      ggplot2::labs(y = "Strain", x = "Variant")
+  }
+  
+  return(gene_variant_plot)
+}
