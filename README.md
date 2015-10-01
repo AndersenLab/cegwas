@@ -74,6 +74,12 @@ The resulting dataframe contains all information output from the `gwas_mappings`
 
 Although this package comes with pre-built kinship and mapping datasets, it is possible to generate your own for use. This functionality requires [bcftools](https://samtools.github.io/bcftools/bcftools.html). Use `generate_mapping` and `generate_kinship` to generate mapping and kinship dataframes, respectively. These data can be used in conjunction with `gwas_mappings`.
 
+## Plotting fucntions
+
+1. `manplot`- a manhattan plot to visualize GWAS mapping results
+2. `pxg_plot` - a boxplot of phenotypes split by genotype at QTL peak position
+3. `gene_variants` - a strain by variant plot for a particular gene(s) of interest
+
 ## Example Script
 
 ```r
