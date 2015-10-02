@@ -74,7 +74,6 @@ keep_sig_maps <- function(mapping_df){
 #' @param data two element list. element 1 : traits. element 2: trait values with strains in columns
 #' with each row corresponding to trait in element 1
 #' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
-#' @param only_sig logical to return only significant mappings. Default is TRUE
 #' @param BF defines a custom bonferroni correction.
 #' @param remove_strains Remove strains with no known isotype. Default is TRUE.
 #' @param duplicate_method Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} to average phenotypes or \code{"first"} to take the first observation.
@@ -88,12 +87,11 @@ keep_sig_maps <- function(mapping_df){
 
 cegwas_map <- function(trait_data, 
                        cores = 4,
-                       only_sig = is.na(BF),
                        remove_strains = TRUE, 
                        duplicate_method = "first",
                        BF = NA) {
   processed_phenotypes <- process_pheno(trait_data, remove_strains = remove_strains, duplicate_method = "first")
-  mapping_df <- gwas_mappings(processed_phenotypes, cores = cores, only_sig = only_sig)
+  mapping_df <- gwas_mappings(processed_phenotypes, cores = cores)
   processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = 200, BF = BF)
 }
 

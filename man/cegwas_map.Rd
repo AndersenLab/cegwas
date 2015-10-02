@@ -4,13 +4,11 @@
 \alias{cegwas_map}
 \title{cegwas_map}
 \usage{
-cegwas_map(trait_data, cores = 4, only_sig = is.na(BF),
-  remove_strains = TRUE, duplicate_method = "first", BF = NA)
+cegwas_map(trait_data, cores = 4, remove_strains = TRUE,
+  duplicate_method = "first", BF = NA)
 }
 \arguments{
 \item{cores}{number of cores on computer that you want to allocate for mapping. Default value is 4}
-
-\item{only_sig}{logical to return only significant mappings. Default is TRUE}
 
 \item{remove_strains}{Remove strains with no known isotype. Default is TRUE.}
 
