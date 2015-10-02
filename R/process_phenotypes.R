@@ -19,21 +19,21 @@
 #' \cr\cr
 #' \code{trait}, \code{strain1}, \code{strain2}, \code{...}
 #' \cr\cr
-#' @param remove_strains Remove strains with no known isotype. Default is FALSE.
+#' @param remove_strains Remove strains with no known isotype. Default is TRUE.
 #' @param duplicate_method Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} or \code{"first"}.
 #' @return Outputs a list. The first element of the list is an ordered vector of traits. 
 #' The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.
 #' @importFrom dplyr %>%
 #' @export
 
-process_pheno <- function(data, remove_strains = FALSE, duplicate_method = "first"){
+process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first"){
+  
+  # Rename first column strain
+  colnames(data)[1] <- "strain"
   
   # Reshape data from wide to long
   if (sum(row.names(cegwas::kinship) %in% data[[1]]) > 3) {
     names(data) <- stringr::str_to_lower(names(data))
-    if ("isotype" %in% stringr::str_to_lower(names(data))) {
-      data <- dplyr::rename(data, strain=isotype)
-    }
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
   
@@ -50,11 +50,12 @@ process_pheno <- function(data, remove_strains = FALSE, duplicate_method = "firs
                     dplyr::select(strain, warnings) %>%
                     dplyr::group_by(strain, warnings) %>%
                     unique()
-  
-  for(x in 1:nrow(issue_warnings)) {
-      warn <- issue_warnings[x,]
-      warn <- paste(warn$strain, ":", warn$warnings)
-      warning(warn, call. = F)
+  if (nrow(issue_warnings) > 0) {
+    for(x in 1:nrow(issue_warnings)) {
+        warn <- issue_warnings[x,]
+        warn <- paste(warn$strain, ":", warn$warnings)
+        warning(warn, call. = F)
+    }
   }
   
   # See if any strains with no known isotypes are used and drop.
@@ -79,13 +80,13 @@ process_pheno <- function(data, remove_strains = FALSE, duplicate_method = "firs
     warning("Strains were phenotyped that belong to the same isotype:", immediate. = T)
     write.table(repeat_isotypes, "", quote = F, row.names = F, sep = "\t")
     if (duplicate_method == "first") {
-      data <- group_by(data, trait, isotype) %>% 
+      data <- dplyr::group_by(data, trait, isotype) %>% 
         dplyr::mutate(first = row_number()) %>%
         dplyr::filter(first == 1) %>%
         dplyr::select(-first)
       message("Using the first strain in each isotype group.")
     } else if (duplicate_method == "average") {
-      data <- group_by(data, trait, isotype) %>% 
+      data <- dplyr::group_by(data, trait, isotype) %>% 
         dplyr::mutate(val = mean(val)) %>%
         dplyr::distinct()
       message("Taking average of strains belonging to the same isotype group.")
@@ -116,10 +117,6 @@ process_pheno <- function(data, remove_strains = FALSE, duplicate_method = "firs
   phen2 <- mod_bamf_prune(phen1)
   # removes binary phenotypes where one phenotype is in less than 5% of strains
   phen3 <- remove_lowFreq_phenotypes(phen2, wide = FALSE)
-  
-  # Remap user strains to isotypes
-  phen3 <- mutate(phen3, strain = strain_isotype[as.character(strain)])
-  
   
   # make into long formated data
   phen4 <- phen3 %>%

@@ -4,13 +4,11 @@
 \alias{cegwas_map}
 \title{cegwas_map}
 \usage{
-cegwas_map(trait_data, cores = 4, only_sig = is.na(BF),
-  remove_strains = FALSE, duplicate_method = "first", BF = NA)
+cegwas_map(trait_data, cores = 4, remove_strains = TRUE,
+  duplicate_method = "first", BF = NA)
 }
 \arguments{
 \item{cores}{number of cores on computer that you want to allocate for mapping. Default value is 4}
-
-\item{only_sig}{logical to return only significant mappings. Default is TRUE}
 
 \item{remove_strains}{Remove strains with no known isotype. Default is FALSE.}
 
@@ -24,7 +22,7 @@ with each row corresponding to trait in element 1}
 \value{
 Outputs a two element list that contains two dataframes.
 The first data frame is a processed mappings dataframe that contains the same columns
-as the output of \code{gwas_mappings} with two additional columns. One that contains
+as the output of \code{\link{gwas_mappings}} with two additional columns. One that contains
 the bonferroni corrected p-value (BF) and another that contains an identifier 1,0 if
 the indicated SNP has a higher -log10 value than the bonferroni cut off or not, respectively
 The second data frame contains the variance explained data as well as all of the information from the first element.
