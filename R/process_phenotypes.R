@@ -19,7 +19,7 @@
 #' \cr\cr
 #' \code{trait}, \code{strain1}, \code{strain2}, \code{...}
 #' \cr\cr
-#' @param remove_strains Remove strains with no known isotype. Default is FALSE.
+#' @param remove_strains Remove strains with no known isotype. Default is TRUE.
 #' @param duplicate_method Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} or \code{"first"}.
 #' @return Outputs a list. The first element of the list is an ordered vector of traits. 
 #' The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.

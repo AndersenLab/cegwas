@@ -76,7 +76,7 @@ keep_sig_maps <- function(mapping_df){
 #' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
 #' @param only_sig logical to return only significant mappings. Default is TRUE
 #' @param BF defines a custom bonferroni correction.
-#' @param remove_strains Remove strains with no known isotype. Default is FALSE.
+#' @param remove_strains Remove strains with no known isotype. Default is TRUE.
 #' @param duplicate_method Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} to average phenotypes or \code{"first"} to take the first observation.
 #' @return Outputs a two element list that contains two dataframes. 
 #' The first data frame is a processed mappings dataframe that contains the same columns
@@ -89,7 +89,7 @@ keep_sig_maps <- function(mapping_df){
 cegwas_map <- function(trait_data, 
                        cores = 4,
                        only_sig = is.na(BF),
-                       remove_strains = FALSE, 
+                       remove_strains = TRUE, 
                        duplicate_method = "first",
                        BF = NA) {
   processed_phenotypes <- process_pheno(trait_data, remove_strains = remove_strains, duplicate_method = "first")

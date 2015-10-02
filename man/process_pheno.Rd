@@ -21,7 +21,7 @@ all additional columns should be strains. One row corresponding to one trait for
 \code{trait}, \code{strain1}, \code{strain2}, \code{...}
 \cr\cr}
 
-\item{remove_strains}{Remove strains with no known isotype. Default is FALSE.}
+\item{remove_strains}{Remove strains with no known isotype. Default is TRUE.}
 
 \item{duplicate_method}{Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} or \code{"first"}.}
 }

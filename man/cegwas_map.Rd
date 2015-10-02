@@ -5,14 +5,14 @@
 \title{cegwas_map}
 \usage{
 cegwas_map(trait_data, cores = 4, only_sig = is.na(BF),
-  remove_strains = FALSE, duplicate_method = "first", BF = NA)
+  remove_strains = TRUE, duplicate_method = "first", BF = NA)
 }
 \arguments{
 \item{cores}{number of cores on computer that you want to allocate for mapping. Default value is 4}
 
 \item{only_sig}{logical to return only significant mappings. Default is TRUE}
 
-\item{remove_strains}{Remove strains with no known isotype. Default is FALSE.}
+\item{remove_strains}{Remove strains with no known isotype. Default is TRUE.}
 
 \item{duplicate_method}{Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} to average phenotypes or \code{"first"} to take the first observation.}
 
