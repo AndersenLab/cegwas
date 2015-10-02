@@ -121,10 +121,6 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   # removes binary phenotypes where one phenotype is in less than 5% of strains
   phen3 <- remove_lowFreq_phenotypes(phen2, wide = FALSE)
   
-  # Remap user strains to isotypes
-  phen3 <- mutate(phen3, strain = strain_isotype[as.character(strain)])
-  
-  
   # make into long formated data
   phen4 <- phen3 %>%
     tidyr::spread(strain,value)

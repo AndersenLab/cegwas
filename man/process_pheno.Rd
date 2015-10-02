@@ -4,7 +4,7 @@
 \alias{process_pheno}
 \title{Process Phenotype Data}
 \usage{
-process_pheno(data, remove_strains = FALSE, duplicate_method = "first")
+process_pheno(data, remove_strains = TRUE, duplicate_method = "first")
 }
 \arguments{
 \item{data}{is a dataframe containing phenotype data. The dataframe can be structured in wide or long format. %
