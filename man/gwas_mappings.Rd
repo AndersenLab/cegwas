@@ -21,7 +21,7 @@ Outputs a data frame with the following columns : marker, CHROM, POS, trait, log
 }
 \description{
 \code{gwas_mappings} uses the rrBLUP package function \code{GWAS} to perform association mapping
-for C. elegans. Uses 5% MAF SNPs from RADseq dataset from Andersen et al. 2012 and a
+for C. elegans. Uses 5\% MAF SNPs from RADseq dataset from Andersen et al. 2012 and a
 kinship matrix generated from whole-genome sequence data. Can use user developed kinship matrix as well.
 }
 \details{
