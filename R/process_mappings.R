@@ -345,9 +345,9 @@ identify_CI <- function( processed_mapping_df,
     dplyr::mutate(interval_size = endPOS - startPOS)
   
   # JOIN INTERVAL POSITIONS TO DATA FRAME CONTAINING CORRELATION INFORMATION AND PHENOTYPE INFORMATION
-  Final_Processed_Mappings <- dplyr::left_join( correlation_df, interval_pos_df, 
+  Final_Processed_Mappings <- suppressWarnings(dplyr::left_join( correlation_df, interval_pos_df, 
                                          by = c("trait", "CHROM", "POS"),
-                                         copy = TRUE )
+                                         copy = TRUE ))
   
   return(Final_Processed_Mappings)
 }
@@ -410,10 +410,10 @@ process_mappings <- function(mapping_df,
   pheno$trait <- gsub("-", "\\.", pheno$trait) 
   
   # Trim phenotypes and join to significant snps identified in mapping
-  rawTr <- pheno[ row.names(pheno) %in% snpsForVE$trait,] %>%
+  rawTr <- suppressWarnings(pheno[ row.names(pheno) %in% snpsForVE$trait,] %>%
     tidyr::gather( strain, value, -trait ) %>% # make long format
     dplyr::left_join( ., snpsForVE, 
-                      by = "trait" ) # join to significant SNPs from mapping dataframe
+                      by = "trait" )) # join to significant SNPs from mapping dataframe
   
   # make columns factored by dplyr into characters to minimize warnings
   rawTr$marker <- as.character(rawTr$marker)
@@ -432,9 +432,9 @@ process_mappings <- function(mapping_df,
   gINFO$marker <- as.character(gINFO$marker)
   
   # combine genotype data, phenotype data, and significant snps from mappnings
-  gINFO <- data.frame(gINFO) %>%
+  gINFO <- suppressWarnings(data.frame(gINFO) %>%
     dplyr::left_join( ., snpsForVE, by= "marker") %>% # join significant snps with genotypes
-    dplyr::left_join( rawTr, ., by=c( "trait", "strain", "marker") ) # join to phenotypes
+    dplyr::left_join( rawTr, ., by=c( "trait", "strain", "marker") )) # join to phenotypes
   
   # calculate variance explained using spearman correlation
   cors <- gINFO %>%
@@ -450,8 +450,8 @@ process_mappings <- function(mapping_df,
   # # # correlations
   # # # # # # # # # # # FOR ALL SIGNIFICANT SNPS
   
-  CORmaps <- Processed %>%
-    dplyr::left_join( ., cors, by=c("trait","marker","CHROM","POS"), copy=TRUE )
+  CORmaps <- suppressWarnings(Processed %>%
+    dplyr::left_join( ., cors, by=c("trait","marker","CHROM","POS"), copy=TRUE ))
   
   processed_mapping_df <- Processed
   correlation_df <- CORmaps
@@ -621,7 +621,8 @@ process_mappings <- function(mapping_df,
     index_i <- c(peak_list[[i]]$start, peak_list[[i]]$end) 
     CHROM_i <- peak_list[[i]]$CHROM
     
-    PKpos <- data.frame(Pos_Index_Reference) %>%
+    PKpos <- suppressWarnings(
+      data.frame(Pos_Index_Reference) %>%
       dplyr::filter(trait == trait_i &
                       index %in% index_i &
                       CHROM %in%  CHROM_i) %>%
@@ -645,6 +646,7 @@ process_mappings <- function(mapping_df,
       dplyr::distinct(trait, CHROM, pID, peakPOS) %>%
       # SELECT COLUMNS OF NTEREST
       dplyr::select(trait, CHROM, POS = POS.y, startPOS, peakPOS, endPOS, peak_id = pID)
+    )
     
     # APPEND TO LIST
     interval_positions[[i]] <- PKpos
@@ -656,9 +658,9 @@ process_mappings <- function(mapping_df,
     dplyr::mutate(interval_size = endPOS - startPOS)
   
   # JOIN INTERVAL POSITIONS TO DATA FRAME CONTAINING CORRELATION INFORMATION AND PHENOTYPE INFORMATION
-  Final_Processed_Mappings <- dplyr::left_join( correlation_df, interval_pos_df, 
+  Final_Processed_Mappings <- suppressWarnings(dplyr::left_join( correlation_df, interval_pos_df, 
                                                 by = c("trait", "CHROM", "POS"),
-                                                copy = TRUE )
+                                                copy = TRUE ))
   
   return(Final_Processed_Mappings)
   
