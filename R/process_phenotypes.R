@@ -76,7 +76,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   
   # Handle duplicates
   repeat_isotypes <- dplyr::ungroup(data) %>%
-  dplyr::group_by(isotype) %>%
+  dplyr::group_by(isotype, strain) %>%
   dplyr::filter(iso_count > 1) %>% 
   dplyr::select(isotype, strain) %>%
   dplyr::distinct()
