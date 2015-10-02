@@ -39,7 +39,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   # Strain - Isotype Issues; Duplicate check
   data <- tidyr::gather(data, "strain", "val", 2:ncol(data)) %>%
           dplyr::mutate(strain = as.character(strain)) %>%
-          dplyr::left_join(strain_isotype, by = "strain") %>%
+          dplyr::left_join(strain_isotype, by = c("strain" = "strain")) %>%
           dplyr::group_by(trait, isotype) %>% 
           dplyr::mutate(iso_count = n()) 
 
@@ -76,6 +76,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   
   # Handle duplicates
   repeat_isotypes <- dplyr::ungroup(data) %>%
+  dplyr::group_by(isotype) %>%
   dplyr::filter(iso_count > 1) %>% 
   dplyr::select(isotype, strain) %>%
   dplyr::distinct()
