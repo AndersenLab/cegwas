@@ -78,7 +78,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   repeat_isotypes <- dplyr::ungroup(data) %>%
   dplyr::group_by(isotype, strain) %>%
   dplyr::filter(iso_count > 1) %>% 
-  dplyr::select(isotype, strain) %>%
+  dplyr::select(strain, isotype) %>%
   dplyr::distinct()
   if (nrow(repeat_isotypes) > 0) {
     warning("Strains were phenotyped that belong to the same isotype:", immediate. = T)
