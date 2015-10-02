@@ -21,6 +21,15 @@ gwas_mappings <- function(data, cores = 4, only_sig = TRUE, kin_matrix = kinship
     tidyr::gather(strain, value, -trait)%>%
     tidyr::spread(trait, value) # extract phenotypes from phenotype object
   
+  # Warn user of strains that are not in kinship matrix and remove.
+  no_gt <- filter(x, !(strain %in% row.names(kinship)))
+  if (nrow(no_gt) > 0) {
+    for(i in 1:nrow(no_gt)) {
+      warning(paste0("No Genotype available for ", no_gt[i,"strain"], "; removing"), call. = F)
+    }
+  }
+  x <- dplyr::filter(x, strain %in% row.names(kinship))
+  
   # add marker column to snp set
   y <- data.frame(marker = paste(snps$CHROM,snps$POS,sep="_"),
                   snps)
