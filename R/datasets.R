@@ -1,4 +1,4 @@
-#' SNP set.
+#' SNP set (Dataset)
 #'
 #' Genotype information for C. elegans wild isolates. SNPs used from RADseq data set but 
 #' includes all 124 wild isolates from whole-genome sequencing project
@@ -12,10 +12,18 @@
 #' }
 NULL
 
-#' Relatedness matrix
+#' Relatedness matrix (Dataset)
 #'
 #' Kinship matrix generated using the \code{a.mat} function in the rrBLUP package. 
 #' Whole-genome SNP data was used to generate the relatedness of the strains in this file.
 #' @name kinship
 #' @format A Strain x Strain data frame for 124 strains
+NULL
+
+
+#' Strain Isotype (Dataset)
+#'
+#' Table of strains and their respective isotypes in addition to strains with potential problems.
+#' @name strain_isotype
+#' @format tbl_df
 NULL

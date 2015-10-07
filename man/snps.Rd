@@ -2,7 +2,7 @@
 % Please edit documentation in R/datasets.R
 \name{snps}
 \alias{snps}
-\title{SNP set.}
+\title{SNP set (Dataset)}
 \format{A data frame with snps as rows and columns as strains:
 \describe{
   \item{CHROM}{chromosome in roman numerals}

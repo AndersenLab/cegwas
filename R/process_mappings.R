@@ -345,9 +345,10 @@ identify_CI <- function( processed_mapping_df,
     dplyr::mutate(interval_size = endPOS - startPOS)
   
   # JOIN INTERVAL POSITIONS TO DATA FRAME CONTAINING CORRELATION INFORMATION AND PHENOTYPE INFORMATION
-  Final_Processed_Mappings <- dplyr::left_join( correlation_df, interval_pos_df, 
-                                         by = c("trait", "CHROM", "POS"),
-                                         copy = TRUE )
+  Final_Processed_Mappings <- suppressWarnings(
+    dplyr::left_join( correlation_df, interval_pos_df, 
+                      by = c("trait", "CHROM", "POS"),
+                      copy = TRUE ))
   
   return(Final_Processed_Mappings)
 }
@@ -390,8 +391,12 @@ process_mappings <- function(mapping_df,
     dplyr::mutate( BF = ifelse(is.na(BF), -log10(.05/n()), BF) ) %>% #  add BF threshold
     dplyr::group_by( trait ) %>%
     dplyr::mutate( aboveBF = ifelse(log10p >= BF, 1, 0) ) %>% #  label SNPs as significant
+    dplyr::filter(sum(aboveBF) > 0) %>% # keep only significant mappings
     dplyr::ungroup()
 
+  if (nrow(Processed) == 0) {
+    stop("No significant peaks identified. Try using a custom BF with the process_mappings() function.")
+  }
 
   ## Select SNPs above BF
   snpsForVE <- Processed %>%
@@ -406,7 +411,8 @@ process_mappings <- function(mapping_df,
   pheno$trait <- gsub("-", "\\.", pheno$trait) 
   
   # Trim phenotypes and join to significant snps identified in mapping
-  rawTr <- suppressWarnings(pheno[ row.names(pheno) %in% snpsForVE$trait,] %>%
+  rawTr <- suppressWarnings(
+    pheno[ row.names(pheno) %in% snpsForVE$trait,] %>%
     tidyr::gather( strain, value, -trait ) %>% # make long format
     dplyr::left_join( ., snpsForVE, 
                       by = "trait" )) # join to significant SNPs from mapping dataframe
@@ -428,7 +434,8 @@ process_mappings <- function(mapping_df,
   gINFO$marker <- as.character(gINFO$marker)
   
   # combine genotype data, phenotype data, and significant snps from mappnings
-  gINFO <- suppressWarnings(data.frame(gINFO) %>%
+  gINFO <- suppressWarnings(
+    data.frame(gINFO) %>%
     dplyr::left_join( ., snpsForVE, by= "marker") %>% # join significant snps with genotypes
     dplyr::left_join( rawTr, ., by=c( "trait", "strain", "marker") )) # join to phenotypes
   
@@ -505,15 +512,17 @@ process_mappings <- function(mapping_df,
     
     # IF ONLY ONE SNP PASSED SIGNIFICANCE THRESHOLD LABEL PEAK ID AS 1
     if (nrow(findPks) > 0) {
+      
       if (findPks$nBF == 1 & length(unique(findPks$CHROM) ) == 1 ){
         
         findPks$pID <- 1
         
         # PLUS / MINUS 50 SNPS FROM PEAK SNP DEFINES CONFIDENCE INTERVAL
         findPks <- findPks %>%
-          dplyr::group_by( CHROM, pID, trait ) %>%
-          dplyr::mutate( start = min(index) - CI_size,
-                         end = max(index) + CI_size )
+          
+          findPks$start[k] <- min(tSNPs$index)
+          
+        } else if( findPks$end[k] > max(tSNPs$index) ) {
         
         for( k in 1:nrow(findPks) ){
           
@@ -530,10 +539,44 @@ process_mappings <- function(mapping_df,
             
           }
         }
+      }
+      
+      # APPEND TO LIST
+      intervals[[i]] <- findPks %>%
+        dplyr::ungroup()
+      
+    } 
+    else 
+    {
+      # INITIALIZE PEAK ID COLUMN WITH 1'S :: GIVES YOU A STARTING POINT
+      findPks$pID <- 1
+      
+      # LOOP THROUGH ROWS FOR EACH PHENOTYPE CORRESPONDING TO SNPS ABOVE BONFERRONI CORRECTION
+      # START AT ROW 2 BECAUSE THERE WILL ALWAYS BE AT LEAST 1 UNIQUE PEAK
+      for( j in 2:nrow(findPks) ){
         
         # APPEND TO LIST
+        # SNP INDEX IS WITHIN A CERTAIN RANGE (snp_grouping) OF SNP FROM PREVIOUS ROW
+        # AND
+        # ON THE SAME CHROMOSOME AS SNP FROM PREVIOUS ROW
+        # # # # CONSIDER THEM TO BE THE SAME PEAK
+        
+        # IF THE ABOVE CONDITIONS ARE NOT MET
+        # ADD 1 TO THE PEAK ID (i.e. IDENTIFY AS A NEW PEAK)
+        findPks$pID[j] <- ifelse( abs(findPks$index[j] - findPks$index[j-1]) < snp_grouping &
+                                    findPks$CHROM[j] == findPks$CHROM[j-1],
+                                  findPks$pID[j-1],
+                                  findPks$pID[j-1]+1)
+      }
+      
+      # PLUS / MINUS 50 SNPS FROM PEAK SNP DEFINES CONFIDENCE INTERVAL
         intervals[[i]] <- findPks %>%
+        dplyr::group_by( CHROM , pID, trait) %>%
           dplyr::ungroup()
+                      end = max(index) + CI_size)
+      
+      
+      for( k in 1:nrow(findPks) ){
         
       } 
       else 
@@ -627,7 +670,8 @@ process_mappings <- function(mapping_df,
     index_i <- c(peak_list[[i]]$start, peak_list[[i]]$end) 
     CHROM_i <- peak_list[[i]]$CHROM
     
-    PKpos <- data.frame(Pos_Index_Reference) %>%
+    PKpos <- suppressWarnings(
+      data.frame(Pos_Index_Reference) %>%
       dplyr::filter(trait == trait_i &
                       index %in% index_i &
                       CHROM %in%  CHROM_i) %>%
@@ -650,7 +694,7 @@ process_mappings <- function(mapping_df,
       # ELIMINATE REDUNDANT DATA
       dplyr::distinct(trait, CHROM, pID, peakPOS) %>%
       # SELECT COLUMNS OF NTEREST
-      dplyr::select(trait, CHROM, POS = POS.y, startPOS, peakPOS, endPOS, peak_id = pID)
+      dplyr::select(trait, CHROM, POS = POS.y, startPOS, peakPOS, endPOS, peak_id = pID))
     
     # APPEND TO LIST
     interval_positions[[i]] <- PKpos

@@ -33,6 +33,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   
   # Reshape data from wide to long
   if (sum(row.names(cegwas::kinship) %in% data[[1]]) > 3) {
+    colnames(data)[1] <- "strain"
     names(data) <- stringr::str_to_lower(names(data))
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
@@ -40,20 +41,21 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   # Strain - Isotype Issues; Duplicate check
   data <- tidyr::gather(data, "strain", "val", 2:ncol(data)) %>%
           dplyr::mutate(strain = as.character(strain)) %>%
-          dplyr::mutate(isotype = strain_isotype[strain]) %>%
-          dplyr::mutate(warnings = strain_warnings[strain]) %>%
+          dplyr::left_join(strain_isotype, by = c("strain" = "strain")) %>%
           dplyr::group_by(trait, isotype) %>% 
           dplyr::mutate(iso_count = n()) 
 
   # Warn user of potential issues with strains
-  issue_warnings <- dplyr::filter(dplyr::ungroup(data), !is.na(warnings)) %>% 
-                    dplyr::select(strain, warnings) %>%
-                    dplyr::group_by(strain, warnings) %>%
+  
+  issue_warnings <- dplyr::ungroup(data) %>%
+                    dplyr::filter(warning_msg != "") %>% 
+                    dplyr::select(strain, warning_msg) %>%
+                    dplyr::group_by(strain, warning_msg) %>%
                     unique()
   if (nrow(issue_warnings) > 0) {
     for(x in 1:nrow(issue_warnings)) {
         warn <- issue_warnings[x,]
-        warn <- paste(warn$strain, ":", warn$warnings)
+        warn <- paste(warn$strain, ":", warn$warning_msg)
         warning(warn, call. = F)
     }
   }
@@ -72,9 +74,13 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
     }
   }
 
+  # Notify user when strains with no isotype found.
+  
   # Handle duplicates
-  repeat_isotypes <- dplyr::filter(dplyr::ungroup(data), iso_count > 1) %>% 
-  dplyr::select(isotype, strain) %>%
+  repeat_isotypes <- dplyr::ungroup(data) %>%
+  dplyr::group_by(isotype, strain) %>%
+  dplyr::filter(iso_count > 1) %>% 
+  dplyr::select(strain, isotype) %>%
   dplyr::distinct()
   if (nrow(repeat_isotypes) > 0) {
     warning("Strains were phenotyped that belong to the same isotype:", immediate. = T)
@@ -96,7 +102,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   
   
   # Return data frame to previous state
-  data <- dplyr::select(data, -strain, -warnings, -iso_count) %>%
+  data <- dplyr::select(data, -strain, -warning_msg, -iso_count) %>%
   dplyr::rename(strain = isotype) %>%
   tidyr::spread(strain, val)
   

@@ -1,7 +1,7 @@
 #' GWAS Mappings
 #'
 #' \code{gwas_mappings} uses the rrBLUP package function \code{GWAS} to perform association mapping
-#' for C. elegans. Uses 5% MAF SNPs from RADseq dataset from Andersen et al. 2012 and a 
+#' for C. elegans. Uses 5\% MAF SNPs from RADseq dataset from Andersen et al. 2012 and a 
 #' kinship matrix generated from whole-genome sequence data. Can use user developed kinship matrix as well. 
 #'
 #' This is the detail section if you want to fill out in the future
@@ -13,12 +13,21 @@
 #' @return Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.
 #' @export
 
-gwas_mappings <- function(data, cores = 4,  kin_matrix = kinship){
+gwas_mappings <- function(data, cores = 4, kin_matrix = kinship){
   
   # phenotype prep
   x <- data.frame(trait = data[[1]], data[[2]])%>%
     tidyr::gather(strain, value, -trait)%>%
     tidyr::spread(trait, value) # extract phenotypes from phenotype object
+  
+  # Warn user of strains that are not in kinship matrix and remove.
+  no_gt <- filter(x, !(strain %in% row.names(kinship)))
+  if (nrow(no_gt) > 0) {
+    for(i in 1:nrow(no_gt)) {
+      warning(paste0("No Genotype available for ", no_gt[i,"strain"], "; removing"), call. = F)
+    }
+  }
+  x <- dplyr::filter(x, strain %in% row.names(kinship))
   
   # add marker column to snp set
   y <- data.frame(marker = paste(snps$CHROM,snps$POS,sep="_"),
@@ -45,6 +54,17 @@ gwas_mappings <- function(data, cores = 4,  kin_matrix = kinship){
   return(mappings)
 }
 
+
+# only keep significant mappings
+keep_sig_maps <- function(mapping_df){
+  
+  sig_maps <- mapping_df %>%
+    dplyr::group_by( trait ) %>%
+    dplyr::filter( max(log10p) > -log10(.05/n()))
+  
+  return(sig_maps)
+}
+
 #' cegwas_map
 #'
 #' \code{cegwas_map} is a convenience function takes trait data for a set of strains and performs
@@ -55,7 +75,7 @@ gwas_mappings <- function(data, cores = 4,  kin_matrix = kinship){
 #' with each row corresponding to trait in element 1
 #' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
 #' @param BF defines a custom bonferroni correction.
-#' @param remove_strains Remove strains with no known isotype. Default is FALSE.
+#' @param remove_strains Remove strains with no known isotype. Default is TRUE.
 #' @param duplicate_method Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} to average phenotypes or \code{"first"} to take the first observation.
 #' @return Outputs a two element list that contains two dataframes. 
 #' The first data frame is a processed mappings dataframe that contains the same columns

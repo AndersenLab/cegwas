@@ -2,7 +2,7 @@
 % Please edit documentation in R/datasets.R
 \name{kinship}
 \alias{kinship}
-\title{Relatedness matrix}
+\title{Relatedness matrix (Dataset)}
 \format{A Strain x Strain data frame for 124 strains}
 \description{
 Kinship matrix generated using the \code{a.mat} function in the rrBLUP package.
