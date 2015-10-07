@@ -345,9 +345,10 @@ identify_CI <- function( processed_mapping_df,
     dplyr::mutate(interval_size = endPOS - startPOS)
   
   # JOIN INTERVAL POSITIONS TO DATA FRAME CONTAINING CORRELATION INFORMATION AND PHENOTYPE INFORMATION
-  Final_Processed_Mappings <- suppressWarnings(dplyr::left_join( correlation_df, interval_pos_df, 
-                                         by = c("trait", "CHROM", "POS"),
-                                         copy = TRUE ))
+  Final_Processed_Mappings <- suppressWarnings(
+    dplyr::left_join( correlation_df, interval_pos_df, 
+                      by = c("trait", "CHROM", "POS"),
+                      copy = TRUE ))
   
   return(Final_Processed_Mappings)
 }
@@ -410,7 +411,8 @@ process_mappings <- function(mapping_df,
   pheno$trait <- gsub("-", "\\.", pheno$trait) 
   
   # Trim phenotypes and join to significant snps identified in mapping
-  rawTr <- suppressWarnings(pheno[ row.names(pheno) %in% snpsForVE$trait,] %>%
+  rawTr <- suppressWarnings(
+    pheno[ row.names(pheno) %in% snpsForVE$trait,] %>%
     tidyr::gather( strain, value, -trait ) %>% # make long format
     dplyr::left_join( ., snpsForVE, 
                       by = "trait" )) # join to significant SNPs from mapping dataframe
@@ -432,7 +434,8 @@ process_mappings <- function(mapping_df,
   gINFO$marker <- as.character(gINFO$marker)
   
   # combine genotype data, phenotype data, and significant snps from mappnings
-  gINFO <- suppressWarnings(data.frame(gINFO) %>%
+  gINFO <- suppressWarnings(
+    data.frame(gINFO) %>%
     dplyr::left_join( ., snpsForVE, by= "marker") %>% # join significant snps with genotypes
     dplyr::left_join( rawTr, ., by=c( "trait", "strain", "marker") )) # join to phenotypes
   
@@ -645,8 +648,7 @@ process_mappings <- function(mapping_df,
       # ELIMINATE REDUNDANT DATA
       dplyr::distinct(trait, CHROM, pID, peakPOS) %>%
       # SELECT COLUMNS OF NTEREST
-      dplyr::select(trait, CHROM, POS = POS.y, startPOS, peakPOS, endPOS, peak_id = pID)
-    )
+      dplyr::select(trait, CHROM, POS = POS.y, startPOS, peakPOS, endPOS, peak_id = pID))
     
     # APPEND TO LIST
     interval_positions[[i]] <- PKpos
@@ -658,9 +660,9 @@ process_mappings <- function(mapping_df,
     dplyr::mutate(interval_size = endPOS - startPOS)
   
   # JOIN INTERVAL POSITIONS TO DATA FRAME CONTAINING CORRELATION INFORMATION AND PHENOTYPE INFORMATION
-  Final_Processed_Mappings <- suppressWarnings(dplyr::left_join( correlation_df, interval_pos_df, 
+  Final_Processed_Mappings <- dplyr::left_join( correlation_df, interval_pos_df, 
                                                 by = c("trait", "CHROM", "POS"),
-                                                copy = TRUE ))
+                                                copy = TRUE )
   
   return(Final_Processed_Mappings)
   
