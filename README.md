@@ -2,15 +2,6 @@
 
 ## Installation
 
-**NOTE**
-
-This package requires the installation of the `biomaRt` package from bioconducter::
-
-```r
-source("http://bioconductor.org/biocLite.R")
-biocLite("biomaRt")
-```
-
 Install package:
 
 ```r
