@@ -430,7 +430,7 @@ process_mappings <- function(mapping_df,
   gINFO$marker <- as.character(gINFO$marker)
   
   # combine genotype data, phenotype data, and significant snps from mappnings
-  gINFO <- supressWarnings(data.frame(gINFO) %>%
+  gINFO <- suppressWarnings(data.frame(gINFO) %>%
     dplyr::left_join( ., snpsForVE, by= "marker") %>% # join significant snps with genotypes
     dplyr::left_join( rawTr, ., by=c( "trait", "strain", "marker") )) # join to phenotypes
   
