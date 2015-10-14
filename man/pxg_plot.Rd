@@ -4,14 +4,16 @@
 \alias{pxg_plot}
 \title{PxG plot}
 \usage{
-pxg_plot(plot_df)
+pxg_plot(plot_df, loc = NA)
 }
 \arguments{
 \item{plot_df}{the output from the \code{gwas_mappings} function.}
+
+\item{loc}{custom location to output the pxg plot. Specified as CHROM:POS (e.g. II:1023423)}
 }
 \value{
 Ouput is a ggplot object facetted by peak SNP (if there are multiple peaks in a mapping).
-Genotypes are encoded as 1 or 0 and are on the x-axis. Phenotypes are on y-axis.
+Genotypes are encoded as REF or ALT and are on the x-axis. Phenotypes are on y-axis.
 }
 \description{
 \code{pxg_plot} generates a boxplot of phenotypes split by genotype at QTL peak position using \code{ggplot2}
