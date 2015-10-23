@@ -20,15 +20,6 @@ gwas_mappings <- function(data, cores = 4, kin_matrix = kinship){
     tidyr::gather(strain, value, -trait)%>%
     tidyr::spread(trait, value) # extract phenotypes from phenotype object
   
-  # Warn user of strains that are not in kinship matrix and remove.
-  no_gt <- filter(x, !(strain %in% row.names(kinship)))
-  if (nrow(no_gt) > 0) {
-    for(i in 1:nrow(no_gt)) {
-      warning(paste0("No Genotype available for ", no_gt[i,"strain"], "; removing"), call. = F)
-    }
-  }
-  x <- dplyr::filter(x, strain %in% row.names(kinship))
-  
   # add marker column to snp set
   y <- data.frame(marker = paste(snps$CHROM,snps$POS,sep="_"),
                   snps)
@@ -37,19 +28,34 @@ gwas_mappings <- function(data, cores = 4, kin_matrix = kinship){
   
   kin <- as.matrix(kin_matrix)
   
+  strains <- data.frame(strain = x[,1])
+  
+  x <- x[,2:ncol(x)]
+  
+  nodes <- detectCores()
+  cl <- makeCluster(nodes)
+  registerDoParallel(cl)
+  
   # run mappings
   system.time(
-    maps <- rrBLUP::GWAS(pheno = x,
-                 geno = y,
-                 K = kin,
-                 min.MAF = .05,
-                 n.core = cores,
-                 P3D = FALSE,
-                 plot = FALSE)
-  )
+    maps <- foreach::foreach(i = iter(x, by = 'col')) %dopar% {
+      rrBLUP::GWAS(pheno = data.frame(strains, i),
+                   geno = y,
+                   K = kin,
+                   min.MAF = .05,
+                   n.core = cores,
+                   P3D = FALSE,
+                   plot = FALSE)
+    })
   
-  mappings <- maps %>%
-    tidyr::gather(trait, log10p, -marker, -CHROM, -POS)
+  stopCluster(cl)  
+  
+  for(i in 1:ncol(x)){
+    colnames(maps[[i]]) <- c("marker", "CHROM",  "POS",   "log10p")
+    maps[[i]]$trait <-  colnames(x)[i]
+  }
+  
+  mappings <- rbindlist(maps)
   
   return(mappings)
 }
