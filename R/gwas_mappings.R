@@ -32,9 +32,9 @@ gwas_mappings <- function(data, cores = 4, kin_matrix = kinship){
   
   x <- x[,2:ncol(x)]
   
-  nodes <- detectCores()
-  cl <- makeCluster(nodes)
-  registerDoParallel(cl)
+  nodes <- parallel::detectCores()
+  cl <- parallel::makeCluster(nodes)
+  doParallel::registerDoParallel(cl)
   
   # run mappings
   system.time(
