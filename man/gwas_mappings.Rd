@@ -4,7 +4,7 @@
 \alias{gwas_mappings}
 \title{GWAS Mappings}
 \usage{
-gwas_mappings(data, cores = 4, kin_matrix = kinship)
+gwas_mappings(data, cores = parallel::detectCores(), kin_matrix = kinship)
 }
 \arguments{
 \item{data}{two element list. element 1 : traits. element 2: trait values with strains in columns

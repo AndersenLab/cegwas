@@ -13,7 +13,7 @@
 #' @return Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.
 #' @export
 
-gwas_mappings <- function(data, cores = 4, kin_matrix = kinship){
+gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship){
   
   # phenotype prep
   x <- data.frame(trait = data[[1]], data[[2]])%>%
@@ -32,13 +32,12 @@ gwas_mappings <- function(data, cores = 4, kin_matrix = kinship){
   
   x <- x[,2:ncol(x)]
   
-  nodes <- parallel::detectCores()
-  cl <- parallel::makeCluster(nodes)
+  cl <- parallel::makeCluster(cores)
   doParallel::registerDoParallel(cl)
   
   # run mappings
   system.time(
-    maps <- foreach::foreach(i = iter(x, by = 'col')) %dopar% {
+    maps <- foreach::foreach(i = iterators::iter(x, by = 'col')) %dopar% {
       rrBLUP::GWAS(pheno = data.frame(strains, i),
                    geno = y,
                    K = kin,
@@ -48,14 +47,14 @@ gwas_mappings <- function(data, cores = 4, kin_matrix = kinship){
                    plot = FALSE)
     })
   
-  stopCluster(cl)  
+  parallel::stopCluster(cl)  
   
   for(i in 1:ncol(x)){
     colnames(maps[[i]]) <- c("marker", "CHROM",  "POS",   "log10p")
     maps[[i]]$trait <-  colnames(x)[i]
   }
   
-  mappings <- rbindlist(maps)
+  mappings <- dplyr::bind_rows(maps)
   
   return(mappings)
 }
