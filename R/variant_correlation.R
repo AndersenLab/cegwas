@@ -249,6 +249,7 @@ snpeff <- function(regions,
   
   # Fix region specifications
   region <- gsub("\\.\\.", "-", region)
+  region <- gsub(",", "", region)
   
   vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/", vcf_name)
   # Use remote if not available.
