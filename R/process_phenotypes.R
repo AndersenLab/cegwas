@@ -24,6 +24,7 @@
 #' @return Outputs a list. The first element of the list is an ordered vector of traits. 
 #' The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.
 #' @importFrom dplyr %>%
+#' @importFrom foreach %dopar%
 #' @export
 
 process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first"){
