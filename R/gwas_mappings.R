@@ -32,6 +32,8 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
   
   x <- data.frame(x[,2:ncol(x)])
   
+  colnames(x) <- data[[1]]
+  
   cl <- parallel::makeCluster(cores)
   doParallel::registerDoParallel(cl)
   
