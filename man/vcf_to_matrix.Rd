@@ -4,14 +4,12 @@
 \alias{vcf_to_matrix}
 \title{VCF To Matrix}
 \usage{
-vcf_to_matrix(vcf, allele_freq = 0, tag_snps = NA, chrom_pos_columns = T)
+vcf_to_matrix(vcf, allele_freq = 0, tag_snps = NA)
 }
 \arguments{
 \item{vcf}{a bcf, vcf, or vcf.gz file}
 
 \item{allele_freq}{allele frequency to filter on. Default is 0}
-
-\item{chrom_pos_columns}{If true, returns CHROM and POS columns.}
 
 \item{variants}{A set of variants to filter on. By default, all variants are taken.}
 }

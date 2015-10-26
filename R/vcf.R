@@ -6,12 +6,11 @@
 #' @param vcf a bcf, vcf, or vcf.gz file
 #' @param allele_freq allele frequency to filter on. Default is 0
 #' @param variants A set of variants to filter on. By default, all variants are taken.
-#' @param chrom_pos_columns If true, returns CHROM and POS columns.
 #' @return Matrix of genotype calls
 #' @seealso \link{generate_kinship} \link{generate_mapping}
 #' @export
 
-vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, chrom_pos_columns = T) {
+vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA) {
   gt_file <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = "")
   if (!is.na(tag_snps)) {
     tag_snps <- paste0("-T ", tag_snps)
@@ -37,13 +36,6 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, chrom_pos_colum
   system(command, intern = T)
   df <- dplyr::tbl_df(data.table::fread(gt_file))
   
-  # Fix position and unite columns.
-  if (chrom_pos_columns == F) {
-    df <- dplyr::mutate(df, POS=as.character(POS)) %>%
-      tidyr::unite(CHROM_POS, CHROM, POS, sep = "_")
-    row.names(df) <- df$CHROM_POS
-    df <- dplyr::select(df, -CHROM_POS)
-  }
   df
 }
 
@@ -59,7 +51,8 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, chrom_pos_colum
 #' @export
 
 generate_kinship <- function(vcf) {
-  df <- vcf_to_matrix(vcf)
+  df <- vcf_to_matrix(vcf) %>%
+    dplyr::select(-CHROM,-POS)
   rrBLUP::A.mat(t(data.matrix(df)))
 }
 
