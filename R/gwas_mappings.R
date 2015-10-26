@@ -92,7 +92,7 @@ keep_sig_maps <- function(mapping_df){
 #' @export
 
 cegwas_map <- function(trait_data, 
-                       cores = 4,
+                       cores = parallel::detectCores(),
                        remove_strains = TRUE, 
                        kin_matrix = kinship,
                        snpset = snps,
