@@ -4,9 +4,9 @@
 \alias{cegwas_map}
 \title{cegwas_map}
 \usage{
-cegwas_map(trait_data, cores = 4, remove_strains = TRUE,
-  kin_matrix = kinship, snpset = snps, duplicate_method = "first",
-  BF = NA)
+cegwas_map(trait_data, cores = parallel::detectCores(),
+  remove_strains = TRUE, kin_matrix = kinship, snpset = snps,
+  duplicate_method = "first", BF = NA)
 }
 \arguments{
 \item{cores}{number of cores on computer that you want to allocate for mapping. Default value is 4}
