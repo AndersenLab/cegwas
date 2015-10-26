@@ -12,8 +12,11 @@ gene_info <- readr::read_csv(gzfile(tmp), col_names = c("taxon","WBID","name","p
 gene_ids <- as.list(gene_info$name)
 names(gene_ids) <- gene_info$WBID
 
-# Isotypes
+# Generate kinship and mapping snp sets
+snps <- generate_mapping("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/20150731_WI_PASS.impute.gt.vcf.gz")
+kinship <- generate_kinship("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/20150731_WI_PASS.impute.gt.vcf.gz")
 
+# Isotypes
 strain_warnings <- read_tsv("data-raw/mapping_strain_isotype.tsv")
 strain_isotype <- strain_warnings$isotype
 names(strain_isotype) <- strain_warnings$strain
@@ -23,3 +26,4 @@ sw <- strain_warnings$warning_msg
 names(sw) <- strain_warnings$strain
 strain_warnings <- sw
 devtools::use_data(kinship, snps, gene_ids, strain_isotype, strain_warnings, internal = TRUE, overwrite = T)
+

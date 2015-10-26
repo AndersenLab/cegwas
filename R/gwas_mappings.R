@@ -10,10 +10,11 @@
 #' with each row corresponding to trait in element 1
 #' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
 #' @param kin_matrix is a strainXstrain matrix. default kinship matrix is described above.
+#' @param snps is a set of mapping snps.
 #' @return Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.
 #' @export
 
-gwas_mappings <- function(data, cores = 4,  kin_matrix = kinship){
+gwas_mappings <- function(data, cores = 4,  kin_matrix = kinship, snpset = snps){
   
   # phenotype prep
   x <- data.frame(trait = data[[1]], data[[2]])%>%
@@ -21,9 +22,8 @@ gwas_mappings <- function(data, cores = 4,  kin_matrix = kinship){
     tidyr::spread(trait, value) # extract phenotypes from phenotype object
   
   # add marker column to snp set
-  y <- data.frame(marker = paste(snps$CHROM,snps$POS,sep="_"),
-                  snps)
-  # encode 0 as 1 in SNP set
+  y <- data.frame(marker = paste(snpset$CHROM,snpset$POS,sep="_"),
+                  snpset)
   y[y == 0] <- -1
   
   kin <- as.matrix(kin_matrix)
@@ -57,6 +57,8 @@ gwas_mappings <- function(data, cores = 4,  kin_matrix = kinship){
 #' @param BF defines a custom bonferroni correction.
 #' @param remove_strains Remove strains with no known isotype. Default is FALSE.
 #' @param duplicate_method Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} to average phenotypes or \code{"first"} to take the first observation.
+#' @param kin_matrix is a strainXstrain matrix. default kinship matrix is described above.
+#' @param snps is a set of mapping snps.
 #' @return Outputs a two element list that contains two dataframes. 
 #' The first data frame is a processed mappings dataframe that contains the same columns
 #' as the output of \code{\link{gwas_mappings}} with two additional columns. One that contains
@@ -68,10 +70,13 @@ gwas_mappings <- function(data, cores = 4,  kin_matrix = kinship){
 cegwas_map <- function(trait_data, 
                        cores = 4,
                        remove_strains = TRUE, 
+                       kin_matrix = kinship,
+                       snpset = snps,
                        duplicate_method = "first",
+                       
                        BF = NA) {
   processed_phenotypes <- process_pheno(trait_data, remove_strains = remove_strains, duplicate_method = "first")
-  mapping_df <- gwas_mappings(processed_phenotypes, cores = cores)
+  mapping_df <- gwas_mappings(processed_phenotypes, kin_matrix = kin_matrix, snpset = snpset, cores = cores)
   processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = 200, BF = BF)
 }
 

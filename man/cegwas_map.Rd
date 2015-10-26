@@ -5,12 +5,15 @@
 \title{cegwas_map}
 \usage{
 cegwas_map(trait_data, cores = 4, remove_strains = TRUE,
-  duplicate_method = "first", BF = NA)
+  kin_matrix = kinship, snpset = snps, duplicate_method = "first",
+  BF = NA)
 }
 \arguments{
 \item{cores}{number of cores on computer that you want to allocate for mapping. Default value is 4}
 
 \item{remove_strains}{Remove strains with no known isotype. Default is FALSE.}
+
+\item{kin_matrix}{is a strainXstrain matrix. default kinship matrix is described above.}
 
 \item{duplicate_method}{Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} to average phenotypes or \code{"first"} to take the first observation.}
 
@@ -18,6 +21,8 @@ cegwas_map(trait_data, cores = 4, remove_strains = TRUE,
 
 \item{data}{two element list. element 1 : traits. element 2: trait values with strains in columns
 with each row corresponding to trait in element 1}
+
+\item{snps}{is a set of mapping snps.}
 }
 \value{
 Outputs a two element list that contains two dataframes.
