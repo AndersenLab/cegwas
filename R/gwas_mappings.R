@@ -11,6 +11,7 @@
 #' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
 #' @param kin_matrix is a strainXstrain matrix. default kinship matrix is described above.
 #' @return Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.
+#' @importFrom foreach %dopar%
 #' @export
 
 gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship, snpset = snps){
