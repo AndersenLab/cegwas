@@ -14,7 +14,6 @@
 #' @export
 
 gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship, snpset = snps){
-  
   # phenotype prep
   x <- data.frame(trait = data[[1]], data[[2]])%>%
     tidyr::gather(strain, value, -trait)%>%
@@ -98,7 +97,6 @@ cegwas_map <- function(trait_data,
                        kin_matrix = kinship,
                        snpset = snps,
                        duplicate_method = "first",
-                       
                        BF = NA) {
   processed_phenotypes <- process_pheno(trait_data, remove_strains = remove_strains, duplicate_method = "first")
   mapping_df <- gwas_mappings(processed_phenotypes, kin_matrix = kin_matrix, snpset = snpset, cores = cores)
