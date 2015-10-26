@@ -28,9 +28,6 @@
 
 process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first"){
   
-  # Rename first column strain
-  colnames(data)[1] <- "strain"
-  
   # Reshape data from wide to long
   if (sum(row.names(cegwas::kinship) %in% data[[1]]) > 3) {
     colnames(data)[1] <- "strain"
