@@ -77,6 +77,6 @@ generate_kinship <- function(vcf) {
 #' @seealso \link{vcf_to_matrix} \link{generate_mapping}
 #' @export
 
-generate_mapping <- function(vcf, allele_freq = 0.05, tag_snps = paste0(path.package("cegwas"),"/data/41188.WS245.txt.gz")) {
+generate_mapping <- function(vcf, allele_freq = 0.05, tag_snps = paste0(path.package("cegwas"),"/data/41188.WS245.txt")) {
   vcf_to_matrix(vcf, allele_freq = allele_freq, tag_snps = tag_snps) 
 }
