@@ -6,11 +6,12 @@
 #' @param vcf a bcf, vcf, or vcf.gz file
 #' @param allele_freq allele frequency to filter on. Default is 0
 #' @param variants A set of variants to filter on. By default, all variants are taken.
+#' @param chrom_pos_columns If true, returns CHROM and POS columns.
 #' @return Matrix of genotype calls
 #' @seealso \link{generate_kinship} \link{generate_mapping}
 #' @export
 
-vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA) {
+vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, chrom_pos_columns = T) {
   gt_file <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = "")
   if (!is.na(tag_snps)) {
     tag_snps <- paste0("-T ", tag_snps)
@@ -31,15 +32,19 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA) {
                     "sed 's/0\\/1/NA/g' | ",
                     "sed 's/1\\/0/NA/g' | ",
                     "sed 's/.\\/./NA/g'  > ", gt_file)
+  cat(command)
   # Generate simplified representation of genotypes
   system(command, intern = T)
   df <- dplyr::tbl_df(data.table::fread(gt_file))
   
   # Fix position and unite columns.
+  if (chrom_pos_columns == F) {
   df <- dplyr::mutate(df, POS=as.character(POS)) %>%
     tidyr::unite(CHROM_POS, CHROM, POS, sep = "_")
   row.names(df) <- df$CHROM_POS
   df <- dplyr::select(df, -CHROM_POS)
+  }
+  df
 }
 
 
@@ -72,16 +77,6 @@ generate_kinship <- function(vcf) {
 #' @seealso \link{vcf_to_matrix} \link{generate_mapping}
 #' @export
 
-generate_mapping <- function(vcf, allele_freq = 0.05, tag_snps = paste0(path.package("cegwas"),"/data/5percent_snps.WS245.tsv")) {
-  df <- vcf_to_matrix(vcf, allele_freq = allele_freq, tag_snps = tag_snps)
-  # Generate simplified representation of genotypes
-  system(command, intern = T)
-  df <- dplyr::tbl_df(data.table::fread(gt_file))
-  
-  # Fix position and unite columns.
-  df <- dplyr::mutate(df, POS=as.character(POS)) %>%
-    tidyr::unite(CHROM_POS, CHROM, POS, sep = "_")
-  row.names(df) <- df$CHROM_POS
-  df <- dplyr::select(df, -CHROM_POS)
-  df
+generate_mapping <- function(vcf, allele_freq = 0.05, tag_snps = paste0(path.package("cegwas"),"/data/41188.WS245.txt.gz")) {
+  vcf_to_matrix(vcf, allele_freq = allele_freq, tag_snps = tag_snps) 
 }
