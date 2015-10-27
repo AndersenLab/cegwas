@@ -4,12 +4,14 @@
 \alias{pxg_plot}
 \title{PxG plot}
 \usage{
-pxg_plot(plot_df, loc = NA)
+pxg_plot(plot_df, loc = NA, color_strains = c("N2", "CB4856"))
 }
 \arguments{
 \item{plot_df}{the output from the \code{gwas_mappings} function.}
 
 \item{loc}{custom location to output the pxg plot. Specified as CHROM:POS (e.g. II:1023423)}
+
+\item{color_strains}{character vector containing strains to color in plot. Default is c("N2","CB4856")}
 }
 \value{
 Ouput is a ggplot object facetted by peak SNP (if there are multiple peaks in a mapping).
