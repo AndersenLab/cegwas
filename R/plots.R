@@ -88,7 +88,7 @@ pxg_plot <- function(plot_df, loc = NA){
       dplyr::distinct() %>%
       dplyr::left_join(plot_peak) %>%
       dplyr::filter(!is.na(GT)) %>%
-      ggplot2::ggplot(., aes(x = GT, y = value, fill = GT)) + 
+      ggplot2::ggplot(., ggplot2::aes(x = GT, y = value, fill = GT)) + 
         ggplot2::scale_fill_brewer(palette = "Set1") +
         ggplot2::geom_boxplot() +
         ggplot2::theme_bw() +
