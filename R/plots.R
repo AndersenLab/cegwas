@@ -74,21 +74,22 @@ pxg_plot <- function(plot_df, loc = NA){
         na.omit() %>%
         dplyr::filter(trait == x) %>%
         dplyr::distinct(strain, value, peakPOS) %>%
-        dplyr::select(strain, value, CHROM, peakPOS, -allele) %>%
-        dplyr::mutate(chr_pos = paste(CHROM, peakPOS, sep="_"))
+        dplyr::select(strain, value, CHROM, POS = peakPOS, -allele) %>%
+        dplyr::mutate(chr_pos = paste(CHROM, POS, sep="_"))
       
       if (is.na(loc)) {
-      loc <- plot_peak %>% dplyr::select(CHROM, peakPOS) %>% 
-                    dplyr::distinct() %>% 
-                    dplyr::transmute(CHROM_POS = paste0(CHROM, ":",peakPOS))
+        loc <- plot_peak %>% dplyr::select(CHROM, POS) %>% 
+          dplyr::distinct() %>% 
+          dplyr::transmute(CHROM_POS = paste0(CHROM, ":",POS))
       }
       
       snpeff(loc[[1]], severity = c("MODIFIER", "LOW", "MODERATE", "HIGH")) %>%
-      dplyr::select(CHROM, POS, strain, GT) %>%
-      dplyr::distinct() %>%
-      dplyr::left_join(plot_peak) %>%
-      dplyr::filter(!is.na(GT)) %>%
-      ggplot2::ggplot(., ggplot2::aes(x = GT, y = value, fill = GT)) + 
+        dplyr::select(CHROM, POS, strain, GT) %>%
+        dplyr::distinct() %>%
+        dplyr::left_join(plot_peak) %>%
+        dplyr::distinct(strain, value, POS) %>%
+        dplyr::filter(!is.na(GT)) %>%
+        ggplot2::ggplot(., ggplot2::aes(x = GT, y = value, fill = GT)) + 
         ggplot2::scale_fill_brewer(palette = "Set1") +
         ggplot2::geom_boxplot() +
         ggplot2::theme_bw() +
