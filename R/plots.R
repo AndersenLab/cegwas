@@ -108,12 +108,12 @@ pxg_plot <- function(plot_df, loc = NA, color_strains = c("N2","CB4856")){
       ggplot2::theme_bw() +
       ggplot2::geom_jitter(ggplot2::aes(color = colors,
                                         size = colors)) +
-      ggplot2::scale_color_manual(values = c("black", "#EE8F03", "#2474FF", "orange", "green"),
+      ggplot2::scale_color_manual(values = c("black", "#2474FF", "#EE8F03", "red", "green"),
                                   labels = c("Other", 
                                              unique(to_plot$colors)[2], 
                                              unique(to_plot$colors)[3], 
                                              unique(to_plot$colors)[4], 
-                                             unique(to_plot$colors)[5]))+
+                                             unique(to_plot$colors)[5])) +
       ggplot2::scale_size_manual(values = c(2, 12, 12, 12, 12),
                                  labels = c("Other", 
                                             unique(to_plot$colors)[2], 
