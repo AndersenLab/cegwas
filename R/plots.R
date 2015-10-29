@@ -88,6 +88,7 @@ pxg_plot <- function(plot_df, loc = NA, color_strains = c("N2","CB4856")){
       dplyr::select(CHROM, POS, strain, GT) %>%
       dplyr::distinct() %>%
       dplyr::left_join(plot_peak) %>%
+      dplyr::filter(!is.na(value)) %>%
       dplyr::distinct(strain, value, POS) %>%
       dplyr::filter(!is.na(GT)) 
     
@@ -107,13 +108,13 @@ pxg_plot <- function(plot_df, loc = NA, color_strains = c("N2","CB4856")){
       ggplot2::theme_bw() +
       ggplot2::geom_jitter(ggplot2::aes(color = colors,
                                         size = colors)) +
-      ggplot2::scale_color_manual(values = c("black", "pink", "brown", "orange", "green"),
+      ggplot2::scale_color_manual(values = c("black", "#EE8F03", "#2474FF", "orange", "green"),
                                   labels = c("Other", 
                                              unique(to_plot$colors)[2], 
                                              unique(to_plot$colors)[3], 
                                              unique(to_plot$colors)[4], 
                                              unique(to_plot$colors)[5]))+
-      ggplot2::scale_size_manual(values = c(2, 4, 4, 4, 4),
+      ggplot2::scale_size_manual(values = c(2, 12, 12, 12, 12),
                                  labels = c("Other", 
                                             unique(to_plot$colors)[2], 
                                             unique(to_plot$colors)[3], 
