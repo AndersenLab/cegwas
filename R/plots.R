@@ -71,26 +71,34 @@ manplot <- function(plot_df) {
 pxg_plot <- function(plot_df, loc = NA, color_strains = c("N2","CB4856")){
   plot_traits <- unique(plot_df$trait)
   plots <- lapply(plot_traits, function(x) {
-    plot_peak <- plot_df %>%
+     plot_peak <- plot_df %>%
       na.omit() %>%
       dplyr::filter(trait == x) %>%
       dplyr::distinct(strain, value, peakPOS) %>%
       dplyr::select(strain, value, CHROM, POS = peakPOS, -allele) %>%
       dplyr::mutate(chr_pos = paste(CHROM, POS, sep="_"))
     
-    if (is.na(loc)) {
+     if (is.na(loc)) {   
       loc <- plot_peak %>% dplyr::select(CHROM, POS) %>% 
         dplyr::distinct() %>% 
-        dplyr::transmute(CHROM_POS = paste0(CHROM, ":",POS))
-    }
-    
-    to_plot <- snpeff(loc[[1]], severity = c("MODIFIER", "LOW", "MODERATE", "HIGH")) %>%
+        dplyr::transmute(chr_pos = paste0(CHROM, ":",POS))
+     }
+      
+      to_plot <- snpeff(loc[[1]], severity = c("MODIFIER", "LOW", "MODERATE", "HIGH")) %>%
       dplyr::select(CHROM, POS, strain, GT) %>%
-      dplyr::distinct() %>%
-      dplyr::left_join(plot_peak) %>%
-      dplyr::filter(!is.na(value)) %>%
+      dplyr::distinct() 
+      
+      if (!is.na(loc)) {
+        plot_peak <- mutate(plot_peak, CHROM = to_plot$CHROM[[1]], POS = to_plot$POS[[1]])
+        to_plot <- dplyr::left_join(to_plot, plot_peak) %>%
+          dplyr::mutate(chr_pos = paste(CHROM, POS, sep="_"))
+      }
+      
+      to_plot <- dplyr::left_join(to_plot, plot_peak)
+      to_plot <- dplyr::filter(to_plot, !is.na(value)) %>%
       dplyr::distinct(strain, value, POS) %>%
       dplyr::filter(!is.na(GT)) 
+
     
     if (!unique(is.na(color_strains))) {
       to_plot <- to_plot %>%
