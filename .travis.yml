@@ -1,0 +1,21 @@
+language: r
+bioc_required: true
+# Be strict when checking our package
+warnings_are_errors: true
+
+r_packages:
+  - rmarkdown
+
+# System dependencies for HTTP calling
+apt_packages:
+ - libcurl4-openssl-dev
+ - libxml2-dev
+r_binary_packages:
+ - RUnit
+ - testthat
+ - dplyr
+
+# Install the bleeding edge version of a package from github (eg to pick
+# up a not-yet-released bugfix)
+r_github_packages:
+ - hadley/httr
