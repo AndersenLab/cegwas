@@ -12,6 +12,7 @@ apt_packages:
  - libcurl4-openssl-dev
  - libxml2-dev
 r_binary_packages:
+ - ggplot2
  - RUnit
  - testthat
  - dplyr
