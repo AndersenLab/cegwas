@@ -1,5 +1,6 @@
 language: r
 bioc_required: true
+sudo: true
 # Be strict when checking our package
 warnings_are_errors: true
 
