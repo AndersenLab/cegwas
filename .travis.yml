@@ -11,6 +11,8 @@ r_packages:
 apt_packages:
  - libcurl4-openssl-dev
  - libxml2-dev
+ - bcftools
+
 r_binary_packages:
  - ggplot2
  - RUnit
