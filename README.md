@@ -1,5 +1,7 @@
 # cegwas
 
+[![Build Status](https://travis-ci.org/AndersenLab/cegwas.svg?branch=master)](https://travis-ci.org/AndersenLab/cegwas)
+
 ## Installation
 
 Install package:

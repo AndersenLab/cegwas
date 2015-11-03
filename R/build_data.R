@@ -20,7 +20,7 @@ library("devtools")
 
 # Strain Isotype File
 
-strain_isotype <- readr::read_tsv("data-raw/mapping_strain_isotype.tsv") %>%
+strain_isotype <- readr::read_tsv("inst/data-raw/mapping_strain_isotype.tsv") %>%
                   dplyr::arrange(strain, isotype)
 
 load("data/kinship.rda")
