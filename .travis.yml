@@ -22,10 +22,9 @@ before_install:
       brew update
       mkdir -p $(brew --repo)/Library/Taps
       ln -s $PWD $(brew --repo)/Library/Taps/travis-testtap
-      brew tap --repair
+      brew tap --repair;
       brew tap homebrew/science;
       brew update;
-      export TRAVIS_BUILD_DIR="$(brew --repo)/Library/Taps/homebrew/homebrew-science";
     fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
       git clone https://github.com/Homebrew/linuxbrew.git ~/.linuxbrew;
@@ -36,6 +35,7 @@ before_install:
 
 brew_packages:
   - homebrew/science/samtools
+  - homebrew/science/bcftools
 
 apt_packages:
 - libcurl4-openssl-dev
