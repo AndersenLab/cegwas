@@ -1,5 +1,5 @@
 language: r
-services:docker
+services: docker
 os:
 - linux
 - osx
