@@ -33,9 +33,9 @@ before_install:
         -v $(pwd):/home/linuxbrew/homebrew-science
         sjackman/linuxbrew-standalone
         /bin/sh -c 'brew tap homebrew/python && brew update && cp -rf ~/homebrew-science $(brew --repo)/Library/Taps/homebrew/homebrew-science';
+        /bin/sh -c 'brew install samtools;
       docker commit $(docker ps -l -q) linuxbrew;
     fi
-  - brew install homebrew/science/samtools
 
 brew_packages:
   - samtools
