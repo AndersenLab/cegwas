@@ -1,8 +1,9 @@
 language: r
+services:docker
 os:
 - linux
 - osx
-services:docker
+
 
 
 bioc_required: true
