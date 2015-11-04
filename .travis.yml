@@ -1,3 +1,7 @@
+os:
+  - linux
+  - osx
+
 language: r
 bioc_required: true
 sudo: true
@@ -8,6 +12,11 @@ r_packages:
   - rmarkdown
 
 # System dependencies for HTTP calling
+brew_packages:
+ - libcurl4-openssl-dev
+ - libxml2-dev
+ - samtools
+
 apt_packages:
  - libcurl4-openssl-dev
  - libxml2-dev
