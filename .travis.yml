@@ -28,13 +28,10 @@ before_install:
       export TRAVIS_BUILD_DIR="$(brew --repo)/Library/Taps/homebrew/homebrew-science";
     fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-      docker pull sjackman/linuxbrew-standalone;
-      docker run
-        -v $(pwd):/home/linuxbrew/homebrew-science
-        sjackman/linuxbrew-standalone
-        /bin/sh -c 'brew tap homebrew/science && brew update && cp -rf ~/homebrew-science $(brew --repo)/Library/Taps/homebrew/homebrew-science';
-        /bin/sh -c 'brew install homebrew/science/samtools;'
-      docker commit $(docker ps -l -q) linuxbrew;
+      git clone https://github.com/Homebrew/linuxbrew.git ~/.linuxbrew
+      export PATH="~/.linuxbrew/bin:~/.linuxbrew/sbin:$PATH"
+      brew tap homebrew/science
+      brew install homebrew/science/samtools
     fi
 
 brew_packages:
