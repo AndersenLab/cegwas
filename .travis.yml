@@ -28,10 +28,10 @@ before_install:
       export TRAVIS_BUILD_DIR="$(brew --repo)/Library/Taps/homebrew/homebrew-science";
     fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-      git clone https://github.com/Homebrew/linuxbrew.git ~/.linuxbrew
-      export PATH="~/.linuxbrew/bin:~/.linuxbrew/sbin:$PATH"
-      brew tap homebrew/science
-      brew install homebrew/science/samtools
+      git clone https://github.com/Homebrew/linuxbrew.git ~/.linuxbrew;
+      export PATH="~/.linuxbrew/bin:~/.linuxbrew/sbin:$PATH";
+      brew tap homebrew/science;
+      brew install homebrew/science/samtools;
     fi
 
 brew_packages:
