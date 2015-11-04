@@ -48,7 +48,6 @@ r_binary_packages:
 - dplyr
 
 r_github_packages:
-- hadley/httr
 - hadley/tidyr
 
 notifications:
