@@ -21,8 +21,8 @@ before_install:
       sudo chown -R $USER $(brew --repo);
       brew update
       mkdir -p $(brew --repo)/Library/Taps
-  	  ln -s $PWD $(brew --repo)/Library/Taps/travis-testtap
-  	  brew tap --repair
+      ln -s $PWD $(brew --repo)/Library/Taps/travis-testtap
+      brew tap --repair
       brew tap homebrew/science;
       brew update;
       export TRAVIS_BUILD_DIR="$(brew --repo)/Library/Taps/homebrew/homebrew-science";
