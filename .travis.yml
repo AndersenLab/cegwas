@@ -1,35 +1,36 @@
 os:
-  - linux
-  - osx
+- linux
+- osx
 
 language: r
+
 bioc_required: true
+
 sudo: true
-# Be strict when checking our package
+
 warnings_are_errors: true
 
 r_packages:
-  - rmarkdown
+- rmarkdown
 
-# System dependencies for HTTP calling
 brew_packages:
- - libcurl4-openssl-dev
- - libxml2-dev
- - samtools
+- samtools
 
 apt_packages:
- - libcurl4-openssl-dev
- - libxml2-dev
- - samtools
+- libcurl4-openssl-dev
+- libxml2-dev
+- samtools
 
 r_binary_packages:
- - ggplot2
- - RUnit
- - testthat
- - dplyr
+- ggplot2
+- RUnit
+- testthat
+- dplyr
 
-# Install the bleeding edge version of a package from github (eg to pick
-# up a not-yet-released bugfix)
 r_github_packages:
- - hadley/httr
- - hadley/tidyr
+- hadley/httr
+- hadley/tidyr
+
+notifications:
+  slack:
+    secure: PoAsMKixlymMsL25gqR4bbARNpJ6xUc5D2BRDADXjumE/k7MuJHLaPk7dk9rNzLwFgqygEoIOcdKi91vK4gcpjJyof8S9wsrDG0fXDLVN1hmh2iklQuG3uHObLilYfgIkugs7sPRamEDDAjsOZX3g3oatl6Ah9xgJrWtUTF3UeZVRpqsHiF7oSn/NpvhT8I/WCrYJAXJO8kDLJrYrNKZNKVbuQXg0kWvRNKrhzAi+iF7wB4k7lZK3NjThEZx7QRP5c9KLWxB0moNUqNPjBn9pD9cbZwniWt00aTSmPThu+4SVQpa4fyo5gnMHDltaVeubdNn9q/u4ivIFrCO4O0a9UsaWsW5CDDd2SgtUZgUpwN5Vx5Acs96i91IOYh4oDlEHA875Patn2wjbdwgZfnfHq2a5HO77riPcTwOmRzdeS56unMvy5QQ8CjAUhffen+A/jMtIUn/r4elO13R8Uy0XCogeFmn9v7S5Zk6Ofq3heRmGsUJmLciYrtzjjo6QB4iEOv8Iv8AtJam535uY77ywXSTwvVL4TLBayDUG5cv1jMTyWCQJEomrI1hXr5BszWNuHeUuoU9OvvrRecwtisQnd238ZyiVs9j3cX4xbsW2ObAnSDHY+67g5RFTb21MjPB6rfs6G/dgfYMe3At4u7oaLaF3K05EF7t+tjkP1sKmfA=
