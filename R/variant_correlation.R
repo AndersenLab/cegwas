@@ -270,7 +270,7 @@ snpeff <- function(regions,
   
   message(paste("Querying", region, local_or_remote))
   tsv <- try(readr::read_tsv(pipe(command), col_names = c(base_header, "ANN", sample_names)), silent = T) %>%
-         mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
+         dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
                 ALT = ifelse(ALT==TRUE, "T", ALT))
   # If no results are returned, stop.
   if (typeof(tsv) == "character") {

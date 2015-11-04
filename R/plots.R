@@ -89,7 +89,7 @@ pxg_plot <- function(plot_df, loc = NA, color_strains = c("N2","CB4856")){
       dplyr::distinct() 
       
       if (!is.na(loc)) {
-        plot_peak <- mutate(plot_peak, CHROM = to_plot$CHROM[[1]], POS = to_plot$POS[[1]])
+        plot_peak <- dplyr::mutate(plot_peak, CHROM = to_plot$CHROM[[1]], POS = to_plot$POS[[1]])
         to_plot <- dplyr::left_join(to_plot, plot_peak) %>%
           dplyr::mutate(chr_pos = paste(CHROM, POS, sep="_"))
       }
