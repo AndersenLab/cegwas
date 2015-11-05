@@ -78,7 +78,7 @@ Although this package comes with pre-built kinship and mapping datasets, it is p
 ```r
 pheno <- spike(snps, c(80, 1020))
 processed_phenotypes <- process_pheno(pheno)
-mapping_df <- gwas_mappings(processed_phenotypes, cores = 4, only_sig = FALSE)
+mapping_df <- gwas_mappings(processed_phenotypes, cores = 4)
 processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = 200)
 manplot(processed_mapping_df)
 ```
