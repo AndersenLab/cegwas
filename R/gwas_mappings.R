@@ -42,8 +42,13 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
       rrBLUP::GWAS(pheno = data.frame(strains, i),
                    geno = y,
                    K = kin,
+<<<<<<< Updated upstream
                    min.MAF = min.MAF,
                    n.core = cores,
+=======
+                   min.MAF = .05,
+                   n.core = 1,
+>>>>>>> Stashed changes
                    P3D = FALSE,
                    plot = FALSE)
     })
