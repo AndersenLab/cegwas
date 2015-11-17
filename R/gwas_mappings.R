@@ -10,22 +10,21 @@
 #' with each row corresponding to trait in element 1
 #' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
 #' @param kin_matrix is a strainXstrain matrix. default kinship matrix is described above.
+#' @param min.MAF Allele frequency at which to remove SNPs from mapping snpset (dependent on available strains).
 #' @return Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.
 #' @importFrom foreach %dopar%
 #' @export
 
-gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship, snpset = snps){
+gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship, snpset = snps, min.MAF = 0.05){
   # phenotype prep
-  x <- data.frame(trait = data[[1]], data[[2]])%>%
-    tidyr::gather(strain, value, -trait)%>%
+  x <- data.frame(trait = data[[1]], data[[2]]) %>%
+    tidyr::gather(strain, value, -trait) %>%
     tidyr::spread(trait, value) # extract phenotypes from phenotype object
   
   # add marker column to snp set
   y <- data.frame(marker = paste(snpset$CHROM,snpset$POS,sep="_"),
                   snpset)
-  # encode 0 as 1 in SNP set
-  y[y == 0] <- -1
-  
+
   kin <- as.matrix(kin_matrix)
   
   strains <- data.frame(strain = x[,1])
@@ -43,13 +42,18 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
       rrBLUP::GWAS(pheno = data.frame(strains, i),
                    geno = y,
                    K = kin,
-                   min.MAF = .05,
+<<<<<<< Updated upstream
+                   min.MAF = min.MAF,
                    n.core = cores,
+=======
+                   min.MAF = .05,
+                   n.core = 1,
+>>>>>>> Stashed changes
                    P3D = FALSE,
                    plot = FALSE)
     })
   
-  parallel::stopCluster(cl)  
+  parallel::stopCluster(cl)   
   
   for(i in 1:ncol(x)){
     colnames(maps[[i]]) <- c("marker", "CHROM",  "POS",   "log10p")
