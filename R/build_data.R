@@ -23,9 +23,10 @@ library("devtools")
 strain_isotype <- readr::read_tsv("inst/data-raw/mapping_strain_isotype.tsv") %>%
                   dplyr::arrange(strain, isotype)
 
+load("data/gene_ids.rda")
 load("data/kinship.rda")
 load("data/snps.rda")
 
 # Save Datasets
-devtools::use_data(kinship, snps, strain_isotype, internal = FALSE, overwrite = T)
+devtools::use_data(kinship, snps, strain_isotype, gene_ids, internal = FALSE, overwrite = T)
 
