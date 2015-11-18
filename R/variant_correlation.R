@@ -59,7 +59,7 @@ variant_correlation <- function(df,
     region_of_interest <- paste0(chr,":",left,"-",right)
     
     # run variant effect prediction function
-    snpeff_output <- snpeff(region = region_of_interest, impute = F) 
+    snpeff_output <- snpeff(region = region_of_interest) 
     
     # prune snpeff outputs
     pruned_snpeff_output <- snpeff_output %>%
@@ -203,7 +203,6 @@ process_correlations <- function(df){
 #' @param regions query A gene name, region, or wormbase identifier to query.
 #' @param severity A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high.
 #' @param long Return dataset in long or wide format. Default is to return in long format.
-#' @param impute Use imputed dataset. True by default.
 #' @param remote Use remote data. Checks for local data if possible. False by default.
 #' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
 #' @examples snpeff(c("pot-2","II:1-10000","WBGene00010785"))
