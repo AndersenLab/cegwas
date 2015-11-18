@@ -212,18 +212,13 @@ process_correlations <- function(df){
 snpeff <- function(regions,
                    severity = c("HIGH","MODERATE"),
                    long = TRUE,
-                   impute = FALSE,
                    remote = FALSE) {
   
   results <- lapply(regions, function(region) {
   # Fix region to allow wb type spec.
   
   # Set vcf path; determine whether local or remote
-  if (impute == T) {
-    vcf_name = "20150731_WI_PASS.impute.snpeff.vcf.gz"
-  } else {
-    vcf_name = "20150731_WI_PASS.snpeff.vcf.gz"
-  }
+  vcf_name = "WI.20151118.snpeff.vcf.gz"
   
   # Resolve region names
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", region)) {
