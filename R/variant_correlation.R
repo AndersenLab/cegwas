@@ -33,7 +33,7 @@ variant_correlation <- function(df,
   # unique strains to filter snpeff output for GWAS data - doesnt matter for genomic traits
   strains <- as.character(na.omit(unique(df$strain)))
   # set up the database to search for gene annotations using the biomart package
-  ensembl = useMart("ensembl",dataset="celegans_gene_ensembl")
+  ensembl = useMart("ENSEMBL_MART_ENSEMBL", host="www.ensembl.org", dataset="celegans_gene_ensembl")
   
   # initialize a list to store gene annotations for genes most highly correlated with phenotype
   intervalGENES <- list()
