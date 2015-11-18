@@ -15,8 +15,6 @@ snpeff(regions, severity = c("HIGH", "MODERATE"), long = TRUE,
 \item{long}{Return dataset in long or wide format. Default is to return in long format.}
 
 \item{remote}{Use remote data. Checks for local data if possible. False by default.}
-
-\item{impute}{Use imputed dataset. True by default.}
 }
 \value{
 Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
