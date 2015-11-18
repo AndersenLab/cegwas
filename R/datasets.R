@@ -27,3 +27,11 @@ NULL
 #' @name strain_isotype
 #' @format tbl_df
 NULL
+
+
+#' Gene IDs (Dataset)
+#'
+#' A list of wormbase to standard gene identifier (e.g. _pot-2_) identifiers.
+#' @name gene_ids
+#' @format tbl_df
+NULL
