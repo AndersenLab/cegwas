@@ -250,7 +250,12 @@ snpeff <- function(regions,
                 "feature_id", "transcript_biotype","exon_intron_rank",
                 "nt_change", "aa_change", "cDNA_position/cDNA_len", 
                 "protein_position", "distance_to_feature", "error", "extra")
-  command <- paste("bcftools","query","--regions", region, "-f", "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT,%GF,%DP,%DP4,%SP,%HP]\n'",vcf_path)
+  # If using long format provide additional information.
+  format <- "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT]\n'"
+  if (long == T) {
+    format <- "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT!%GF!%DP!%DP4!%SP!%HP]\n'"
+  }
+  command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
   
   message(paste("Querying", query, local_or_remote))
   tsv <- try(readr::read_tsv(pipe(command), col_names = c(base_header, "ANN", sample_names )), silent = T) %>%
@@ -277,7 +282,7 @@ snpeff <- function(regions,
       tsv
     } else {
       tsv <- tidyr::gather_(tsv, "strain", "GT", names(tsv)[23:length(tsv)])  %>%
-        tidyr::separate(GT, into=c("a1","a2", "GF", "DP", "DP4", "SP", "HP"), sep="/|\\,", remove=T) %>%
+        tidyr::separate(GT, into=c("a1","a2", "GF", "DP", "DP4", "SP", "HP"), sep="/|\\!", remove=T) %>%
         dplyr::mutate(a1=ifelse(a1 == ".", NA, a1)) %>%
         dplyr::mutate(a2=ifelse(a2 == ".", NA, a2)) %>%
         dplyr::mutate(GT = NA) %>%
