@@ -211,7 +211,8 @@ process_correlations <- function(df){
 snpeff <- function(regions,
                    severity = c("HIGH","MODERATE"),
                    long = TRUE,
-                   remote = FALSE) {
+                   remote = FALSE,
+                   type = "gene") {
   
   results <- lapply(regions, function(region) {
   # Fix region to allow wb type spec.
@@ -219,31 +220,21 @@ snpeff <- function(regions,
   # Set vcf path; determine whether local or remote
   vcf_name = "WI.20151118.snpeff.vcf.gz"
   
-  # Resolve region names
-  if (!grepl("(I|II|III|IV|V|X|MtDNA).*", region)) {
-    # Resolve WB name if necessary
-    gene_id <- names(which(gene_ids == region))
-    if (length(gene_id) == 1) {
-      wb_id <- gene_id
-      region <- wb_id
-    } else {
-      wb_id <- region
-    }
-    
-    if (gene_ids[wb_id] != "") {
-      gene_message <- paste0("(", gene_ids[wb_id][[1]], ")")
-    } else {
-      gene_message <- ""
-    }
-    message(paste("Looking up", region, gene_message, "position"))
-    wb_url <- paste0("http://api.wormbase.org/rest/field/gene/",wb_id, "/location/")
-    wb_ret <- httr::GET(wb_url, httr::add_headers("Content-Type"="application/json"))
-    region <- httr::content(wb_ret)$location$genomic_position$data[[1]]$label
-  } 
-  
   # Fix region specifications
   region <- gsub("\\.\\.", "-", region)
   region <- gsub(",", "", region)
+
+  # Resolve region names
+  if (!grepl("(I|II|III|IV|V|X|MtDNA).*", region)) {
+    elegans_gff <- tbl(src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
+    resolved_region <- collect(dplyr::filter(elegans_gff, id_value == region, type_of == type))[1,]
+    if (is.na(resolved_region$chrom)) {
+      stop(paste0(region, " not found."))
+    }
+    region <- resolved_region
+    region <- paste0(region$chrom, ":", region$start, "-", region$end)
+    message(paste0("Region - ", region))
+  } 
   
   vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/", vcf_name)
   # Use remote if not available.
