@@ -211,30 +211,29 @@ process_correlations <- function(df){
 snpeff <- function(regions,
                    severity = c("HIGH","MODERATE"),
                    long = TRUE,
-                   remote = FALSE,
-                   type = "gene") {
+                   remote = FALSE) {
   
-  results <- lapply(regions, function(region) {
-  # Fix region to allow wb type spec.
-  
+  results <- suppressWarnings(lapply(regions, function(query) {
+  # Save region as query
   # Set vcf path; determine whether local or remote
   vcf_name = "WI.20151118.snpeff.vcf.gz"
   
   # Fix region specifications
-  region <- gsub("\\.\\.", "-", region)
-  region <- gsub(",", "", region)
+  query <- gsub("\\.\\.", "-", query)
+  query <- gsub(",", "", query)
 
   # Resolve region names
-  if (!grepl("(I|II|III|IV|V|X|MtDNA).*", region)) {
+  if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
     elegans_gff <- tbl(src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
-    resolved_region <- collect(dplyr::filter(elegans_gff, id_value == region, type_of == type))[1,]
-    if (is.na(resolved_region$chrom)) {
-      stop(paste0(region, " not found."))
+    region <- collect(dplyr::filter(elegans_gff, id_value == query))[1,]
+    if (is.na(region$chrom)) {
+      stop(paste0(query, " not found."))
     }
-    region <- resolved_region
     region <- paste0(region$chrom, ":", region$start, "-", region$end)
-    message(paste0("Region - ", region))
-  } 
+    message(paste0("Query: ", query, "; region - ", region))
+  } else {
+    region <- query
+  }
   
   vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/", vcf_name)
   # Use remote if not available.
@@ -244,50 +243,84 @@ snpeff <- function(regions,
     local_or_remote <- "remotely"
   }
   
-  sample_names <- readr::read_lines(pipe(paste("bcftools","query","-l",vcf_path)))
+  sample_names <- readr::read_lines(suppressWarnings(pipe(paste("bcftools","query","-l",vcf_path))))
   base_header <- c("CHROM", "POS", "REF","ALT","FILTER")
   ANN_header = c("allele", "effect", "impact",
                 "gene_name", "gene_id", "feature_type", 
                 "feature_id", "transcript_biotype","exon_intron_rank",
                 "nt_change", "aa_change", "cDNA_position/cDNA_len", 
                 "protein_position", "distance_to_feature", "error", "extra")
-  command <- paste("bcftools","query","--regions", region, "-f", "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT]\n'",vcf_path)
+  command <- paste("bcftools","query","--regions", region, "-f", "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT,%GF,%DP,%DP4,%SP,%HP]\n'",vcf_path)
   
-  message(paste("Querying", region, local_or_remote))
-  tsv <- try(readr::read_tsv(pipe(command), col_names = c(base_header, "ANN", sample_names)), silent = T) %>%
+  message(paste("Querying", query, local_or_remote))
+  tsv <- try(readr::read_tsv(pipe(command), col_names = c(base_header, "ANN", sample_names )), silent = T) %>%
          dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
                 ALT = ifelse(ALT==TRUE, "T", ALT))
   # If no results are returned, stop.
-  if (typeof(tsv) == "character") {
-    stop("No Variants")
-  } 
-  tsv <-  dplyr::mutate(tsv, ANN=strsplit(ANN,",")) %>%
-          tidyr::unnest(ANN) %>%
-          tidyr::separate(ANN, into = ANN_header, sep = "\\|") %>%
-          dplyr::select(one_of(c(base_header, ANN_header)), everything(), -extra) %>%
-          dplyr::mutate(gene_name = as.character(gene_ids[gene_name]))
-  
-  tsv <-  dplyr::filter(tsv, impact %in% severity) 
-  if (nrow(tsv) == 0) {
-    message(paste("No Results for", region, "after filtering"))
-  }
-  if (long == FALSE) {
-    tsv
+  if (typeof(tsv) == "character" | nrow(tsv) == 0) {
+    warning("No Variants")
+    NA
   } else {
-    tsv <- tidyr::gather_(tsv, "strain", "GT", names(tsv)[21:length(tsv)])  %>%
-      tidyr::separate(GT, into=c("a1","a2"), sep="/|\\|", remove=T) %>%
-      dplyr::mutate(a1=ifelse(a1 == ".", NA, a1)) %>%
-      dplyr::mutate(a2=ifelse(a2 == ".", NA, a2)) %>%
-      dplyr::mutate(GT = NA) %>%
-      dplyr::mutate(GT = ifelse(a1 == REF & a2 == REF & !is.na(a1), "REF",GT)) %>%
-      dplyr::mutate(GT = ifelse(a1 != a2 & !is.na(a1), "HET",GT)) %>%
-      dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
-      dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, everything()) %>%
-      dplyr::arrange(CHROM, POS) 
+    tsv <-  dplyr::mutate(tsv, ANN=strsplit(ANN,",")) %>%
+            tidyr::unnest(ANN) %>%
+            tidyr::separate(ANN, into = ANN_header, sep = "\\|") %>%
+            dplyr::select(one_of(c(base_header, ANN_header)), everything(), -extra) %>%
+            dplyr::mutate(gene_name = as.character(gene_ids[gene_name])) %>%
+            dplyr::mutate(query = query, region = region) %>%
+            dplyr::select(CHROM, POS, query, region, everything())
+    
+    tsv <-  dplyr::filter(tsv, impact %in% severity) 
+    if (nrow(tsv) == 0) {
+      message(paste("No Results for", region, "after filtering"))
+    }
+    if (long == FALSE) {
+      tsv
+    } else {
+      tsv <- tidyr::gather_(tsv, "strain", "GT", names(tsv)[23:length(tsv)])  %>%
+        tidyr::separate(GT, into=c("a1","a2", "GF", "DP", "DP4", "SP", "HP"), sep="/|\\,", remove=T) %>%
+        dplyr::mutate(a1=ifelse(a1 == ".", NA, a1)) %>%
+        dplyr::mutate(a2=ifelse(a2 == ".", NA, a2)) %>%
+        dplyr::mutate(GT = NA) %>%
+        dplyr::mutate(GT = ifelse(a1 == REF & a2 == REF & !is.na(a1), "REF",GT)) %>%
+        dplyr::mutate(GT = ifelse(a1 != a2 & !is.na(a1), "HET",GT)) %>%
+        dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
+        dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, GF, DP, DP4, SP, HP, everything()) %>%
+        dplyr::arrange(CHROM, POS) 
+    }
+      tsv
   }
-    tsv
-  })
+  }
+  ))
   results <- do.call(rbind, results)
+  if (!"CHROM" %in% names(results)){
+    stop("No Results")
+  }
+  results <- results %>% dplyr::filter(!is.na(CHROM))
   results
 }
 
+
+#' Fetch Variant Type
+#'
+#' \code{fetch_id_type} Fetches wormbase identifiers of a certain class. These can be piped into \code{snpeff}
+#' 
+#' @param identifier.
+#' @return Vector of identifiers.
+#' @examples fetch_id_type("lincRNA")
+#' @export
+
+fetch_id_type <- function(id_type = NA) {
+    elegans_gff <- tbl(src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
+    valid_id_types <- dplyr::collect(elegans_gff %>%
+                                       dplyr::select(type_of) %>%
+                                       dplyr::distinct())$type_of
+    if (!(id_type %in% valid_id_types)) {
+        message("Available ID Types:")
+        cat(valid_id_types, sep = "\n")
+    } else {
+        dplyr::collect(elegans_gff %>%
+        dplyr::filter(type_of == id_type) %>%
+        dplyr::select(id_value))$id_value
+    }
+  
+}
