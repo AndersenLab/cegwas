@@ -213,6 +213,12 @@ snpeff <- function(regions,
                    long = TRUE,
                    remote = FALSE) {
   
+  # Ensure that bcftools is available:
+  bcftools_version <- readLines(pipe("bcftools --version"))[1]
+  if(is.na(bcftools_version) | bcftools_version != "bcftools 1.2") {
+    stop("bcftools 1.2+ required for this function")
+  }
+  
   results <- suppressWarnings(lapply(regions, function(query) {
   # Save region as query
   # Set vcf path; determine whether local or remote
