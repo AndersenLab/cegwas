@@ -230,7 +230,7 @@ snpeff <- function(regions,
 
   # Resolve region names
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
-    elegans_gff <- tbl(src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
+    elegans_gff <- dplyr::tbl(src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
     region <- collect(dplyr::filter(elegans_gff, id_value == query))[1,]
     if (is.na(region$chrom)) {
       stop(paste0(query, " not found."))
@@ -321,7 +321,7 @@ snpeff <- function(regions,
 #' @export
 
 fetch_id_type <- function(id_type = NA) {
-    elegans_gff <- tbl(src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
+    elegans_gff <- dplyr::tbl(src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
     valid_id_types <- dplyr::collect(elegans_gff %>%
                                        dplyr::select(type_of) %>%
                                        dplyr::distinct())$type_of
