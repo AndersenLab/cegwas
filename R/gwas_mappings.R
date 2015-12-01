@@ -11,11 +11,12 @@
 #' @param cores number of cores on computer that you want to allocate for mapping. Default value is 4
 #' @param kin_matrix is a strainXstrain matrix. default kinship matrix is described above.
 #' @param min.MAF Allele frequency at which to remove SNPs from mapping snpset (dependent on available strains).
+#' @param mapping_snp_set is a logical statement that, if TRUE, uses a pruned SNP set that was identified from simulation studies.
 #' @return Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.
 #' @importFrom foreach %dopar%
 #' @export
 
-gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship, snpset = snps, min.MAF = 0.05){
+gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship, snpset = snps, min.MAF = 0.05, mapping_snp_set = TRUE){
   # phenotype prep
   x <- data.frame(trait = data[[1]], data[[2]]) %>%
     tidyr::gather(strain, value, -trait) %>%
@@ -25,6 +26,14 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
   y <- data.frame(marker = paste(snpset$CHROM,snpset$POS,sep="_"),
                   snpset)
 
+  # option to only keep snp set identified using simulations
+  if(mapping_snp_set == TRUE){
+    y <- snpset %>% 
+      dplyr::mutate(snp = paste(CHROM, POS, sep="_")) %>% 
+      dplyr::filter(snp %in% data.frame(mapping_snps)$CHROM_POS) %>%
+      dplyr::select(-snp)
+  }
+  
   kin <- as.matrix(kin_matrix)
   
   strains <- data.frame(strain = x[,1])
