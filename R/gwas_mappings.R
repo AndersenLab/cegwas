@@ -28,10 +28,8 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
 
   # option to only keep snp set identified using simulations
   if(mapping_snp_set == TRUE){
-    y <- snpset %>% 
-      dplyr::mutate(snp = paste(CHROM, POS, sep="_")) %>% 
-      dplyr::filter(snp %in% data.frame(mapping_snps)$CHROM_POS) %>%
-      dplyr::select(-snp)
+    y <- y %>% 
+      dplyr::filter(marker %in% data.frame(mapping_snps)$CHROM_POS)
   }
   
   kin <- as.matrix(kin_matrix)
