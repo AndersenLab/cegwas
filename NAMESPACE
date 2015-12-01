@@ -2,6 +2,7 @@
 
 export(calculate_VE)
 export(cegwas_map)
+export(fetch_id_type)
 export(find_peaks)
 export(gene_variants)
 export(generate_kinship)

@@ -5,7 +5,7 @@
 \title{GWAS Mappings}
 \usage{
 gwas_mappings(data, cores = parallel::detectCores(), kin_matrix = kinship,
-  snpset = snps, min.MAF = 0.05)
+  snpset = snps, min.MAF = 0.05, mapping_snp_set = TRUE)
 }
 \arguments{
 \item{data}{two element list. element 1 : traits. element 2: trait values with strains in columns
@@ -16,6 +16,8 @@ with each row corresponding to trait in element 1}
 \item{kin_matrix}{is a strainXstrain matrix. default kinship matrix is described above.}
 
 \item{min.MAF}{Allele frequency at which to remove SNPs from mapping snpset (dependent on available strains).}
+
+\item{mapping_snp_set}{is a logical statement that, if TRUE, uses a pruned SNP set that was identified from simulation studies.}
 }
 \value{
 Outputs a data frame with the following columns : marker, CHROM, POS, trait, log10p, where marker is CHROM_POS.
