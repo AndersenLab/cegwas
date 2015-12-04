@@ -25,13 +25,13 @@ before_install:
       brew tap --repair;
       brew tap homebrew/science;
       brew update;
-      export PATH="$HOME/.linuxbrew/bin:$PATH";
     fi
   - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
       git clone https://github.com/Homebrew/linuxbrew.git ~/.linuxbrew;
-      export PATH="~/.linuxbrew/bin:~/.linuxbrew/sbin:$PATH";
+      export PATH="$HOME/.linuxbrew/bin:$PATH";
       brew tap homebrew/science;
       brew install homebrew/science/samtools;
+      brew install homebrew/science/bcftools;
     fi
 
 brew_packages:
