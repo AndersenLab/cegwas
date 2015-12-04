@@ -216,7 +216,7 @@ snpeff <- function(...,
   regions <- unlist(list(...))
   
   # Allow user to specify 'ALL'
-  if (severity == c("ALL")) {
+  if ("ALL" %in% severity) {
     severity <-  c("LOW", "MODERATE", "HIGH", 'MODIFIER')
   }
   
@@ -255,6 +255,9 @@ snpeff <- function(...,
   if (!file.exists(vcf_path) | remote == T) {
     vcf_path <- paste0("http://storage.googleapis.com/andersen/", vcf_name)
     local_or_remote <- "remotely"
+  }
+  if (local_or_remote == "locally") {
+    system(paste0("touch ", vcf_path,".csi"))
   }
   
   sample_names <- readr::read_lines(suppressWarnings(pipe(paste("bcftools","query","-l",vcf_path))))

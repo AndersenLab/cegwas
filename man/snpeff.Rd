@@ -4,13 +4,12 @@
 \alias{snpeff}
 \title{Browse Variant Info}
 \usage{
-snpeff(regions, severity = c("HIGH", "MODERATE"), long = TRUE,
-  remote = FALSE)
+snpeff(..., severity = c("HIGH", "MODERATE"), long = TRUE, remote = FALSE)
 }
 \arguments{
-\item{regions}{query A gene name, region, or wormbase identifier to query.}
+\item{...}{Gene names, regions, or wormbase identifiers to query.}
 
-\item{severity}{A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high.}
+\item{severity}{A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high. Use "ALL" to return all variants.}
 
 \item{long}{Return dataset in long or wide format. Default is to return in long format.}
 
