@@ -203,3 +203,57 @@ gene_variants <- function(gene){
   
   return(gene_variant_plot)
 }
+
+#' Plot LD values for significant SNPs in a mapping
+#'
+#' \code{plot_peak_ld} generates a plot to visualize LD (r) for significant SNPs in a mapping 
+#'
+#'
+#' @param plot_df is the output from the process_mappings function. 
+#' @param plot_trait is a string object corresponding to a trait of interest if plot_df has multiple traits in it.
+#' @return returns an LDHeatmap object of SNPs that are above the Bonferroni corrected p-value
+#' @examples  plot_peak_ld(processed_mapping_df) - for a one trait mapping data frame
+#' @examples plot_peak_ld(plot_df = all_maps, plot_trait = "amsacrine_f.l1") - for a multiple trait mapping data frame
+#' @export
+
+plot_peak_ld <- function(plot_df, plot_trait = NULL){
+  
+  
+  if(is.null(plot_trait)){
+    snp_df <- plot_df%>%
+      na.omit()
+  } else {
+    snp_df <- dplyr::filter(plot_df, trait == plot_trait) %>%
+      na.omit()
+  }
+  
+  ld_snps <- dplyr::filter(snps, CHROM %in% snp_df$CHROM, POS %in% snp_df$POS) 
+  ld_snps <- data.frame(snp_id = paste(ld_snps$CHROM, ld_snps$POS, sep = "_"), 
+                        data.frame(ld_snps)[,3:ncol(ld_snps)])
+  
+  sn <- list()
+  
+  for(i in 1:nrow(ld_snps)){
+    sn[[i]] <- genetics::genotype(as.character( gsub(1, "T/T", gsub(-1, "A/A" , ld_snps[i,2:ncol(ld_snps)]) )))
+  }
+  
+  test <- data.frame(sn)
+  colnames(test) <- (ld_snps$snp_id)
+  
+  if(ncol(test) == 1){
+    print("Only one significant SNP, not calculating LD")
+  } else {
+    rgb.palette <- grDevices::colorRampPalette(rev(c("blue", "orange", "red")), space = "rgb")
+    ld_outs <- LDheatmap::LDheatmap(test, LDmeasure = "r", 
+                                    SNP.name = colnames(test), 
+                                    # flip=TRUE,
+                                    color=rgb.palette(18))
+    
+    
+    LD.grob1 <- grid::editGrob(ld_outs$LDheatmapGrob, gPath("heatMap", "title"), gp = gpar(cex = 1.25, col = "black"))
+    LD.grob2 <- grid::editGrob(LD.grob1, gPath("geneMap","title"), gp = gpar(cex = 0, col = "orange"))
+    LD.grob3 <- grid::editGrob(LD.grob2, gPath("Key", "title"), gp = gpar(cex = 1.25, col = "black"))
+    grid::grid.newpage()
+    grid::grid.draw(LD.grob3)
+  }
+}
