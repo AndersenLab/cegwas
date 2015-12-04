@@ -341,8 +341,12 @@ fetch_id_type <- function(id_type = NA) {
         message("Available ID Types:")
         cat(valid_id_types, sep = "\n")
     } else {
-        dplyr::collect(elegans_gff %>%
+        (dplyr::collect(elegans_gff %>%
         dplyr::filter(type_of == id_type) %>%
+        dplyr::arrange(desc(id_key))) %>%
+        dplyr::group_by(chrom, start, end) %>%
+        dplyr::mutate(rn = row_number()) %>%
+        dplyr::filter(rn == 1) %>%
         dplyr::select(id_value))$id_value
     }
   
