@@ -238,7 +238,7 @@ snpeff <- function(...,
   # Resolve region names
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
     elegans_gff <- dplyr::tbl(dplyr::src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
-    region <- collect(dplyr::filter(elegans_gff, id_value == query))[1,]
+    region <- dplyr::collect(dplyr::filter(elegans_gff, id_value == query))[1,]
     if (is.na(region$chrom)) {
       message(paste0(query, " not found."))
       region <- NA
