@@ -200,18 +200,25 @@ process_correlations <- function(df){
 #'
 #' \code{snpeff} enables you to query variants called and annotated by the \href{http://www.andersenlab.org}{Andersen Lab}. 
 #' 
-#' @param regions query A gene name, region, or wormbase identifier to query.
-#' @param severity A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high.
+#' @param ... Gene names, regions, or wormbase identifiers to query.
+#' @param severity A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high. Use "ALL" to return all variants.
 #' @param long Return dataset in long or wide format. Default is to return in long format.
 #' @param remote Use remote data. Checks for local data if possible. False by default.
 #' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
 #' @examples snpeff(c("pot-2","II:1-10000","WBGene00010785"))
 #' @export
 
-snpeff <- function(regions,
+snpeff <- function(...,
                    severity = c("HIGH","MODERATE"),
                    long = TRUE,
                    remote = FALSE) {
+  
+  regions <- unlist(list(...))
+  
+  # Allow user to specify 'ALL'
+  if (severity == c("ALL")) {
+    severity <-  c("LOW", "MODERATE", "HIGH", 'MODIFIER')
+  }
   
   # Ensure that bcftools is available:
   bcftools_version <- readLines(pipe("bcftools --version"))[1]
@@ -230,13 +237,14 @@ snpeff <- function(regions,
 
   # Resolve region names
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
-    elegans_gff <- dplyr::tbl(src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
+    elegans_gff <- dplyr::tbl(dplyr::src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
     region <- collect(dplyr::filter(elegans_gff, id_value == query))[1,]
     if (is.na(region$chrom)) {
-      stop(paste0(query, " not found."))
-    }
+      message(paste0(query, " not found."))
+      region <- NA
+    } else {
     region <- paste0(region$chrom, ":", region$start, "-", region$end)
-    message(paste0("Query: ", query, "; region - ", region))
+    }
   } else {
     region <- query
   }
@@ -262,43 +270,44 @@ snpeff <- function(regions,
     format <- "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT!%GF!%DP!%DP4!%SP!%HP]\n'"
   }
   command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
-  
-  message(paste("Querying", query, local_or_remote))
-  tsv <- try(readr::read_tsv(pipe(command), col_names = c(base_header, "ANN", sample_names )), silent = T) %>%
-         dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
-                ALT = ifelse(ALT==TRUE, "T", ALT))
-  # If no results are returned, stop.
-  if (typeof(tsv) == "character" | nrow(tsv) == 0) {
-    warning("No Variants")
-    NA
-  } else {
-    tsv <-  dplyr::mutate(tsv, ANN=strsplit(ANN,",")) %>%
-            tidyr::unnest(ANN) %>%
-            tidyr::separate(ANN, into = ANN_header, sep = "\\|") %>%
-            dplyr::select(one_of(c(base_header, ANN_header)), everything(), -extra) %>%
-            dplyr::mutate(gene_name = as.character(gene_ids[gene_name])) %>%
-            dplyr::mutate(query = query, region = region) %>%
-            dplyr::select(CHROM, POS, query, region, everything())
-    
-    tsv <-  dplyr::filter(tsv, impact %in% severity) 
-    if (nrow(tsv) == 0) {
-      message(paste("No Results for", region, "after filtering"))
-    }
-    if (long == FALSE) {
-      tsv
+  if (!is.na(region)) {
+    message(paste0("Query: ", query, "; region - ", region, "; ", local_or_remote))
+    tsv <- try(readr::read_tsv(pipe(command), col_names = c(base_header, "ANN", sample_names )), silent = T) %>%
+           dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
+                  ALT = ifelse(ALT==TRUE, "T", ALT))
+    # If no results are returned, stop.
+    if (typeof(tsv) == "character" | nrow(tsv) == 0) {
+      warning("No Variants")
+      NA
     } else {
-      tsv <- tidyr::gather_(tsv, "strain", "GT", names(tsv)[23:length(tsv)])  %>%
-        tidyr::separate(GT, into=c("a1","a2", "GF", "DP", "DP4", "SP", "HP"), sep="/|\\!", remove=T) %>%
-        dplyr::mutate(a1=ifelse(a1 == ".", NA, a1)) %>%
-        dplyr::mutate(a2=ifelse(a2 == ".", NA, a2)) %>%
-        dplyr::mutate(GT = NA) %>%
-        dplyr::mutate(GT = ifelse(a1 == REF & a2 == REF & !is.na(a1), "REF",GT)) %>%
-        dplyr::mutate(GT = ifelse(a1 != a2 & !is.na(a1), "HET",GT)) %>%
-        dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
-        dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, GF, DP, DP4, SP, HP, everything()) %>%
-        dplyr::arrange(CHROM, POS) 
+      tsv <-  dplyr::mutate(tsv, ANN=strsplit(ANN,",")) %>%
+              tidyr::unnest(ANN) %>%
+              tidyr::separate(ANN, into = ANN_header, sep = "\\|") %>%
+              dplyr::select(one_of(c(base_header, ANN_header)), everything(), -extra) %>%
+              dplyr::mutate(gene_name = as.character(gene_ids[gene_name])) %>%
+              dplyr::mutate(query = query, region = region) %>%
+              dplyr::select(CHROM, POS, query, region, everything())
+      
+      tsv <-  dplyr::filter(tsv, impact %in% severity) 
+      if (nrow(tsv) == 0) {
+        message(paste("No Results for", region, "after filtering"))
+      }
+      if (long == FALSE) {
+        tsv
+      } else {
+        tsv <- tidyr::gather_(tsv, "strain", "GT", names(tsv)[23:length(tsv)])  %>%
+          tidyr::separate(GT, into=c("a1","a2", "GF", "DP", "DP4", "SP", "HP"), sep="/|\\!", remove=T) %>%
+          dplyr::mutate(a1=ifelse(a1 == ".", NA, a1)) %>%
+          dplyr::mutate(a2=ifelse(a2 == ".", NA, a2)) %>%
+          dplyr::mutate(GT = NA) %>%
+          dplyr::mutate(GT = ifelse(a1 == REF & a2 == REF & !is.na(a1), "REF",GT)) %>%
+          dplyr::mutate(GT = ifelse(a1 != a2 & !is.na(a1), "HET",GT)) %>%
+          dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
+          dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, GF, DP, DP4, SP, HP, everything()) %>%
+          dplyr::arrange(CHROM, POS) 
+      }
+        tsv
     }
-      tsv
   }
   }
   ))
