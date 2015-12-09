@@ -221,15 +221,15 @@ snpeff <- function(...,
   }
   
   # Ensure that bcftools is available:
-  bcftools_version <- readLines(pipe("bcftools --version"))[1]
-  if(is.na(bcftools_version) | bcftools_version != "bcftools 1.2") {
+  bcftools_version <- as.double(str_extract(readLines(pipe("bcftools --version"))[1], "[0-9]+\\.[0-9]+"))
+  if(is.na(bcftools_version) | bcftools_version < 1.2) {
     stop("bcftools 1.2+ required for this function")
   }
   
   results <- suppressWarnings(lapply(regions, function(query) {
   # Save region as query
   # Set vcf path; determine whether local or remote
-  vcf_name = "WI.20151201.snpeff.vcf.gz"
+  vcf_name = "WI.20151208.snpeff.vcf.gz"
   
   # Fix region specifications
   query <- gsub("\\.\\.", "-", query)
