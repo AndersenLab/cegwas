@@ -270,7 +270,7 @@ snpeff <- function(...,
   # If using long format provide additional information.
   format <- "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT]\n'"
   if (long == T) {
-    format <- "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT!%GF!%DP!%DP4!%SP!%HP]\n'"
+    format <- "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT!%FT!%DP!%DP4!%SP!%HP]\n'"
   }
   command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
   if (!is.na(region)) {
@@ -299,14 +299,14 @@ snpeff <- function(...,
         tsv
       } else {
         tsv <- tidyr::gather_(tsv, "strain", "GT", names(tsv)[23:length(tsv)])  %>%
-          tidyr::separate(GT, into=c("a1","a2", "GF", "DP", "DP4", "SP", "HP"), sep="/|\\!", remove=T) %>%
+          tidyr::separate(GT, into=c("a1","a2", "FT", "DP", "DP4", "SP", "HP"), sep="/|\\!", remove=T) %>%
           dplyr::mutate(a1=ifelse(a1 == ".", NA, a1)) %>%
           dplyr::mutate(a2=ifelse(a2 == ".", NA, a2)) %>%
           dplyr::mutate(GT = NA) %>%
           dplyr::mutate(GT = ifelse(a1 == REF & a2 == REF & !is.na(a1), "REF",GT)) %>%
           dplyr::mutate(GT = ifelse(a1 != a2 & !is.na(a1), "HET",GT)) %>%
           dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
-          dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, GF, DP, DP4, SP, HP, everything()) %>%
+          dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, FT, FILTER, DP, DP4, SP, HP, everything()) %>%
           dplyr::arrange(CHROM, POS) 
       }
         tsv
