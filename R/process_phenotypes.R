@@ -152,6 +152,7 @@ remove_lowFreq_phenotypes <- function(data, wide = TRUE){
       dplyr::group_by(trait)%>% # group
       dplyr::mutate(nst = n(), # number strain per trait
              nuniq = length(unique(value)))%>% # number of unique values
+      dplyr::filter(nuniq !=1) %>%
       dplyr::mutate(u1 = ifelse(nuniq == 2, unique(value)[1], -9999), # if two unique values, add first unique value
              u2 = ifelse(nuniq == 2, unique(value)[2], -9999))%>% # if two unique values, add second unique value
       dplyr::mutate(count1 = ifelse(u1 != -9999 & value == unique(value)[1], 1, 0), # add 1 if value = first unique (requires only 2 uniques)
@@ -170,6 +171,7 @@ remove_lowFreq_phenotypes <- function(data, wide = TRUE){
       dplyr::group_by(trait)%>% # group
       dplyr::mutate(nst = n(), # number strain per trait
              nuniq = length(unique(value)))%>% # number of unique values
+      dplyr::filter(nuniq !=1) %>%
       dplyr::mutate(u1 = ifelse(nuniq == 2, unique(value)[1], -9999), # if two unique values, add first unique value
              u2 = ifelse(nuniq == 2, unique(value)[2], -9999))%>% # if two unique values, add second unique value
       dplyr::mutate(count1 = ifelse(u1 != -9999 & value == unique(value)[1], 1, 0), # add 1 if value = first unique (requires only 2 uniques)
