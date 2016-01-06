@@ -21,10 +21,13 @@ if not os.path.exists(gff):
     comm = "curl {gff_url} > {gff}".format(**locals())
     print(check_output(comm, shell = True))
 
+
 try:
-    os.remove("elegans_gff.db")
+    os.remove("celegans_gff.db")
 except:
     pass
+
+
 
 
 db = SqliteDatabase('celegans_gff.db')
@@ -34,31 +37,29 @@ class BaseModel(Model):
     class Meta:
         database = db
 
-class Region(BaseModel):
-  chrom= CharField()
+class Feature(BaseModel):
+  chrom = CharField()
+  source = CharField()
+  type_of = CharField()
   start = IntegerField()
   end = IntegerField()
-  #strand = CharField()
-  #reading_frame = CharField()
+  score = IntegerField(null = True)
+  strand = FixedCharField(null = True, max_length = 1)
+  reading_frame = IntegerField(null = True)
 
   class Meta:
     order_by = ('chrom',)
 
-class Id_Set(BaseModel):
-  region = ForeignKeyField(Region, related_name="ID", null=True )
-  type_of = CharField(index = True, null = True)
+class Attribute(BaseModel):
+  feature = ForeignKeyField(Feature, related_name="ID", null=True )
   id_key = CharField(index = True, null=True)
   id_value = CharField(index = True, null=True)
   
   class Meta:
     database = db
-    indexes = (
-            # create a unique on from/to/date
-            (('region', 'type_of', 'id_key', 'id_value'), True),
-            )
 
-db.create_tables([Region,Id_Set])
-db.execute_sql("CREATE VIEW IF NOT EXISTS region_id AS SELECT chrom, start, end, type_of, id_key, id_value FROM region JOIN id_set ON region.id == id_set.region_id;")
+db.create_tables([Feature,Attribute])
+db.execute_sql("CREATE VIEW IF NOT EXISTS feature_id AS SELECT chrom, source, type_of, start, end, score, strand, reading_frame, id_key, id_value FROM feature JOIN attribute ON feature.id == attribute.feature_id;")
 
 
 def boolify(s):
@@ -95,23 +96,16 @@ with gzip.open(gff, 'rb') as f:
                     print c, record["chrom"], record["start"]
                 #Put in bulk, every 1000th iteration
                 record = OrderedDict(zip(header, map(autoconvert, line)))
-                if any([record["attributes"].find(k) > 0 for k in correct_ids]):
-                    region_save = {k:v for k,v in record.items() if k in ["chrom","start","end"]}
-                    region_id, success = Region.get_or_create(**region_save)
-                    if not success:
-                        region_id.save()
-                    id_group = []
-                    id_record = {}
-                    for ID, VAL in re.findall("([^=;]+)=([^; ]+)", record["attributes"]):
-                        if ID in correct_ids:
-                            if VAL.find(":") > 0:
-                                VAL = VAL.split(":")[1]
-                            id_record["id_key"]= ID
-                            id_record["type_of"]= record["type_of"]
-                            id_record["id_value"] = VAL
-                            id_record["region"] = region_id.get_id()
-                            rec, success = Id_Set.get_or_create(**id_record)
-                            rec.save()
+                attributes = dict([(e.split("=")[0], autoconvert(e.split("=")[1])) for e in record["attributes"].split(";")])
+                del record["attributes"]
+                if record["score"] == '.':
+                    record["score"] = None
+                if record["reading_frame"] == ".":
+                    record["reading_frame"] = None
+                feature_id, success = Feature.get_or_create(**record)
+                if success:
+                    for k,v in attributes.items():
+                        Attribute.get_or_create(feature = feature_id.get_id(), id_key = k, id_value = v)
 
 db.close()
 
