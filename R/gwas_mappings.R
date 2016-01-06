@@ -68,16 +68,6 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
 }
 
 
-# only keep significant mappings
-keep_sig_maps <- function(mapping_df){
-  
-  sig_maps <- mapping_df %>%
-    dplyr::group_by( trait ) %>%
-    dplyr::filter( max(log10p) > -log10(.05/n()))
-  
-  return(sig_maps)
-}
-
 #' cegwas_map
 #'
 #' \code{cegwas_map} is a convenience function takes trait data for a set of strains and performs
