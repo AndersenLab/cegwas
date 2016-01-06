@@ -229,7 +229,7 @@ snpeff <- function(...,
   results <- suppressWarnings(lapply(regions, function(query) {
   # Save region as query
   # Set vcf path; determine whether local or remote
-  vcf_name = "WI.20150104.snpeff.vcf.gz"
+  vcf_name = "WI.20160106.snpeff.vcf.gz"
   
   # Fix region specifications
   query <- gsub("\\.\\.", "-", query)
