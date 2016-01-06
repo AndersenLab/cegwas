@@ -4,18 +4,18 @@
 #'
 #'
 #' @param plot_df the output from the \code{gwas_mappings} function. 
+#' @param bf_line_color Set color of bonferroni line.
 #' @return Ouput is a ggplot object facetted by chromosome. SNPs above bonferroni corrected p-value (gray line) are colored blue.
 #' Confidence interval for a given peak is highlighted in red.
 #' @export
 
 
-manplot <- function(plot_df) {
+manplot <- function(plot_df, bf_line_color = "#0080FF") {
     plot_traits <- unique(plot_df$trait)
     plots <- lapply(plot_traits, function(i) {
         plot_df %>%
         dplyr::filter(trait == i) %>%
         dplyr::distinct(marker) %>%
-        dplyr::mutate(n_snps = n())%>%
         ggplot2::ggplot(.) +
         ggplot2::aes(x = POS/1e6, y = log10p) +
         ggplot2::scale_color_manual(values = c("black","blue","red")) +
@@ -27,13 +27,9 @@ manplot <- function(plot_df) {
                                alpha=.1), 
                            color = NA)+
         ggplot2::geom_hline(ggplot2::aes(yintercept = BF),
-                            color = "gray", 
+                            color = bf_line_color, 
                             alpha = .75,  
                             size = 1) +
-        ggplot2::geom_hline(ggplot2::aes(yintercept = -log10(.05/n_snps)),
-                            color = "gray", 
-                            alpha = .75,  
-                            size = 1)+
         ggplot2::geom_point( ggplot2::aes(color= factor(aboveBF)) ) +
         ggplot2::facet_grid( . ~ CHROM, scales = "free_x" ) +
         ggplot2::theme_bw() +
