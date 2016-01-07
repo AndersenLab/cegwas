@@ -29,7 +29,7 @@ load("data/snps.rda")
 # cegwas db; if db file not exist or outdated then download.
 wb_build <- 245
 file_path <- paste0("~/.WS", wb_build, ".elegans_gff.db")
-if (file.exists(file_path) == FALSE) {
+if (file.info(file_path)$size ==0 | is.na(file.info(file_path)$size == 0)) {
   message(paste0("Downloading Gene Database to ", file_path))
   url <- paste0("http://storage.googleapis.com/cegwas/WS", wb_build, ".celegans_gff.db")
   download.file(url, file_path)
