@@ -38,8 +38,13 @@ class BaseModel(Model):
         database = db
 
 class Feature(BaseModel):
+  name = CharField(null = True)
+  wbID = CharField(null = True, index = True)
+  biotype = CharField(null = True, max_length = 25)
+  locus = CharField(null = True, max_length = 15)
+  sequence_name = CharField(null = True)
+  parent = CharField(null = True)
   chrom = CharField()
-  source = CharField()
   type_of = CharField()
   start = IntegerField()
   end = IntegerField()
@@ -50,17 +55,15 @@ class Feature(BaseModel):
   class Meta:
     order_by = ('chrom',)
 
-class Attribute(BaseModel):
-  feature = ForeignKeyField(Feature, related_name="ID", null=True )
-  id_key = CharField(index = True, null=True)
-  id_value = CharField(index = True, null=True)
-  
-  class Meta:
-    database = db
+#class Attribute(BaseModel):
+#  feature = ForeignKeyField(Feature, related_name="ID", null=True )
+#  attr_key = CharField(index = True, null=True)
+#  attr_value = CharField(index = True, null=True)
+#  
+#  class Meta:
+#    database = db
 
-db.create_tables([Feature,Attribute])
-db.execute_sql("CREATE VIEW IF NOT EXISTS feature_id AS SELECT chrom, source, type_of, start, end, score, strand, reading_frame, id_key, id_value FROM feature JOIN attribute ON feature.id == attribute.feature_id;")
-
+db.create_tables([Feature])
 
 def boolify(s):
     if s == 'True':
@@ -77,9 +80,9 @@ def autoconvert(s):
             pass
     return s
 
+
 correct_ids = ["locus", "Name", "sequence_name"]
 header = ["chrom", "source", "type_of", "start", "end", "score", "strand", "reading_frame", "attributes"]
-
 with gzip.open(gff, 'rb') as f:
     c = 0
     while True:
@@ -98,14 +101,29 @@ with gzip.open(gff, 'rb') as f:
                 record = OrderedDict(zip(header, map(autoconvert, line)))
                 attributes = dict([(e.split("=")[0], autoconvert(e.split("=")[1])) for e in record["attributes"].split(";")])
                 del record["attributes"]
+
+                # Fix score and reading frame None
                 if record["score"] == '.':
                     record["score"] = None
                 if record["reading_frame"] == ".":
                     record["reading_frame"] = None
+
+                for x in ["ID","Name","biotype","locus", "Parent", "sequence_name"]:
+                    if x == "ID":
+                        recx = "wbID"
+                    else:
+                        recx = x.lower()
+                    if x in attributes:
+                        record[recx] = attributes[x]
+                        del attributes[x]
+                    else:
+                        record[recx] = None
+                del record["source"]
                 feature_id, success = Feature.get_or_create(**record)
-                if success:
-                    for k,v in attributes.items():
-                        Attribute.get_or_create(feature = feature_id.get_id(), id_key = k, id_value = v)
+
+db.execute_sql("""CREATE TABLE feature_set AS SELECT gene_info.*, feature.chrom as chrom, feature.start as start, feature.end as end, feature.strand as strand, feature.score as score, feature.reading_frame as reading_frame, feature.type_of as type_of FROM (SELECT parent.*, feature.wbID as transcript_id FROM (SELECT wbID as gene_id, biotype, locus, sequence_name FROM feature WHERE wbID LIKE "Gene:%") as parent JOIN feature ON parent.gene_id == feature.parent) AS gene_info JOIN feature ON gene_info.transcript_id == feature.parent""")
+db.drop_tables([Feature])
+
 
 db.close()
 
