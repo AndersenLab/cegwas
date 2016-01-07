@@ -50,7 +50,7 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
                    geno = y,
                    K = kin,
                    min.MAF = min.MAF,
-                   n.core = cores,
+                   n.core = 1,
                    P3D = FALSE,
                    plot = FALSE)
     })
