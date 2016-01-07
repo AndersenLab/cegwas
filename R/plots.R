@@ -10,7 +10,7 @@
 #' @export
 
 
-manplot <- function(plot_df, bf_line_color = "#0080FF") {
+manplot <- function(plot_df, bf_line_color = "gray") {
     plot_traits <- unique(plot_df$trait)
     plots <- lapply(plot_traits, function(i) {
         plot_df %>%
