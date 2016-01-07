@@ -19,7 +19,7 @@ cegwas_map(trait_data, cores = parallel::detectCores(),
 
 \item{BF}{defines a custom bonferroni correction.}
 
-\item{mapping_snp_set}{Use simulation based snps when TRUE. Use 5% cut when FALSE.}
+\item{mapping_snp_set}{Use simulation based snps when TRUE. Use 5\% cut when FALSE.}
 
 \item{data}{two element list. element 1 : traits. element 2: trait values with strains in columns
 with each row corresponding to trait in element 1}

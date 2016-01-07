@@ -4,12 +4,15 @@
 \alias{snpeff}
 \title{Browse Variant Info}
 \usage{
-snpeff(..., severity = c("HIGH", "MODERATE"), long = TRUE, remote = FALSE)
+snpeff(..., severity = c("HIGH", "MODERATE"), elements = c("exon"),
+  long = TRUE, remote = FALSE)
 }
 \arguments{
 \item{...}{Gene names, regions, or wormbase identifiers to query.}
 
 \item{severity}{A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high. Use "ALL" to return all variants.}
+
+\item{elements}{A vector containing gene structural elements (CDS, five_prime_UTR, exon, intron, three_prime_UTR). Use "ALL" to return all variants.}
 
 \item{long}{Return dataset in long or wide format. Default is to return in long format.}
 
@@ -22,6 +25,6 @@ Outputs a data frame that contains phenotype data, mapping data, and gene inform
 \code{snpeff} enables you to query variants called and annotated by the \href{http://www.andersenlab.org}{Andersen Lab}.
 }
 \examples{
-snpeff(c("pot-2","II:1-10000","WBGene00010785"))
+snpeff("pot-2","II:1-10000","WBGene00010785")
 }
 

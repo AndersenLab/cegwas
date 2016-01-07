@@ -6,6 +6,9 @@
 \usage{
 fetch_id_type(id_type = NA)
 }
+\arguments{
+\item{id_type}{Type of genetic element. Omit for list of options.}
+}
 \value{
 Vector of identifiers.
 }

@@ -82,7 +82,7 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
 #' @param duplicate_method Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} to average phenotypes or \code{"first"} to take the first observation.
 #' @param kin_matrix is a strainXstrain matrix. default kinship matrix is described above.
 #' @param snps is a set of mapping snps.
-#' @param mapping_snp_set Use simulation based snps when TRUE. Use 5% cut when FALSE.
+#' @param mapping_snp_set Use simulation based snps when TRUE. Use 5\% cut when FALSE.
 #' @return Outputs a two element list that contains two dataframes. 
 #' The first data frame is a processed mappings dataframe that contains the same columns
 #' as the output of \code{\link{gwas_mappings}} with two additional columns. One that contains

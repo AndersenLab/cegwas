@@ -202,14 +202,16 @@ process_correlations <- function(df){
 #' 
 #' @param ... Gene names, regions, or wormbase identifiers to query.
 #' @param severity A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high. Use "ALL" to return all variants.
+#' @param elements A vector containing gene structural elements (CDS, five_prime_UTR, exon, intron, three_prime_UTR). Use "ALL" to return all variants.
 #' @param long Return dataset in long or wide format. Default is to return in long format.
 #' @param remote Use remote data. Checks for local data if possible. False by default.
 #' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
-#' @examples snpeff(c("pot-2","II:1-10000","WBGene00010785"))
+#' @examples snpeff("pot-2","II:1-10000","WBGene00010785")
 #' @export
 
 snpeff <- function(...,
                    severity = c("HIGH","MODERATE"),
+                   elements = c("exon"),
                    long = TRUE,
                    remote = FALSE) {
   
@@ -219,9 +221,12 @@ snpeff <- function(...,
   if ("ALL" %in% severity) {
     severity <-  c("LOW", "MODERATE", "HIGH", 'MODIFIER')
   }
+  if ("ALL" %in% elements) {
+    elements <- c("CDS", "five_prime_UTR", "exon", "intron", "three_prime_UTR")
+  }
   
   # Ensure that bcftools is available:
-  bcftools_version <- as.double(str_extract(readLines(pipe("bcftools --version"))[1], "[0-9]+\\.[0-9]+"))
+  bcftools_version <- as.double(stringr::str_extract(readLines(pipe("bcftools --version"))[1], "[0-9]+\\.[0-9]+"))
   if(is.na(bcftools_version) | bcftools_version < 1.2) {
     stop("bcftools 1.2+ required for this function")
   }
@@ -237,14 +242,16 @@ snpeff <- function(...,
 
   # Resolve region names
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
-    elegans_gff <- dplyr::tbl(dplyr::src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
-    region <- dplyr::collect(dplyr::filter(elegans_gff, id_value == query))[1,]
-    if (is.na(region$chrom)) {
-      message(paste0(query, " not found."))
-      region <- NA
-    } else {
-    region <- paste0(region$chrom, ":", region$start, "-", region$end)
-    }
+    elegans_gff <- dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
+    # Pull out regions by element type.
+    region <- paste((dplyr::bind_rows(lapply(elements, function(e) {
+      dplyr::collect(dplyr::filter(elegans_gff, locus == query | gene_id == query | sequence_name == query, type_of == e))
+      })) %>%
+      dplyr::mutate(region_format = paste0(chrom, ":", start, "-", end)))$region_format, collapse = ",")
+      if (stringr::str_length(regions[[1]]) == 0) {
+        message(paste0(query, " not found."))
+        region <- NA
+      }
   } else {
     region <- query
   }
@@ -327,27 +334,23 @@ snpeff <- function(...,
 #'
 #' \code{fetch_id_type} Fetches wormbase identifiers of a certain class. These can be piped into \code{snpeff}
 #' 
-#' @param identifier.
+#' @param id_type Type of genetic element. Omit for list of options.
 #' @return Vector of identifiers.
 #' @examples fetch_id_type("lincRNA")
 #' @export
 
 fetch_id_type <- function(id_type = NA) {
-    elegans_gff <- dplyr::tbl(dplyr::src_sqlite(system.file("elegans_gff.db", package="cegwas")),"region_id")
+    elegans_gff <- dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
     valid_id_types <- dplyr::collect(elegans_gff %>%
-                                       dplyr::select(type_of) %>%
-                                       dplyr::distinct())$type_of
+                                       dplyr::select(biotype) %>%
+                                       dplyr::distinct())$biotype
     if (!(id_type %in% valid_id_types)) {
         message("Available ID Types:")
         cat(valid_id_types, sep = "\n")
     } else {
         (dplyr::collect(elegans_gff %>%
-        dplyr::filter(type_of == id_type) %>%
-        dplyr::arrange(desc(id_key))) %>%
-        dplyr::group_by(chrom, start, end) %>%
-        dplyr::mutate(rn = row_number()) %>%
-        dplyr::filter(rn == 1) %>%
-        dplyr::select(id_value))$id_value
+        dplyr::filter(biotype == id_type, type_of == "exon") %>%
+        dplyr::select(gene_id)))$gene_id
     }
   
 }

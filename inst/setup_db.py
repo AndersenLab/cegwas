@@ -40,9 +40,9 @@ class BaseModel(Model):
 class Feature(BaseModel):
   name = CharField(null = True)
   wbID = CharField(null = True, index = True)
-  biotype = CharField(null = True, max_length = 25)
-  locus = CharField(null = True, max_length = 15)
-  sequence_name = CharField(null = True)
+  biotype = CharField(null = True, index = True, max_length = 25)
+  locus = CharField(null = True, index = True, max_length = 15)
+  sequence_name = CharField(null = True, index = True)
   parent = CharField(null = True)
   chrom = CharField()
   type_of = CharField()
@@ -100,6 +100,10 @@ with gzip.open(gff, 'rb') as f:
                 #Put in bulk, every 1000th iteration
                 record = OrderedDict(zip(header, map(autoconvert, line)))
                 attributes = dict([(e.split("=")[0], autoconvert(e.split("=")[1])) for e in record["attributes"].split(";")])
+                for k,v in attributes.items():
+                    if type(v) == str:
+                        if v.find(":") > 0:
+                            attributes[k] = v.split(":")[1]
                 del record["attributes"]
 
                 # Fix score and reading frame None
@@ -121,7 +125,12 @@ with gzip.open(gff, 'rb') as f:
                 del record["source"]
                 feature_id, success = Feature.get_or_create(**record)
 
-db.execute_sql("""CREATE TABLE feature_set AS SELECT gene_info.*, feature.chrom as chrom, feature.start as start, feature.end as end, feature.strand as strand, feature.score as score, feature.reading_frame as reading_frame, feature.type_of as type_of FROM (SELECT parent.*, feature.wbID as transcript_id FROM (SELECT wbID as gene_id, biotype, locus, sequence_name FROM feature WHERE wbID LIKE "Gene:%") as parent JOIN feature ON parent.gene_id == feature.parent) AS gene_info JOIN feature ON gene_info.transcript_id == feature.parent""")
+db.execute_sql("""CREATE TABLE feature_set AS SELECT gene_info.*, feature.chrom as chrom, feature.start as start, feature.end as end, feature.strand as strand, feature.score as score, feature.reading_frame as reading_frame, feature.type_of as type_of FROM (SELECT parent.*, feature.wbID as transcript_id FROM (SELECT wbID as gene_id, biotype, locus, sequence_name FROM feature WHERE wbID LIKE "WBGene%") as parent JOIN feature ON parent.gene_id == feature.parent) AS gene_info JOIN feature ON gene_info.transcript_id == feature.parent""")
+for i in ["gene_id", "biotype","locus","sequence_name", "transcript_id", "chrom", "start", "end"]:
+    db.execute_sql("""CREATE INDEX {x}_index ON feature_set ({x})""".format(x=i))
+
+db.execute_sql("""CREATE INDEX sequence_name_id ON feature_set (gene_id)""")
+
 db.drop_tables([Feature])
 
 
