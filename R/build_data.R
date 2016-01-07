@@ -20,7 +20,7 @@ library("devtools")
 
 # Strain Isotype File
 strain_isotype <- readr::read_tsv("inst/data-raw/mapping_strain_isotype.tsv") %>%
-                  dplyr::arrange(strain, isotype)
+  dplyr::arrange(strain, isotype)
 
 load("data/gene_ids.rda")
 load("data/kinship.rda")
@@ -31,11 +31,11 @@ wb_build <- 245
 file_path <- paste0("~/.WS", wb_build, ".elegans_gff.db")
 if (file.exists(file_path) == FALSE) {
   message(paste0("Downloading Gene Database to ", file_path))
-  url <- paste0("https://storage.googleapis.com/cegwas/WS", wb_build, ".celegans_gff.db")
+  url <- paste0("http://storage.googleapis.com/cegwas/WS", wb_build, ".celesgans_gff.db")
   download.file(url, file_path)
 }
 
 
 # Save Datasets
-devtools::use_data(kinship, snps, strain_isotype, gene_ids, internal = FALSE, overwrite = T)
+devtools::use_data(kinship, snps, strain_isotype, gene_ids, wb_build, internal = FALSE, overwrite = T)
 
