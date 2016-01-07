@@ -611,7 +611,9 @@ process_mappings <- function(mapping_df,
     
     peak_list[[i]]$trait <- as.character(peak_list[[i]]$trait)
     
-    peak_list[[i]] <- dplyr::distinct(peak_list[[i]], pID)
+    peak_list[[i]] <- peak_list[[i]] %>%
+      dplyr::arrange(desc(log10p)) %>%
+      dplyr::distinct( pID)
     
     # FILTER TO LOOK AT ONE PHENOTYPE AT A TIME
     # FILTER APPROPRIATE INTERVAL INDICIES AND CHROMOSOMES FOR THAT PHENOTYPE
