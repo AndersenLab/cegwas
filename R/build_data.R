@@ -31,7 +31,7 @@ wb_build <- 245
 file_path <- paste0("~/.WS", wb_build, ".elegans_gff.db")
 if (file.exists(file_path) == FALSE) {
   message(paste0("Downloading Gene Database to ", file_path))
-  url <- paste0("http://storage.googleapis.com/cegwas/WS", wb_build, ".celesgans_gff.db")
+  url <- paste0("http://storage.googleapis.com/cegwas/WS", wb_build, ".celegans_gff.db")
   download.file(url, file_path)
 }
 
