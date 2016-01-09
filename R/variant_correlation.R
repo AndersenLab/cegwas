@@ -420,10 +420,10 @@ interval_summary <- function(query, filter_variants = T) {
   mvariants$max_severity <- rseverity[apply(mvariants %>% dplyr::select(-CHROM, -POS) %>% t(), 2, max)]
   
   # Take all annotations and filter for the maximal impact at each position (so only maximal variant effects are counted)
-  max_severity <- mvariants %>% dplyr::group_by(max_severity) %>% summarize(n = n()) 
+  max_severity <- mvariants %>% dplyr::group_by(max_severity) %>% dplyr::summarize(n = n()) 
   
   # Calculate raw number of annotations
-  variant_summary <- as.data.frame(t(mvariants %>% select(-CHROM, -POS, -max_severity) %>% summarize_each(dplyr::funs(sum(. > 0))))) %>%
+  variant_summary <- as.data.frame(t(mvariants %>% select(-CHROM, -POS, -max_severity) %>% dplyr::summarize_each(dplyr::funs(sum(. > 0))))) %>%
                  dplyr::add_rownames() %>%
                  dplyr::rename(effect = rowname, n_variants = V1) %>%
                  dplyr::left_join(variant_gene_summary, .)
