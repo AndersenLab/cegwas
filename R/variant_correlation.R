@@ -402,7 +402,7 @@ interval_summary <- function(query, filter_variants = T) {
   }
   
   variant_gene_summary <- variants %>% dplyr::select(gene_id, gene_name, effect, impact) %>% 
-    dplyr::mutate(gene_name = ifelse(is.na(gene_name), gene_id, gene_name)) %>%
+    dplyr::mutate(gene_name = ifelse(gene_name == "", gene_id, gene_name)) %>%
     dplyr::group_by(gene_id, effect) %>%
     dplyr::filter(!grepl("-", gene_id)) %>% # Remove intergene regions
     dplyr::distinct() %>%
