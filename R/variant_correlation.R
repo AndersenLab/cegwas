@@ -354,3 +354,108 @@ fetch_id_type <- function(id_type = NA) {
     }
   
 }
+
+#' Interval Summary
+#'
+#' \code{interval_summary} Summarizes variation within an interval.
+#' Can also be used to summarize regions by wormbase identifier or locus name.
+#' 
+#' @param query A query such as \code{pot-2}, \code{I:1-1000}, \code{WBGene00010195}.
+#' @param filter_variants Filter out poor quality variants. Default is TRUE.
+#' @return data frame of summarized information.
+#' @examples interval_summary("pot-1")
+#' @export
+
+interval_summary <- function(query, filter_variants = T) {
+  elegans_gff <- dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
+  if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
+  interval <- (collect(elegans_gff %>%
+    dplyr::filter(locus == query | gene_id == query | sequence_name == query) %>%
+    dplyr::select(chrom, start, end) %>% 
+    dplyr::summarize(chrom = chrom, start = min(start), end = max(end))) %>%
+    dplyr::mutate(interval = paste0(chrom, ":", start, "-", end)))$interval
+  } else {
+    interval <- query
+  }
+  
+  # Parse interval
+  q_interval <- str_split(interval, "[\\.:-]+")[[1]]
+  qchrom <- q_interval[[1]]
+  qstart <- as.integer(q_interval[[2]])
+  qend   <- as.integer(q_interval[[3]])
+  
+  region_elements <- collect(elegans_gff %>%
+    dplyr::filter(chrom == qchrom, start >= qstart, end <= qend) %>% 
+    dplyr::group_by(biotype) %>%
+    dplyr::select(biotype, locus, gene_id) %>%
+    dplyr::distinct()) %>%
+    dplyr::mutate(locus = ifelse(is.na(locus), gene_id, locus)) %>%
+    dplyr::select(biotype, locus) %>%
+    dplyr::group_by(biotype) %>% 
+    dplyr::mutate(n = n())
+  
+  total_genes <- sum(element_summary$n)
+  
+  variants <- snpeff(interval, severity = "ALL", elements = "ALL") %>%
+              dplyr::filter(GT != "REF") 
+  
+  if (filter_variants == TRUE) {
+    variants <- dplyr::filter(variants, FILTER == "PASS", FT == "PASS")
+  }
+  
+  variant_gene_summary <- variants %>% dplyr::select(gene_id, gene_name, effect, impact) %>% 
+    dplyr::mutate(gene_name = ifelse(is.na(gene_name), gene_id, gene_name)) %>%
+    dplyr::group_by(gene_id, effect) %>%
+    dplyr::filter(!grepl("-", gene_id)) %>% # Remove intergene regions
+    dplyr::distinct() %>%
+    tidyr::nest(gene_id, gene_name) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(n_genes = length(gene_id))
+
+
+  mvariants <- variants %>% dplyr::group_by(CHROM, POS, effect) %>%
+              dplyr::select(CHROM, POS, impact, effect) %>%
+              dplyr::distinct() %>%
+              tidyr::spread(effect, impact) %>%
+              dplyr::mutate_each(funs(sev), matches("_"))
+  
+  mvariants$max_severity <- rseverity[apply(mvariants %>% dplyr::select(-CHROM, -POS) %>% t(), 2, max)]
+  
+  # Take all annotations and filter for the maximal impact at each position (so only maximal variant effects are counted)
+  max_severity <- mvariants %>% dplyr::group_by(max_severity) %>% summarize(n = n()) 
+  
+  # Calculate raw number of annotations
+  variant_summary <- as.data.frame(t(mvariants %>% select(-CHROM, -POS, -max_severity) %>% summarize_each(funs(sum(. > 0))))) %>%
+                 dplyr::add_rownames() %>%
+                 dplyr::rename(effect = rowname, n_variants = V1) %>%
+                 dplyr::left_join(variant_gene_summary, .)
+  
+  # Count total number of snps
+  total_snps <- nrow(variants %>% select(CHROM, POS) %>% distinct())
+
+ results <-  list("query" = query,
+       "region" = region,
+       "chrom" = qchrom,
+       "start" = qstart,
+       "end" = qend,
+       "snps" = total_snps,
+       "variant_summary" = variant_summary,
+       "max_severity_variants" = max_severity
+       )
+  results
+   
+}
+
+tf <- function(x) { ifelse(!is.na(x), T, F)}
+severity <- list("MODIFIER" = 1, "LOW" = 2, "MODERATE" = 3, "HIGH" = 4)
+rseverity <- names(severity)
+names(rseverity) <- 1:4
+sev <- function(col) { sapply(col, function(x) { 
+  if (is.na(x)) { 
+    0              
+  } else {
+    severity[[x]] 
+  }
+})
+}
+
