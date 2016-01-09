@@ -391,8 +391,7 @@ interval_summary <- function(query, filter_variants = T) {
     dplyr::distinct()) %>%
     dplyr::mutate(locus = ifelse(is.na(locus), gene_id, locus)) %>%
     dplyr::select(biotype, locus) %>%
-    dplyr::group_by(biotype) %>% 
-    dplyr::mutate(n = n())
+    dplyr::group_by(biotype)
   
   variants <- snpeff(interval, severity = "ALL", elements = "ALL") %>%
               dplyr::filter(GT != "REF") 
@@ -448,7 +447,8 @@ interval_summary <- function(query, filter_variants = T) {
        "genes_w_MOD_HIGH" = genes_w_MOD_HIGH,
        "genes_w_HIGH" = genes_w_HIGH,
        "variant_summary" = variant_summary,
-       "max_severity_variants" = max_severity
+       "max_severity_variants" = max_severity,
+       "region_genes" = region_elements
        )
   results
    
