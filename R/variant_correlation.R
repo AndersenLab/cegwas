@@ -394,8 +394,6 @@ interval_summary <- function(query, filter_variants = T) {
     dplyr::group_by(biotype) %>% 
     dplyr::mutate(n = n())
   
-  total_genes <- sum(region_elements$n)
-  
   variants <- snpeff(interval, severity = "ALL", elements = "ALL") %>%
               dplyr::filter(GT != "REF") 
   
@@ -417,7 +415,7 @@ interval_summary <- function(query, filter_variants = T) {
               dplyr::select(CHROM, POS, impact, effect) %>%
               dplyr::distinct() %>%
               tidyr::spread(effect, impact) %>%
-              dplyr::mutate_each(funs(sev), matches("_"))
+              dplyr::mutate_each(dplyr::funs(sev), matches("_"))
   
   mvariants$max_severity <- rseverity[apply(mvariants %>% dplyr::select(-CHROM, -POS) %>% t(), 2, max)]
   
@@ -425,7 +423,7 @@ interval_summary <- function(query, filter_variants = T) {
   max_severity <- mvariants %>% dplyr::group_by(max_severity) %>% summarize(n = n()) 
   
   # Calculate raw number of annotations
-  variant_summary <- as.data.frame(t(mvariants %>% select(-CHROM, -POS, -max_severity) %>% summarize_each(funs(sum(. > 0))))) %>%
+  variant_summary <- as.data.frame(t(mvariants %>% select(-CHROM, -POS, -max_severity) %>% summarize_each(dplyr::funs(sum(. > 0))))) %>%
                  dplyr::add_rownames() %>%
                  dplyr::rename(effect = rowname, n_variants = V1) %>%
                  dplyr::left_join(variant_gene_summary, .)
@@ -433,12 +431,22 @@ interval_summary <- function(query, filter_variants = T) {
   # Count total number of snps
   total_snps <- nrow(variants %>% select(CHROM, POS) %>% distinct())
 
+  # Genes with variants:
+  total_genes <- sum(region_elements$n)
+  genes_w_variants <- length(unique(unlist((variant_gene_summary %>% dplyr::filter(impact != "MODIFIER"))$gene_name)))
+  genes_w_MOD_HIGH <- length(unique(unlist((variant_gene_summary %>% dplyr::filter(impact %in% c("MODERATE","HIGH")))$gene_name)))
+  genes_w_HIGH <-  length(unique(unlist((variant_gene_summary %>% dplyr::filter(impact %in% c("HIGH")))$gene_name)))
+  
  results <-  list("query" = query,
        "region" = interval,
        "chrom" = qchrom,
        "start" = qstart,
        "end" = qend,
        "snps" = total_snps,
+       "genes" = total_genes,
+       "genes_w_variants" = genes_w_variants,
+       "genes_w_MOD_HIGH" = genes_w_MOD_HIGH,
+       "genes_w_HIGH" = genes_w_HIGH,
        "variant_summary" = variant_summary,
        "max_severity_variants" = max_severity
        )
