@@ -35,3 +35,10 @@ NULL
 #' @name gene_ids
 #' @format tbl_df
 NULL
+
+#' Genome Build (Dataset)
+#'
+#' The wormbase build currently in use
+#' @name wb_build
+#' @format A single element vector
+NULL
