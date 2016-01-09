@@ -369,7 +369,7 @@ fetch_id_type <- function(id_type = NA) {
 interval_summary <- function(query, filter_variants = T) {
   elegans_gff <- dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
-  interval <- (collect(elegans_gff %>%
+  interval <- (dplyr::collect(elegans_gff %>%
     dplyr::filter(locus == query | gene_id == query | sequence_name == query) %>%
     dplyr::select(chrom, start, end) %>% 
     dplyr::summarize(chrom = chrom, start = min(start), end = max(end))) %>%
@@ -379,12 +379,12 @@ interval_summary <- function(query, filter_variants = T) {
   }
   
   # Parse interval
-  q_interval <- str_split(interval, "[\\.:-]+")[[1]]
+  q_interval <- stringr::str_split(interval, "[\\.:-]+")[[1]]
   qchrom <- q_interval[[1]]
   qstart <- as.integer(q_interval[[2]])
   qend   <- as.integer(q_interval[[3]])
   
-  region_elements <- collect(elegans_gff %>%
+  region_elements <- dplyr::collect(elegans_gff %>%
     dplyr::filter(chrom == qchrom, start >= qstart, end <= qend) %>% 
     dplyr::group_by(biotype) %>%
     dplyr::select(biotype, locus, gene_id) %>%
