@@ -394,7 +394,7 @@ interval_summary <- function(query, filter_variants = T) {
     dplyr::group_by(biotype) %>% 
     dplyr::mutate(n = n())
   
-  total_genes <- sum(element_summary$n)
+  total_genes <- sum(region_elements$n)
   
   variants <- snpeff(interval, severity = "ALL", elements = "ALL") %>%
               dplyr::filter(GT != "REF") 
