@@ -388,7 +388,7 @@ process_mappings <- function(mapping_df,
   
   Processed <- mapping_df %>%
     dplyr::group_by( trait ) %>%
-    dplyr::mutate( BF = ifelse(is.na(BF), -log10(.05/sum(log10p > 0)), BF) ) %>% #  add BF threshold
+    dplyr::mutate( BF = ifelse(is.na(BF), -log10(.05/sum(log10p > 0, na.rm = T)), BF) ) %>% #  add BF threshold
     dplyr::group_by( trait ) %>%
     dplyr::mutate( aboveBF = ifelse(log10p >= BF, 1, 0)) %>% #  label SNPs as significant
     dplyr::filter(sum(aboveBF, na.rm = T) > 0) %>% # keep only significant mappings
