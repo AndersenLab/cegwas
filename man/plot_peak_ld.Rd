@@ -18,6 +18,6 @@ returns an LDHeatmap object of SNPs that are above the Bonferroni corrected p-va
 \code{plot_peak_ld} generates a plot to visualize LD (r) for significant SNPs in a mapping
 }
 \examples{
- plot_peak_ld(processed_mapping_df) - for a one trait mapping data frame
+ plot_peak_ld(processed_mapping_df) # for a one trait mapping data frame
 }
 
