@@ -205,6 +205,7 @@ process_correlations <- function(df){
 #' @param elements A vector containing gene structural elements (CDS, five_prime_UTR, exon, intron, three_prime_UTR). Use "ALL" to return all variants.
 #' @param long Return dataset in long or wide format. Default is to return in long format.
 #' @param remote Use remote data. Checks for local data if possible. False by default.
+#' @param impute Use imputed data. Default is FALSE.
 #' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
 #' @examples snpeff("pot-2","II:1-10000","WBGene00010785")
 #' @export
@@ -213,7 +214,8 @@ snpeff <- function(...,
                    severity = c("HIGH","MODERATE"),
                    elements = c("exon"),
                    long = TRUE,
-                   remote = FALSE) {
+                   remote = FALSE,
+                   impute = FALSE) {
   
   regions <- unlist(list(...))
   
@@ -234,7 +236,11 @@ snpeff <- function(...,
   results <- suppressWarnings(lapply(regions, function(query) {
   # Save region as query
   # Set vcf path; determine whether local or remote
+  if (impute == F) {
   vcf_name = "WI.20160106.snpeff.vcf.gz"
+  } else {
+  vcf_name = "WI.20160106.impute.snpeff.vcf.gz"
+  }
   
   # Fix region specifications
   query <- gsub("\\.\\.", "-", query)
@@ -306,7 +312,7 @@ snpeff <- function(...,
         tsv
       } else {
         tsv <- tidyr::gather_(tsv, "strain", "GT", names(tsv)[23:length(tsv)])  %>%
-          tidyr::separate(GT, into=c("a1","a2", "FT", "DP", "DP4", "SP", "HP"), sep="/|\\!", remove=T) %>%
+          tidyr::separate(GT, into=c("a1","a2", "FT", "DP", "DP4", "SP", "HP"), sep="/|\\||\\!", remove=T) %>%
           dplyr::mutate(a1=ifelse(a1 == ".", NA, a1)) %>%
           dplyr::mutate(a2=ifelse(a2 == ".", NA, a2)) %>%
           dplyr::mutate(GT = NA) %>%
@@ -361,12 +367,13 @@ fetch_id_type <- function(id_type = NA) {
 #' Can also be used to summarize regions by wormbase identifier or locus name.
 #' 
 #' @param query A query such as \code{pot-2}, \code{I:1-1000}, \code{WBGene00010195}.
-#' @param filter_variants Filter out poor quality variants. Default is TRUE.
+#' @param filter_variants Filter out poor quality variants. Default is TRUE. Not compatible with imputed data.
+#' @param impute Use imputed data. Default is FALSE.
 #' @return data frame of summarized information.
 #' @examples interval_summary("pot-1")
 #' @export
 
-interval_summary <- function(query, filter_variants = T) {
+interval_summary <- function(query, filter_variants = T, impute = F) {
   elegans_gff <- dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
   interval <- (dplyr::collect(elegans_gff %>%
@@ -393,10 +400,10 @@ interval_summary <- function(query, filter_variants = T) {
     dplyr::select(biotype, locus) %>%
     dplyr::group_by(biotype)
   
-  variants <- snpeff(interval, severity = "ALL", elements = "ALL") %>%
+  variants <- snpeff(interval, severity = "ALL", elements = "ALL", impute = impute) %>%
               dplyr::filter(GT != "REF") 
-  
-  if (filter_variants == TRUE) {
+
+  if (filter_variants == TRUE & impute == FALSE) {
     variants <- dplyr::filter(variants, FILTER == "PASS", FT == "PASS")
   }
   
