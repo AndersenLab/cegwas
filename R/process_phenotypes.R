@@ -46,7 +46,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   # Warn user of potential issues with strains
   
   issue_warnings <- dplyr::ungroup(data) %>%
-                    dplyr::filter(warning_msg != "") %>% 
+                    dplyr::filter(!is.na(warning_msg)) %>% 
                     dplyr::select(strain, warning_msg) %>%
                     dplyr::group_by(strain, warning_msg) %>%
                     unique()
@@ -76,7 +76,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   
   # Handle duplicates
   repeat_isotypes <- dplyr::ungroup(data) %>%
-  dplyr::group_by(isotype, strain) %>%
+  dplyr::group_by(isotype, strain, trait) %>%
   dplyr::filter(iso_count > 1) %>% 
   dplyr::select(strain, isotype) %>%
   dplyr::distinct()
@@ -100,7 +100,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   
   
   # Return data frame to previous state
-  data <- dplyr::select(data, -strain, -warning_msg, -iso_count) %>%
+  data <- dplyr::select(data, -strain, -warning_msg, -iso_count, -prev_names, -sequenced, -strain_count) %>%
   dplyr::rename(strain = isotype) %>%
   tidyr::spread(strain, val)
   
