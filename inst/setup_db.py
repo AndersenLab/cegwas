@@ -52,6 +52,7 @@ class Feature(BaseModel):
   strand = FixedCharField(null = True, max_length = 1)
   reading_frame = IntegerField(null = True)
 
+
   class Meta:
     order_by = ('chrom',)
 
