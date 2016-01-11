@@ -19,7 +19,7 @@ library("devtools")
 # save(gene_ids, file = "data/gene_ids.rda")
 
 # Strain Isotype File
-strain_isotype <- readr::read_tsv("inst/data-raw/mapping_strain_isotype.tsv") %>%
+strain_isotype <- readr::read_tsv("https://storage.googleapis.com/andersen_lab_strains/processed/strain_isotype.tsv") %>%
   dplyr::arrange(strain, isotype)
 
 load("data/gene_ids.rda")
@@ -29,7 +29,7 @@ load("data/snps.rda")
 # cegwas db; if db file not exist or outdated then download.
 wb_build <- 245
 file_path <- paste0("~/.WS", wb_build, ".elegans_gff.db")
-if (file.info(file_path)$size ==0 | is.na(file.info(file_path)$size == 0)) {
+if (file.info(file_path)$size == 0 | is.na(file.info(file_path)$size == 0)) {
   message(paste0("Downloading Gene Database to ", file_path))
   url <- paste0("http://storage.googleapis.com/cegwas/WS", wb_build, ".celegans_gff.db")
   download.file(url, file_path)
