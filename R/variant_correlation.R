@@ -22,18 +22,18 @@ variant_correlation <- function(df,
   
   
   # loosely identify unique peaks
-    intervals <- df %>%
-      na.omit() %>%
-      dplyr::distinct(CHROM, startPOS, endPOS) %>%
-      dplyr::distinct(CHROM, startPOS ) %>%
-      dplyr::distinct(CHROM, endPOS ) %>%
-      dplyr::arrange(CHROM, startPOS) 
+  intervals <- df %>%
+    na.omit() %>%
+    dplyr::distinct(CHROM, startPOS, endPOS) %>%
+    dplyr::distinct(CHROM, startPOS ) %>%
+    dplyr::distinct(CHROM, endPOS ) %>%
+    dplyr::arrange(CHROM, startPOS) 
   
   
   # unique strains to filter snpeff output for GWAS data - doesnt matter for genomic traits
   strains <- as.character(na.omit(unique(df$strain)))
-  # set up the database to search for gene annotations using the biomart package
-  ensembl = useMart("ENSEMBL_MART_ENSEMBL", host="www.ensembl.org", dataset="celegans_gene_ensembl")
+  #   # set up the database to search for gene annotations using the biomart package
+  #   ensembl = useMart("ENSEMBL_MART_ENSEMBL", host="www.ensembl.org", dataset="celegans_gene_ensembl")
   
   # initialize a list to store gene annotations for genes most highly correlated with phenotype
   intervalGENES <- list()
@@ -94,7 +94,7 @@ variant_correlation <- function(df,
         dplyr::distinct(trait, startPOS, endPOS, peakPOS, strain) %>% 
         dplyr::ungroup() %>%
         dplyr::select(trait, startPOS, endPOS, peakPOS, strain, log10p, pheno_value = value) 
-
+      
       
       # calculate the correlation between interval variants and the phenotype 
       # pull out only the most correlated genes 
@@ -113,36 +113,37 @@ variant_correlation <- function(df,
         # organize DF by correlation
         dplyr::arrange(desc(abs_spearman_cor))
       
-      
-      # get gene annotations usining biomart package
-      # attributes are the columns you want to return
-      # filters are the columns you want to filter by, in this case we want to filter by wormbase_gene - e.g. WBGene00012953
-      # values are the values you want to be present in the filter column, i.e the genes you want information from
-      # this is pulled from the highly correlated variant DF above
-      # mart is defined above as the annoted c.elegans genome
-      gene_annotations <- getBM(attributes=c('entrezgene','go_id',"external_gene_name",
-                                             "external_transcript_name","gene_biotype",
-                                             "transcript_biotype","description", "family_description",
-                                             "name_1006","wormbase_gene"), 
-                                filters = "wormbase_gene",
-                                values = unique(pheno_snpeff_df$gene_id),
-                                mart=ensembl) %>%
-        dplyr::distinct(entrezgene, go_id) %>% # pu;; distinct genes
-        dplyr::rename(gene_id = wormbase_gene) # change column for joining
-      
-      # attach the correlation coefficient to gene annotation data frame to minimize looking at multiple data frames
-      gene_cors <- pheno_snpeff_df %>%
-        dplyr::select(gene_id, spearman_cor)%>%
-        dplyr::distinct(gene_id, spearman_cor) %>%
-        dplyr::left_join(gene_annotations, ., by = "gene_id") %>%
-        dplyr::arrange(desc(spearman_cor))
-      
+      # below is old code to use biomart to get gene annotation information - this will updated in the future.      
+      #       # get gene annotations usining biomart package
+      #       # attributes are the columns you want to return
+      #       # filters are the columns you want to filter by, in this case we want to filter by wormbase_gene - e.g. WBGene00012953
+      #       # values are the values you want to be present in the filter column, i.e the genes you want information from
+      #       # this is pulled from the highly correlated variant DF above
+      #       # mart is defined above as the annoted c.elegans genome
+      #       gene_annotations <- getBM(attributes=c('entrezgene','go_id',"external_gene_name",
+      #                                              "external_transcript_name","gene_biotype",
+      #                                              "transcript_biotype","description", "family_description",
+      #                                              "name_1006","wormbase_gene"), 
+      #                                 filters = "wormbase_gene",
+      #                                 values = unique(pheno_snpeff_df$gene_id),
+      #                                 mart=ensembl) %>%
+      #         dplyr::distinct(entrezgene, go_id) %>% # pu;; distinct genes
+      #         dplyr::rename(gene_id = wormbase_gene) # change column for joining
+      #       
+      #       # attach the correlation coefficient to gene annotation data frame to minimize looking at multiple data frames
+      #       gene_cors <- pheno_snpeff_df %>%
+      #         dplyr::select(gene_id, spearman_cor)%>%
+      #         dplyr::distinct(gene_id, spearman_cor) %>%
+      #         dplyr::left_join(gene_annotations, ., by = "gene_id") %>%
+      #         dplyr::arrange(desc(spearman_cor))
+      #       
       # append phenotype-snpeff-correlation DF and gene annotation DF to list for every unique interval
-      intervalGENES[[i]] <- list(pheno_snpeff_df, gene_cors)
+      # intervalGENES[[i]] <- list(pheno_snpeff_df, gene_cors)
+      intervalGENES[[i]] <- pheno_snpeff_df
     } 
     else
     {
-      intervalGENES[[i]] <- list(NA, NA)
+      intervalGENES[[i]] <- NA
     }
     
   }
@@ -164,37 +165,44 @@ process_correlations <- function(df){
   
   # initialize list
   cors <-list()
-  genes <- list()
   
   # separate list objects and remove green traits
   for(i in 1:length(df)){
     
     if(length(unique(df[[i]])) > 1){
       
-      cors[[i]] <- df[[i]][[1]] %>%
+      cors[[i]] <- df[[i]] %>%
         dplyr::filter(!grepl("green",trait)) %>%
         dplyr::filter(trait != "")
       
-      genes[[i]] <- df[[i]][[2]] 
+      #       cors[[i]] <- df[[i]][[1]] %>%
+      #         dplyr::filter(!grepl("green",trait)) %>%
+      #         dplyr::filter(trait != "")
+      #       
+      #       genes[[i]] <- df[[i]][[2]] 
       
     }
   }
   
   # bind phenotype data
   variant_pheno <- dplyr::rbind_all(cors)%>%
-    dplyr::select(CHROM, POS, REF, ALT, aa_change, gene_name, gene_id, num_alt_allele, num_strains, strain, GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, abs_spearman_cor) %>%
-    dplyr::arrange(desc(abs_spearman_cor),desc(pheno_value))
+    dplyr::select(CHROM, POS, REF, ALT, nt_change, aa_change, gene_name, gene_id, effect, num_alt_allele, num_strains, strain, GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, abs_spearman_cor) %>%
+    dplyr::arrange(desc(abs_spearman_cor),desc(pheno_value)) %>%
+    dplyr::distinct(CHROM, POS, REF, ALT, strain, gene_id, trait) %>%
+    dplyr::arrange(desc(abs_spearman_cor), CHROM, POS, desc(pheno_value))
+  
   
   
   # bind gene data and join to phenotype data
-  max_cor <- dplyr::rbind_all(genes) %>%
-    dplyr::select(gene_id, external_gene_name, external_transcript_name, description, family_description, name_1006)%>%
-    dplyr::left_join(variant_pheno, ., by = "gene_id") %>%
-    dplyr::distinct(CHROM, POS, REF, ALT, strain, gene_id, trait, external_transcript_name) %>%
-    dplyr::arrange(desc(abs_spearman_cor), CHROM, POS, desc(pheno_value))
- 
-  return(max_cor) 
+  #   max_cor <- dplyr::rbind_all(genes) %>%
+  #     dplyr::select(gene_id, external_gene_name, external_transcript_name, description, family_description, name_1006)%>%
+  #     dplyr::left_join(variant_pheno, ., by = "gene_id") %>%
+  #     dplyr::distinct(CHROM, POS, REF, ALT, strain, gene_id, trait, external_transcript_name) %>%
+  #     dplyr::arrange(desc(abs_spearman_cor), CHROM, POS, desc(pheno_value))
+  
+  return(variant_pheno) 
 }
+
 
 #' Browse Variant Info
 #'
