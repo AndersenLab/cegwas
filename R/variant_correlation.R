@@ -68,7 +68,7 @@ variant_correlation <- function(df,
       dplyr::distinct(CHROM, POS, strain, effect, gene_id) %>% # remove duplicates
       dplyr::arrange(effect) %>% 
       # pull out columns of interest
-      dplyr::select(CHROM, POS, REF, ALT, GT, effect, nt_change, aa_change, gene_name, gene_id, feature_type, strain) %>%
+      dplyr::select(CHROM, POS, REF, ALT, GT, effect, nt_change, aa_change, gene_name, gene_id,transcript_biotype, feature_type, strain) %>%
       dplyr::group_by(CHROM, POS, effect) %>% # group for individual genes and effects
       # make numeric allele column, this makes HETs and NAs in the GT column NAs - these are excluded from the correlation analysis
       # need to elimante hets and NAs from GT
@@ -187,7 +187,7 @@ process_correlations <- function(df, gene_information = gene_functions){
   
   # bind phenotype data
   variant_pheno <- dplyr::rbind_all(cors)%>%
-    dplyr::select(CHROM, POS, REF, ALT, nt_change, aa_change, gene_name, gene_id, effect, num_alt_allele, num_strains, strain, GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, abs_spearman_cor) %>%
+    dplyr::select(CHROM, POS, REF, ALT, nt_change, aa_change, gene_name, transcript_biotype, gene_id, effect, num_alt_allele, num_strains, strain, GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, abs_spearman_cor) %>%
     dplyr::arrange(desc(abs_spearman_cor),desc(pheno_value)) %>%
     dplyr::distinct(CHROM, POS, REF, ALT, strain, gene_id, trait) %>%
     dplyr::arrange(desc(abs_spearman_cor), CHROM, POS, desc(pheno_value)) %>%
