@@ -158,10 +158,11 @@ variant_correlation <- function(df,
 #' Function to combine phenotype, mapping, and gene information from \code{variant_correlation} function output. 
 #'
 #' @param df is a list object that is output from the \code{variant_correlation} function
+#' @param gene_information is a data.frame that contains gene information, the column gene_id (WBGene....) must be present to join to snpeff output. Default is a data frame that contains gene_id, concise_description, provisional_description, and gene_class_description
 #' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
 #' @export
 
-process_correlations <- function(df){
+process_correlations <- function(df, gene_information = gene_functions){
   
   # initialize list
   cors <-list()
@@ -189,8 +190,8 @@ process_correlations <- function(df){
     dplyr::select(CHROM, POS, REF, ALT, nt_change, aa_change, gene_name, gene_id, effect, num_alt_allele, num_strains, strain, GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, abs_spearman_cor) %>%
     dplyr::arrange(desc(abs_spearman_cor),desc(pheno_value)) %>%
     dplyr::distinct(CHROM, POS, REF, ALT, strain, gene_id, trait) %>%
-    dplyr::arrange(desc(abs_spearman_cor), CHROM, POS, desc(pheno_value))
-  
+    dplyr::arrange(desc(abs_spearman_cor), CHROM, POS, desc(pheno_value)) %>%
+    dplyr::left_join(pcrs, gene_information, by = "gene_id")
   
   
   # bind gene data and join to phenotype data
