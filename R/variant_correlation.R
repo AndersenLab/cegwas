@@ -191,7 +191,7 @@ process_correlations <- function(df, gene_information = gene_functions){
     dplyr::arrange(desc(abs_spearman_cor),desc(pheno_value)) %>%
     dplyr::distinct(CHROM, POS, REF, ALT, strain, gene_id, trait) %>%
     dplyr::arrange(desc(abs_spearman_cor), CHROM, POS, desc(pheno_value)) %>%
-    dplyr::left_join(pcrs, gene_information, by = "gene_id")
+    dplyr::left_join(., gene_information, by = "gene_id")
   
   
   # bind gene data and join to phenotype data
