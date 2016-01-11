@@ -4,10 +4,12 @@
 \alias{process_correlations}
 \title{Combine Variant Correlation Data}
 \usage{
-process_correlations(df)
+process_correlations(df, gene_information = gene_functions)
 }
 \arguments{
 \item{df}{is a list object that is output from the \code{variant_correlation} function}
+
+\item{gene_information}{is a data.frame that contains gene information, the column gene_id (WBGene....) must be present to join to snpeff output. Default is a data frame that contains gene_id, concise_description, provisional_description, and gene_class_description}
 }
 \value{
 Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.

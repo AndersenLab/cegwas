@@ -17,7 +17,7 @@ NULL
 #' Kinship matrix generated using the \code{a.mat} function in the rrBLUP package. 
 #' Whole-genome SNP data was used to generate the relatedness of the strains in this file.
 #' @name kinship
-#' @format A Strain x Strain data frame for 124 strains
+#' @format A Strain x Strain data frame for 152 strains
 NULL
 
 
