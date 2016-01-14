@@ -25,7 +25,8 @@ Imports:
     stringr,
     rrBLUP,
     readr,
-    dplyr
+    dplyr,
+    PopGenome
 License: GPL
 LazyData: true
 Suggests:
