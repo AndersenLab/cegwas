@@ -4,7 +4,8 @@
 #'
 #' This is the detail section if you want to fill out in the future
 #'
-#' @param vcf_path character value of the directory path to the VCF file.
+#' @param vcf_path character value of the directory path where tabix-indexed VCF file is
+#' @param vcf_name character value corresponding to tabix-indexed VCF file name
 #' @param chromosome character value corresponding to chromosome of interest. This should be the same chromosome name that is present in the VCF file
 #' @param interval_start numeric value start of interval of interest
 #' @param interval_end numeric value end of interval of interest
@@ -17,7 +18,8 @@
 #' @importFrom dplyr %>%
 #' @export
 
-tajimas_d <- function(vcf_path = get_vcf(), 
+tajimas_d <- function(vcf_path = paste0(path.package("cegwas"),"/"),
+                      vcf_name = "WI.20160106.impute.vcf.gz", 
                       chromosome = "II", 
                       interval_start = 11021073, 
                       interval_end = 12008179, 
@@ -27,7 +29,9 @@ tajimas_d <- function(vcf_path = get_vcf(),
                       outgroup = "N2",
                       site_of_interest = 11875145){
   
-  gen <- PopGenome::readVCF(vcf_path, 
+  setwd(vcf_path)
+                        
+  gen <- PopGenome::readVCF(vcf_name, 
                             numcols = 10000, 
                             tid = chromosome, 
                             frompos = interval_start, 
