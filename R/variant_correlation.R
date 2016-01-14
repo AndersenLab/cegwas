@@ -244,13 +244,7 @@ snpeff <- function(...,
   
   results <- suppressWarnings(lapply(regions, function(query) {
   # Save region as query
-  # Set vcf path; determine whether local or remote
-  if (impute == F) {
-  vcf_name = "WI.20160106.snpeff.vcf.gz"
-  } else {
-  vcf_name = "WI.20160106.impute.snpeff.vcf.gz"
-  }
-  
+
   # Fix region specifications
   query <- gsub("\\.\\.", "-", query)
   query <- gsub(",", "", query)
@@ -270,17 +264,8 @@ snpeff <- function(...,
   } else {
     region <- query
   }
-  
-  vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/", vcf_name)
-  # Use remote if not available.
-  local_or_remote <- "locally"
-  if (!file.exists(vcf_path) | remote == T) {
-    vcf_path <- paste0("http://storage.googleapis.com/andersen/", vcf_name)
-    local_or_remote <- "remotely"
-  }
-  if (local_or_remote == "locally") {
-    system(paste0("touch ", vcf_path,".csi"))
-  }
+
+  vcf_path <- get_vcf(remote = remote, impute = impute)
   
   sample_names <- readr::read_lines(suppressWarnings(pipe(paste("bcftools","query","-l",vcf_path))))
   base_header <- c("CHROM", "POS", "REF","ALT","FILTER")
@@ -296,7 +281,7 @@ snpeff <- function(...,
   }
   command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
   if (!is.na(region)) {
-    message(paste0("Query: ", query, "; region - ", region, "; ", local_or_remote))
+    message(paste0("Query: ", query, "; region - ", region, "; "))
     tsv <- try(readr::read_tsv(pipe(command), col_names = c(base_header, "ANN", sample_names )), silent = T) %>%
            dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
                   ALT = ifelse(ALT==TRUE, "T", ALT))
@@ -344,6 +329,30 @@ snpeff <- function(...,
   results
 }
 
+
+get_vcf <- function(remote = F, impute = T) {
+  
+  # Set vcf path; determine whether local or remote
+  if (impute == F) {
+    vcf_name = "WI.20160106.snpeff.vcf.gz"
+  } else {
+    vcf_name = "WI.20160106.impute.snpeff.vcf.gz"
+  }
+  
+  
+  vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/", vcf_name)
+  # Use remote if not available.
+  local_or_remote <- "locally"
+  if (!file.exists(vcf_path) | remote == T) {
+    vcf_path <- paste0("http://storage.googleapis.com/andersen/", vcf_name)
+    message("Using remote vcf")
+  }
+  if (local_or_remote == "locally") {
+    system(paste0("touch ", vcf_path,".csi"))
+    message("Using local vcf")
+  }
+  vcf_path
+}
 
 #' Fetch Variant Type
 #'
