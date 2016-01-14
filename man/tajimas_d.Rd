@@ -4,13 +4,16 @@
 \alias{tajimas_d}
 \title{GWAS Mappings}
 \usage{
-tajimas_d(vcf_path = get_vcf(), chromosome = "II",
+tajimas_d(vcf_path = paste0(path.package("cegwas"), "/"),
+  vcf_name = "WI.20160106.impute.vcf.gz", chromosome = "II",
   interval_start = 11021073, interval_end = 12008179, window_size = 300,
   slide_distance = 100, samples = colnames(snps[, 3:ncol(snps)]),
   outgroup = "N2", site_of_interest = 11875145)
 }
 \arguments{
-\item{vcf_path}{character value of the directory path to the VCF file.}
+\item{vcf_path}{character value of the directory path where tabix-indexed VCF file is}
+
+\item{vcf_name}{character value corresponding to tabix-indexed VCF file name}
 
 \item{chromosome}{character value corresponding to chromosome of interest. This should be the same chromosome name that is present in the VCF file}
 

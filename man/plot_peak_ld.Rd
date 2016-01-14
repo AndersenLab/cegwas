@@ -4,12 +4,12 @@
 \alias{plot_peak_ld}
 \title{Plot LD values for significant SNPs in a mapping}
 \usage{
-plot_peak_ld(plot_df, plot_trait = NULL)
+plot_peak_ld(plot_df, trait = NULL)
 }
 \arguments{
 \item{plot_df}{is the output from the process_mappings function.}
 
-\item{plot_trait}{is a string object corresponding to a trait of interest if plot_df has multiple traits in it.}
+\item{trait}{is a string object corresponding to a trait of interest if plot_df has multiple traits in it.}
 }
 \value{
 returns an LDHeatmap object of SNPs that are above the Bonferroni corrected p-value
