@@ -215,41 +215,60 @@ gene_variants <- function(gene){
 plot_peak_ld <- function(plot_df, plot_trait = NULL){
   
   
-  if(is.null(plot_trait)){
-    snp_df <- plot_df%>%
-      na.omit()
-  } else {
-    snp_df <- dplyr::filter(plot_df, trait == plot_trait) %>%
+  if (is.null(plot_trait)) {
+    snp_df <- plot_df %>% na.omit()
+  }
+  else {
+    snp_df <- dplyr::filter(plot_df, trait == plot_trait) %>% 
       na.omit()
   }
-  
-  ld_snps <- dplyr::filter(snps, CHROM %in% snp_df$CHROM, POS %in% snp_df$POS) 
-  ld_snps <- data.frame(snp_id = paste(ld_snps$CHROM, ld_snps$POS, sep = "_"), 
-                        data.frame(ld_snps)[,3:ncol(ld_snps)])
-  
+  ld_snps <- dplyr::filter(snps, CHROM %in% snp_df$CHROM, POS %in% 
+                             snp_df$POS)
+  ld_snps <- data.frame(snp_id = paste(ld_snps$CHROM, ld_snps$POS, 
+                                       sep = "_"), data.frame(ld_snps)[, 3:ncol(ld_snps)])
   sn <- list()
-  
-  for(i in 1:nrow(ld_snps)){
-    sn[[i]] <- genetics::genotype(as.character( gsub(1, "T/T", gsub(-1, "A/A" , ld_snps[i,2:ncol(ld_snps)]) )))
+  for (i in 1:nrow(ld_snps)) {
+    sn[[i]] <- genetics::genotype(as.character(gsub(1, "T/T", 
+                                                    gsub(-1, "A/A", ld_snps[i, 2:ncol(ld_snps)]))))
   }
-  
   test <- data.frame(sn)
   colnames(test) <- (ld_snps$snp_id)
-  
-  if(ncol(test) == 1){
+  if (ncol(test) == 1) {
     print("Only one significant SNP, not calculating LD")
-  } else {
-    rgb.palette <- grDevices::colorRampPalette(rev(c("blue", "orange", "red")), space = "rgb")
-    ld_outs <- LDheatmap::LDheatmap(test, LDmeasure = "r", 
-                                    SNP.name = colnames(test), 
-                                    # flip=TRUE,
-                                    color=rgb.palette(18))
+  }
+  else {
     
+    LDs <- data.frame(genetics::LD(test)[[3]]) %>%
+      mutate(SNP1 = row.names(.))%>%
+      tidyr::gather(SNP2, Dprime, -SNP1)
     
-    LD.grob1 <- grid::editGrob(ld_outs$LDheatmapGrob, gPath("heatMap", "title"), gp = gpar(cex = 1.25, col = "black"))
-    LD.grob2 <- grid::editGrob(LD.grob1, gPath("geneMap","title"), gp = gpar(cex = 0, col = "orange"))
-    LD.grob3 <- grid::editGrob(LD.grob2, gPath("Key", "title"), gp = gpar(cex = 1.25, col = "black"))
-    grid::grid.newpage()
-    grid::grid.draw(LD.grob3)
+    ldplot <- ggplot2::ggplot(LDs)+
+      ggplot2::aes(x = SNP1, y = SNP2)+
+      ggplot2::geom_raster(aes(fill = Dprime))+
+      ggplot2::geom_text(aes(label = signif(Dprime,3)), fontface = "bold", size = 12)+
+      ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+                     axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
+                     axis.title.x = ggplot2::element_text(size=0, face="bold", color="black", vjust=-.3),
+                     axis.title.y = ggplot2::element_text(size=0, face="bold", color="black"),
+                     strip.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+                     strip.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
+                     plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
+                     legend.position="none",
+                     panel.background = ggplot2::element_rect( color="black",size=1.2),
+                     strip.background = ggplot2::element_rect(color = "black", size = 1.2))
+    
+    #     rgb.palette <- grDevices::colorRampPalette(rev(c("blue", 
+    #                                                      "orange", "red")), space = "rgb")
+    #     ld_outs <- LDheatmap::LDheatmap(test, LDmeasure = "r", 
+    #                                     SNP.name = colnames(test), color = rgb.palette(18))
+    #     LD.grob1 <- grid::editGrob(ld_outs$LDheatmapGrob, gPath("heatMap", 
+    #                                                             "title"), gp = gpar(cex = 1.25, col = "black"))
+    #     LD.grob2 <- grid::editGrob(LD.grob1, gPath("geneMap", 
+    #                                                "title"), gp = gpar(cex = 0, col = "orange"))
+    #     LD.grob3 <- grid::editGrob(LD.grob2, gPath("Key", "title"), 
+    #                                gp = gpar(cex = 1.25, col = "black"))
+    #     grid::grid.newpage()
+    #     grid::grid.draw(LD.grob3)
+    return(ldplot)
   }
 }
