@@ -206,20 +206,20 @@ gene_variants <- function(gene){
 #'
 #'
 #' @param plot_df is the output from the process_mappings function. 
-#' @param plot_trait is a string object corresponding to a trait of interest if plot_df has multiple traits in it.
+#' @param trait is a string object corresponding to a trait of interest if plot_df has multiple traits in it.
 #' @return returns an LDHeatmap object of SNPs that are above the Bonferroni corrected p-value
 #' @examples  plot_peak_ld(processed_mapping_df) # for a one trait mapping data frame
-#' @examples plot_peak_ld(plot_df = all_maps, plot_trait = "amsacrine_f.l1") # for a multiple trait mapping data frame
+#' @examples plot_peak_ld(plot_df = all_maps, trait = "amsacrine_f.l1") # for a multiple trait mapping data frame
 #' @export
 
-plot_peak_ld <- function(plot_df, plot_trait = NULL){
+plot_peak_ld <- function(plot_df, trait = NULL){
   
   
-  if (is.null(plot_trait)) {
+  if (is.null(trait)) {
     snp_df <- plot_df %>% na.omit()
   }
   else {
-    snp_df <- dplyr::filter(plot_df, trait == plot_trait) %>% 
+    snp_df <- dplyr::filter(plot_df, trait == trait) %>% 
       na.omit()
   }
   ld_snps <- dplyr::filter(snps, CHROM %in% snp_df$CHROM, POS %in% 
