@@ -4,7 +4,7 @@
 \alias{tajimas_d}
 \title{GWAS Mappings}
 \usage{
-tajimas_d(vcf_path = get_vcf, chromosome = "II",
+tajimas_d(vcf_path = get_vcf(), chromosome = "II",
   interval_start = 11021073, interval_end = 12008179, window_size = 300,
   slide_distance = 100, samples = colnames(snps[, 3:ncol(snps)]),
   outgroup = "N2", site_of_interest = 11875145)

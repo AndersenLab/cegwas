@@ -329,6 +329,14 @@ snpeff <- function(...,
   results
 }
 
+#' Generate directory path to VCF file
+#'
+#' \code{get_vcf} Generate directory path to VCF file
+#' 
+#' @param remote logical, to use remote VCF stored on google or local in Andersen lab dropbox
+#' @param impute logical, to use imputed VCF file or non imputed
+#' @return character value corresponding to VCF location
+#' @export
 
 get_vcf <- function(remote = F, impute = T) {
   

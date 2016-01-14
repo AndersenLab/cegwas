@@ -17,7 +17,7 @@
 #' @importFrom dplyr %>%
 #' @export
 
-tajimas_d <- function(vcf_path = get_vcf, 
+tajimas_d <- function(vcf_path = get_vcf(), 
                       chromosome = "II", 
                       interval_start = 11021073, 
                       interval_end = 12008179, 
