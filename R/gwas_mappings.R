@@ -45,23 +45,30 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
   
   # run mappings
   system.time(
-    maps <- foreach::foreach(i = iterators::iter(x, by = 'col')) %dopar% {
-      rrBLUP::GWAS(pheno = data.frame(strains, i),
-                   geno = y,
-                   K = kin,
-                   min.MAF = min.MAF,
-                   n.core = 1,
-                   P3D = FALSE,
-                   plot = FALSE)
+    maps <- foreach::foreach(i = iterators::iter(x, by = 'col'), nm = colnames(x)) %dopar% {
+      
+      ph = data.frame(strains,  i)
+      colnames(ph) <- c("strain", as.character(nm))
+      
+      
+      pmap <- rrBLUP::GWAS(pheno = ph,
+                           geno = y,
+                           K = kin,
+                           min.MAF = min.MAF,
+                           n.core = 1,
+                           P3D = FALSE,
+                           plot = FALSE)
+      
+      return(pmap)
     })
   
   parallel::stopCluster(cl)   
   
-  for(i in 1:ncol(x)){
-    colnames(maps[[i]]) <- c("marker", "CHROM",  "POS",   "log10p")
-    maps[[i]]$trait <-  colnames(x)[i]
+  maps1<-maps
+  for(i in 1:length(maps)){
+    maps[[i]] <- tidyr::gather(maps[[i]], trait, log10p, -marker, -CHROM,-POS)
   }
-  
+
   mappings <- dplyr::bind_rows(maps)
   
   return(mappings)
