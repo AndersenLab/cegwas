@@ -251,7 +251,7 @@ snpeff <- function(...,
 
   # Resolve region names
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
-    elegans_gff <- dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
+    elegans_gff <- get_db()
     # Pull out regions by element type.
     region <- paste((dplyr::bind_rows(lapply(elements, function(e) {
       dplyr::collect(dplyr::filter(elegans_gff, locus == query | gene_id == query | sequence_name == query, type_of == e))
@@ -362,6 +362,27 @@ get_vcf <- function(remote = F, impute = T) {
   vcf_path
 }
 
+
+#' Get Database
+#'
+#' Return database; If not available, download.
+#'
+#' @export
+
+
+get_db <- function() {
+  wb_build <- 245
+  file_path <- paste0("~/.WS", wb_build, ".elegans_gff.db")
+  if (file.info(file_path)$size == 0 | is.na(file.info(file_path)$size == 0)) {
+    message(paste0("Downloading Gene Database to ", file_path))
+    url <- paste0("http://storage.googleapis.com/cegwas/WS", wb_build, ".celegans_gff.db")
+    download.file(url, file_path)
+  }
+  dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
+}
+
+
+
 #' Fetch Variant Type
 #'
 #' \code{fetch_id_type} Fetches wormbase identifiers of a certain class. These can be piped into \code{snpeff}
@@ -372,7 +393,7 @@ get_vcf <- function(remote = F, impute = T) {
 #' @export
 
 fetch_id_type <- function(id_type = NA) {
-    elegans_gff <- dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
+    elegans_gff <- get_db()
     valid_id_types <- dplyr::collect(elegans_gff %>%
                                        dplyr::select(biotype) %>%
                                        dplyr::distinct())$biotype
