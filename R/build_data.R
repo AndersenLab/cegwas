@@ -40,3 +40,8 @@ if (file.info(file_path)$size == 0 | is.na(file.info(file_path)$size == 0)) {
 # Save Datasets
 devtools::use_data(kinship, snps, strain_isotype, gene_ids, wb_build, internal = FALSE, overwrite = T)
 
+# generate  isotype_location.rda file 
+# isotype_location <- data.table::fread("~/AndersenLab/Github_Repos/Andersen-Lab-Strains/processed/strain_info_join.tsv",
+#                                       header = T) %>%
+#   filter(!is.na(longitude),sequenced==TRUE) %>%
+#   distinct(isotype)
