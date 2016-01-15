@@ -26,16 +26,10 @@ load("data/gene_ids.rda")
 load("data/kinship.rda")
 load("data/snps.rda")
 
-# cegwas db; if db file not exist or outdated then download.
-wb_build <- 245
-
-file_path <- paste0("~/.WS", wb_build, ".elegans_gff.db")
-if (file.info(file_path)$size == 0 | is.na(file.info(file_path)$size == 0)) {
-  message(paste0("Downloading Gene Database to ", file_path))
-  url <- paste0("http://storage.googleapis.com/cegwas/WS", wb_build, ".celegans_gff.db")
-  download.file(url, file_path)
-}
-
+vcf_date <- "20160106"
+vcf_path <- paste0("~/Dropbox/AndersenLab/Reagents/WormReagents/Variation/Andersen_VCF/WI.", vcf_date, ".vcf.gz")
+kinship <- generate_kinship(vcf_path)
+snps <- generate_mapping(vcf_path)
 
 # Save Datasets
 devtools::use_data(kinship, snps, strain_isotype, gene_ids, wb_build, internal = FALSE, overwrite = T)
