@@ -26,7 +26,11 @@ Imports:
     rrBLUP,
     readr,
     dplyr,
-    PopGenome
+    PopGenome,
+    ggmap,
+    plyr,
+    maps,
+    sp
 License: GPL
 LazyData: true
 Suggests:

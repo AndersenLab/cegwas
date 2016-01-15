@@ -2,7 +2,7 @@
 % Please edit documentation in R/popgen.R
 \name{tajimas_d}
 \alias{tajimas_d}
-\title{GWAS Mappings}
+\title{Tajima's D}
 \usage{
 tajimas_d(vcf_path = paste0(path.package("cegwas"), "/"),
   vcf_name = "WI.20160106.impute.vcf.gz", chromosome = "II",
