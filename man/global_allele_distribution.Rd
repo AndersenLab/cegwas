@@ -4,15 +4,13 @@
 \alias{global_allele_distribution}
 \title{Global distribution of allele}
 \usage{
-global_allele_distribution(gene = "top-2", variant = 797, position = NA,
+global_allele_distribution(location = "top-2", variant = 797,
   colors = c("purple", "salmon"))
 }
 \arguments{
-\item{gene}{character value gene of interest. Can be gene name "top-2" or gene id "WBGene00010785"}
+\item{location}{A gene or position. Examples: \code{top-2}, \code{II:14425175}, or "WBGene00010785"}
 
 \item{variant}{character value corresponding amino acid change you are interested in plotting. Currently only supports visualization of SNVs that alter an amino acid residue.}
-
-\item{position}{Chromosomal position of variant}
 
 \item{colors}{character vector containing two colors. The first element of the vector will be the ALT genotype and the second will be the REF genotype. Default values are c("purple","salmon").}
 }

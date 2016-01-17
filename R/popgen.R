@@ -92,41 +92,48 @@ tajimas_d <- function(vcf_path = paste0(path.package("cegwas"),"/"),
   return(list(td, tajimas_d_plot))
 }
 
-#' Global distribution of allele
+#' Geographic distribution of alleles
 #'
 #' \code{global_allele_distribution} uses the ggplot2 package to plot the global distribution of an allele of interest.
 #'
-#' Specify either a \code{position} or a \code{gene} and amino acid \code{variant} position.
 #'
-#' @param gene character value gene of interest. Can be gene name "top-2" or gene id "WBGene00010785"
+#' @param locus A gene or position. Examples: \code{top-2}, \code{II:14425175}, or "WBGene00010785"
 #' @param variant character value corresponding amino acid change you are interested in plotting. Currently only supports visualization of SNVs that alter an amino acid residue.
-#' @param position Chromosomal position of variant
+#' @param location region to restrict plot to. Uses google api for lookup. Examples: \code{europe}.
 #' @param colors character vector containing two colors. The first element of the vector will be the ALT genotype and the second will be the REF genotype. Default values are c("purple","salmon").
 #' @return Outputs a ggplot object containing a visualization of the global distribution of allele of interest
 #' @importFrom dplyr %>%
 #' @export
 
-global_allele_distribution <- function(gene = "top-2", variant = 797, position = NA, colors = c("purple", "salmon")){
+allele_distribution <- function(locus = "top-2", variant = 797, location = NA,  colors = c("purple", "salmon")){
+    
+    query <- snpeff(locus, severity = "ALL", elements = "ALL") 
   
-    if (is.na(position)) {
-    allele_info <- snpeff(gene) %>%
+    if (!grepl(":", locus)) {
+    allele_info <- query %>%
       dplyr::select(CHROM, POS, isotype = strain, aa_change,GT) %>%
       dplyr::filter(grepl(paste0("[^0-9]", variant, "[^0-9]"),aa_change)) 
   } else {
-    chrom_pos <- stringr::str_split(position, ":")[[1]]
-    allele_info <- snpeff(position) %>%
+    chrom_pos <- stringr::str_split(locus, ":")[[1]]
+    allele_info <- snpeff(locus) %>%
       dplyr::select(CHROM, POS, isotype = strain, aa_change,GT) %>%
       dplyr::filter(CHROM == chrom_pos[1], POS == chrom_pos[2]) 
   }
   allele_info <- allele_info %>% dplyr::distinct(isotype) %>%
                   dplyr::left_join(., isotype_location, by = "isotype")
   
-  ggplot(allele_info) + 
-    borders("world", colour="gray50", fill="gray50") +
+  rplot <- ggplot(allele_info) + 
+    geom_path(data = map_data("world"), aes(x=long, y=lat, group=group)) +
     geom_point(aes(x = longitude, y = latitude, color = GT), size = 5, position = "jitter", alpha = 0.5) +
     scale_color_manual(values = colors) +
     theme_minimal() +
     theme(axis.text = element_blank(),
           axis.title = element_blank(),
           legend.title = element_text(face = "bold"))
+  if(!is.na(location)) {
+    bound <- ggmap::geocode(location, "more")
+    rplot <- rplot + scale_x_continuous(limits = c(bound$west, bound$east)) +
+      scale_y_continuous(limits = c(bound$south, bound$north))
+  }
+  rplot
 }
