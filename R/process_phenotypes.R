@@ -36,10 +36,12 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
   
+  strain_isotype_df <- strain_isotype %>% dplyr::select(strain, isotype, warning_msg)
+  
   # Strain - Isotype Issues; Duplicate check
   data <- tidyr::gather(data, "strain", "val", 2:ncol(data)) %>%
           dplyr::mutate(strain = as.character(strain)) %>%
-          dplyr::left_join(strain_isotype, by = c("strain" = "strain")) %>%
+          dplyr::left_join(strain_isotype_df, by = c("strain" = "strain")) %>%
           dplyr::group_by(trait, isotype) %>% 
           dplyr::mutate(iso_count = n()) 
 
@@ -100,7 +102,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   
   
   # Return data frame to previous state
-  data <- dplyr::select(data, -strain, -warning_msg, -iso_count, -prev_names, -sequenced, -strain_count) %>%
+  data <- data %>% dplyr::select(trait, strain, val) %>%
   dplyr::rename(strain = isotype) %>%
   tidyr::spread(strain, val)
   
