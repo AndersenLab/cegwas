@@ -26,8 +26,7 @@ load("data/gene_ids.rda")
 load("data/kinship.rda")
 load("data/snps.rda")
 
-vcf_date <- "20160106"
-vcf_path <- paste0("~/Dropbox/AndersenLab/Reagents/WormReagents/Variation/Andersen_VCF/WI.", vcf_date, ".vcf.gz")
+wb_build <- 245
 kinship <- generate_kinship(vcf_path)
 snps <- generate_mapping(vcf_path)
 
