@@ -94,7 +94,7 @@ tajimas_d <- function(vcf_path = paste0(path.package("cegwas"),"/"),
 
 #' Geographic distribution of alleles
 #'
-#' \code{global_allele_distribution} uses the ggplot2 package to plot the global distribution of an allele of interest.
+#' \code{allele_distribution} uses the ggplot2 package to plot the global distribution of an allele of interest.
 #'
 #'
 #' @param locus A gene or position. Examples: \code{top-2}, \code{II:14425175}, or "WBGene00010785"
