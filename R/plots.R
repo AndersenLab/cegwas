@@ -59,12 +59,13 @@ manplot <- function(plot_df, bf_line_color = "gray") {
 #'
 #' @param plot_df the output from the \code{gwas_mappings} function. 
 #' @param loc custom location to output the pxg plot. Specified as CHROM:POS (e.g. II:1023423)
+#' @param use_base Show base at position rather than REF/ALT.
 #' @param color_strains character vector containing strains to color in plot. Default is c("N2","CB4856")
 #' @return Ouput is a ggplot object facetted by peak SNP (if there are multiple peaks in a mapping). 
 #' Genotypes are encoded as REF or ALT and are on the x-axis. Phenotypes are on y-axis.
 #' @export
 
-pxg_plot <- function(plot_df, loc = NA, color_strains = c("N2","CB4856")){
+pxg_plot <- function(plot_df, loc = NA, use_base = F, color_strains = c("N2","CB4856")){
   plot_traits <- unique(plot_df$trait)
   plots <- lapply(plot_traits, function(x) {
      plot_peak <- plot_df %>%
@@ -80,8 +81,8 @@ pxg_plot <- function(plot_df, loc = NA, color_strains = c("N2","CB4856")){
         dplyr::transmute(chr_pos = paste0(CHROM, ":",POS))
      }
       
-      to_plot <- snpeff(loc[[1]], severity = c("MODIFIER", "LOW", "MODERATE", "HIGH")) %>%
-      dplyr::select(CHROM, POS, strain, GT) %>%
+      to_plot <- snpeff(loc[[1]], severity = "ALL", elements = "ALL") %>%
+      dplyr::select(CHROM, POS, strain, GT, REF, ALT) %>%
       dplyr::distinct() 
       
       if (!is.na(loc)) {
@@ -93,7 +94,14 @@ pxg_plot <- function(plot_df, loc = NA, color_strains = c("N2","CB4856")){
       to_plot <- dplyr::left_join(to_plot, plot_peak)
       to_plot <- dplyr::filter(to_plot, !is.na(value)) %>%
       dplyr::distinct(strain, value, POS) %>%
-      dplyr::filter(!is.na(GT)) 
+      dplyr::filter(!is.na(GT)) %>%
+      dplyr::group_by(GT) %>%
+      dplyr::mutate(GT2 = ifelse(use_base, ifelse(GT == "REF", REF, ALT), GT )) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(GT = GT2)
+      
+      # Handle Ref/Alt Diffs
+      
 
     
     if (!unique(is.na(color_strains))) {
