@@ -485,7 +485,7 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
   total_snps <- nrow(variants %>% dplyr::select(CHROM, POS) %>% dplyr::distinct())
 
   # Genes with variants:
-  total_genes <- sum(region_elements$n)
+  total_genes <- nrow(region_elements)
   genes_w_variants <- length(unique(unlist((variant_gene_summary %>% dplyr::filter(impact != "MODIFIER"))$gene_name)))
   genes_w_MOD_HIGH <- length(unique(unlist((variant_gene_summary %>% dplyr::filter(impact %in% c("MODERATE","HIGH")))$gene_name)))
   genes_w_HIGH <-  length(unique(unlist((variant_gene_summary %>% dplyr::filter(impact %in% c("HIGH")))$gene_name)))
