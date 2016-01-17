@@ -94,101 +94,39 @@ tajimas_d <- function(vcf_path = paste0(path.package("cegwas"),"/"),
 
 #' Global distribution of allele
 #'
-#' \code{global_allele_distribution} uses the ggplot2 and ggmap packages to plot the global distribution of an allele of interest
+#' \code{global_allele_distribution} uses the ggplot2 package to plot the global distribution of an allele of interest.
 #'
-#' This is the detail section if you want to fill out in the future
+#' Specify either a \code{position} or a \code{gene} and amino acid \code{variant} position.
 #'
 #' @param gene character value gene of interest. Can be gene name "top-2" or gene id "WBGene00010785"
 #' @param variant character value corresponding amino acid change you are interested in plotting. Currently only supports visualization of SNVs that alter an amino acid residue.
+#' @param position Chromosomal position of variant
 #' @param colors character vector containing two colors. The first element of the vector will be the ALT genotype and the second will be the REF genotype. Default values are c("purple","salmon").
 #' @return Outputs a ggplot object containing a visualization of the global distribution of allele of interest
 #' @importFrom dplyr %>%
 #' @export
 
-global_allele_distribution <- function(gene = "top-2", variant = "797", colors = c("purple", "salmon")){
-  ###################################################################################################
-  # Recentre worldmap (and Mirrors coordinates) on longitude 160
-  ### Code by Claudia Engel  March 19, 2012, www.stanford.edu/~cengel/blog
+global_allele_distribution <- function(gene = "top-2", variant = 797, position = NA, colors = c("purple", "salmon")){
   
-  ### Recenter ####
-  center <- 160 # positive values only
-  
-  # shift coordinates to recenter CRAN Mirrors
-  isotype_location$long.recenter <- ifelse(isotype_location$longitude < center - 180 , isotype_location$longitude + 360, isotype_location$longitude)
-  isotype_location$lat <- isotype_location$latitude
-  
-  
-  allele_info <- snpeff(gene) %>%
-    dplyr::select(CHROM, POS, isotype = strain, aa_change,GT) %>%
-    dplyr::filter(grepl(variant,aa_change))%>%
-    dplyr::distinct(isotype)%>%
-    dplyr::left_join(., isotype_location, by = "isotype")
-  
-  # shift coordinates to recenter worldmap
-  worldmap <- ggplot2::map_data("world")
-  worldmap$long.recenter <- ifelse(worldmap$long < center - 180 , worldmap$long + 360, worldmap$long)
-  
-  # now regroup
-  worldmap.rg <- plyr::ddply(worldmap, .(group), RegroupElements, "long.recenter", "group")
-  
-  # close polys
-  worldmap.cp <- plyr::ddply(worldmap.rg, .(group.regroup), ClosePolygons, "long.recenter", "order") # use the new grouping var
-  #############################################################################
-  
-  # Plot worldmap using data from worldmap.cp
-  
-  worldmap = ggplot2::ggplot(aes(x = long.recenter, y = lat), data = worldmap.cp) + 
-    ggplot2::geom_polygon(aes(group = group.regroup), fill="#f9f9f9", colour = "grey65") + 
-    ggplot2::scale_y_continuous(limits = c(-60, 85)) + 
-    ggplot2::coord_equal() +  
-    ggplot2::theme_bw() + 
-    ggplot2::theme(
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank(),
-      axis.title.x = element_blank(),
-      axis.title.y = element_blank(),
-      axis.text.x = element_blank(),
-      axis.text.y = element_blank(),
-      axis.ticks = element_blank(), 
-      plot.title = ggplot2::element_text(size = 24, face = "bold", vjust = 1),
-      panel.border = element_rect(colour = "black"))
-  
-  # plot_title <- paste0("Global Distribution of ", gene," ", unique(allele_info$aa_change), " allele")
-  
-  # Plot the CRAN Mirrors
-  worldmap = worldmap + ggplot2::geom_point(data = allele_info, aes(long.recenter, latitude, color = GT),
-                                            pch = 19, size = 2, alpha = .7) +
-    ggplot2::scale_color_manual(values = c(colors[1], colors[2]),
-                                name = "Genotype")
-  
-  return(worldmap)
-}
-
-### Function to regroup split lines and polygons
-# Takes dataframe, column with long and unique group variable, returns df with added column named group.regroup
-RegroupElements <- function(df, longcol, idcol){
-  g <- rep(1, length(df[,longcol]))
-  if (diff(range(df[,longcol])) > 300) { # check if longitude within group differs more than 300 deg, ie if element was split
-    d <- df[,longcol] > mean(range(df[,longcol])) # we use the mean to help us separate the extreme values
-    g[!d] <- 1 # some marker for parts that stay in place (we cheat here a little, as we do not take into account concave polygons)
-    g[d] <- 2 # parts that are moved
+    if (is.na(position)) {
+    allele_info <- snpeff(gene) %>%
+      dplyr::select(CHROM, POS, isotype = strain, aa_change,GT) %>%
+      dplyr::filter(grepl(paste0("[^0-9]", variant, "[^0-9]"),aa_change)) 
+  } else {
+    chrom_pos <- stringr::str_split(position, ":")[[1]]
+    allele_info <- snpeff(position) %>%
+      dplyr::select(CHROM, POS, isotype = strain, aa_change,GT) %>%
+      dplyr::filter(CHROM == chrom_pos[1], POS == chrom_pos[2]) 
   }
-  g <- paste(df[, idcol], g, sep=".") # attach to id to create unique group variable for the dataset
-  df$group.regroup <- g
-  df
+  allele_info <- allele_info %>% dplyr::distinct(isotype) %>%
+                  dplyr::left_join(., isotype_location, by = "isotype")
+  
+  ggplot(allele_info) + 
+    borders("world", colour="gray50", fill="gray50") +
+    geom_point(aes(x = longitude, y = latitude, color = GT), size = 5, position = "jitter", alpha = 0.5) +
+    scale_color_manual(values = colors) +
+    theme_minimal() +
+    theme(axis.text = element_blank(),
+          axis.title = element_blank(),
+          legend.title = element_text(face = "bold"))
 }
-
-### Function to close regrouped polygons
-# Takes dataframe, checks if 1st and last longitude value are the same, if not, inserts first as last and reassigns order variable
-ClosePolygons <- function(df, longcol, ordercol){
-  if (df[1,longcol] != df[nrow(df),longcol]) {
-    tmp <- df[1,]
-    df <- rbind(df,tmp)
-  }
-  o <- c(1: nrow(df)) # rassign the order variable
-  df[,ordercol] <- o
-  df
-}
-
-
-

@@ -4,7 +4,7 @@
 \alias{global_allele_distribution}
 \title{Global distribution of allele}
 \usage{
-global_allele_distribution(gene = "top-2", variant = "797",
+global_allele_distribution(gene = "top-2", variant = 797, position = NA,
   colors = c("purple", "salmon"))
 }
 \arguments{
@@ -12,15 +12,17 @@ global_allele_distribution(gene = "top-2", variant = "797",
 
 \item{variant}{character value corresponding amino acid change you are interested in plotting. Currently only supports visualization of SNVs that alter an amino acid residue.}
 
+\item{position}{Chromosomal position of variant}
+
 \item{colors}{character vector containing two colors. The first element of the vector will be the ALT genotype and the second will be the REF genotype. Default values are c("purple","salmon").}
 }
 \value{
 Outputs a ggplot object containing a visualization of the global distribution of allele of interest
 }
 \description{
-\code{global_allele_distribution} uses the ggplot2 and ggmap packages to plot the global distribution of an allele of interest
+\code{global_allele_distribution} uses the ggplot2 package to plot the global distribution of an allele of interest.
 }
 \details{
-This is the detail section if you want to fill out in the future
+Specify either a \code{position} or a \code{gene} and amino acid \code{variant} position.
 }
 
