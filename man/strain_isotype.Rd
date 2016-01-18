@@ -11,5 +11,4 @@ strain_isotype
 \description{
 Strain and isotype information.
 }
-\keyword{datasets}
 
