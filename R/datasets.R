@@ -1,11 +1,15 @@
 #' Strain Isotype (Dataset)
 #'
 #' @description Strain and isotype information.
-#' @name strain_isotype
-#' @usage strain_isotype
-#' @docType data
-#' @format data frame
-NULL
+#' @name get_strain_isotype
+#' @export
+#' @format tbl_df
+
+get_strain_isotype <- function() {
+  readr::read_tsv("http://storage.googleapis.com/andersen_lab_strains/processed/strain_isotype.tsv") %>%
+    dplyr::arrange(strain, isotype) %>%
+    dplyr::select(strain, isotype, latitude, longitude, sequenced, prev_names, warning_msg, alternative_name)
+}
 
 #' SNP set (Dataset)
 #'

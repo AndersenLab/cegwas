@@ -36,7 +36,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
   
-  strain_isotype_df <- cegwas::strain_isotype %>% dplyr::select(strain, isotype, warning_msg)
+  strain_isotype_df <- get_strain_isotype() %>% dplyr::select(strain, isotype, warning_msg)
   
   # Strain - Isotype Issues; Duplicate check
   data <- tidyr::gather(data, "strain", "val", 2:ncol(data)) %>%
