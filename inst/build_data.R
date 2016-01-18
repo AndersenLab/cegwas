@@ -32,4 +32,4 @@ kinship <- generate_kinship(vcf_path)
 snps <- generate_mapping(vcf_path)
 
 # Save Datasets
-devtools::use_data(kinship, snps, strain_isotype, gene_ids, wb_build, internal = F, overwrite = T)
+devtools::use_data(kinship, snps, strain_isotype, gene_ids, wb_build, internal = T, overwrite = T)
