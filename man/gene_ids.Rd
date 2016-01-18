@@ -3,7 +3,7 @@
 \name{gene_ids}
 \alias{gene_ids}
 \title{Gene IDs (Dataset)}
-\format{tbl_df}
+\format{list}
 \description{
 A list of wormbase to standard gene identifier (e.g. _pot-2_) identifiers.
 }

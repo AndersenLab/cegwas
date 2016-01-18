@@ -12,6 +12,16 @@
 #' }
 NULL
 
+
+#' Strain Isotype (Dataset)
+#'
+#' Dataset containing strain and isotype information
+#' @name strain_isotype
+#' @export strain_isotype
+#' @format tbl_df
+NULL
+
+
 #' Relatedness matrix (Dataset)
 #'
 #' Kinship matrix generated using the \code{a.mat} function in the rrBLUP package. 
@@ -21,19 +31,11 @@ NULL
 NULL
 
 
-#' Strain Isotype (Dataset)
-#'
-#' Table of strains and their respective isotypes in addition to strains with potential problems.
-#' @name strain_isotype
-#' @format tbl_df
-NULL
-
-
 #' Gene IDs (Dataset)
 #'
 #' A list of wormbase to standard gene identifier (e.g. _pot-2_) identifiers.
 #' @name gene_ids
-#' @format tbl_df
+#' @format list
 NULL
 
 #' Genome Build (Dataset)

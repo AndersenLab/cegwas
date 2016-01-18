@@ -5,6 +5,6 @@
 \title{Strain Isotype (Dataset)}
 \format{tbl_df}
 \description{
-Table of strains and their respective isotypes in addition to strains with potential problems.
+Dataset containing strain and isotype information
 }
 
