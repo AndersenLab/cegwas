@@ -5,7 +5,10 @@
 #' @usage strain_isotype
 #' @docType data
 #' @format data frame
-NULL
+strain_isotype <- readr::read_tsv("http://storage.googleapis.com/andersen_lab_strains/processed/strain_isotype.tsv") %>%
+  dplyr::arrange(strain, isotype) %>%
+  dplyr::select(strain, isotype, latitude, longitude, sequenced, prev_names, warning_msg, alternative_name)
+
 
 #' SNP set (Dataset)
 #'
