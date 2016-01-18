@@ -1,3 +1,12 @@
+#' Strain Isotype (Dataset)
+#'
+#' @description Strain and isotype information.
+#' @name strain_isotype
+#' @usage strain_isotype
+#' @docType data
+#' @format data frame
+NULL
+
 #' SNP set (Dataset)
 #'
 #' Genotype information for C. elegans wild isolates. SNPs used from RADseq data set but 
@@ -10,15 +19,6 @@
 #'   \item{AB1}{first strain in collection, followed by all other strains}
 #'   ...
 #' }
-NULL
-
-#' Strain Isotype (Dataset)
-#'
-#' @description Strain and isotype information.
-#' @name strain_isotype
-#' @usage strain_isotype
-#' @docType data
-#' @format data frame
 NULL
 
 #' Relatedness matrix (Dataset)
