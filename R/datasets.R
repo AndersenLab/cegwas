@@ -17,9 +17,9 @@ NULL
 #'
 #' Dataset containing strain and isotype information
 #' @name strain_isotype
-#' @export strain_isotype
 #' @format tbl_df
-NULL
+strain_isotype <- readr::read_tsv("http://storage.googleapis.com/andersen_lab_strains/processed/strain_isotype.tsv") %>%
+  dplyr::arrange(strain, isotype)
 
 
 #' Relatedness matrix (Dataset)
