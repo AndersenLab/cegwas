@@ -4,12 +4,11 @@
 \name{strain_isotype}
 \alias{strain_isotype}
 \title{Strain Isotype (Dataset)}
-\format{tbl_df}
+\format{data frame}
 \usage{
 strain_isotype
 }
 \description{
-Dataset containing strain and isotype information
+Strain and isotype information.
 }
-\keyword{datasets}
 

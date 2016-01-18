@@ -12,15 +12,14 @@
 #' }
 NULL
 
-
 #' Strain Isotype (Dataset)
 #'
-#' Dataset containing strain and isotype information
+#' @description Strain and isotype information.
 #' @name strain_isotype
-#' @format tbl_df
-strain_isotype <- readr::read_tsv("http://storage.googleapis.com/andersen_lab_strains/processed/strain_isotype.tsv") %>%
-  dplyr::arrange(strain, isotype)
-
+#' @usage strain_isotype
+#' @docType data
+#' @format data frame
+NULL
 
 #' Relatedness matrix (Dataset)
 #'
@@ -29,7 +28,6 @@ strain_isotype <- readr::read_tsv("http://storage.googleapis.com/andersen_lab_st
 #' @name kinship
 #' @format A Strain x Strain data frame for 152 strains
 NULL
-
 
 #' Gene IDs (Dataset)
 #'
