@@ -151,6 +151,7 @@ remove_lowFreq_phenotypes <- function(data, wide = TRUE){
   if(wide == T){
     output <- data.frame(data)%>%
       tidyr::gather(strain, value, -trait)%>% # make long
+      na.omit() %>%
       dplyr::group_by(trait)%>% # group
       dplyr::mutate(nst = n(), # number strain per trait
              nuniq = length(unique(value)))%>% # number of unique values
