@@ -46,3 +46,11 @@ NULL
 #' @name wb_build
 #' @format A single element vector
 NULL
+
+
+#' Strain Isotypes (Dataset)
+#'
+#' Strain Isotype
+#' @name strain_isotype
+#' @format "strain" isotype" "latitude" "longitude""sequenced" "prev_names" "warning_msg" "alternative_name"
+NULL
