@@ -17,7 +17,7 @@ spike <- function(snps, snpindex) {
         trait_values <- seq_along(strains)
         snps <- data.frame(snps)
         for(i in seq_along(strains)) {
-            if(snps[snpindex, i + 2] == 0) {
+            if(snps[snpindex, i + 2] == 1) {
                 trait_values[i] <- rnorm(1, mean = 20, sd = 1)
             } else {
                 trait_values[i] <- rnorm(1, mean = 0, sd = 1)
@@ -44,7 +44,7 @@ spike <- function(snps, snpindex) {
                 if(is.na(snps[snp, i + 2])){
                     trait_values[i] <- trait_values[i] + 0
                 } else {
-                    if(snps[snp, i + 2] == 0) {
+                    if(snps[snp, i + 2] == 1) {
                         trait_values[i] <- trait_values[i] + rnorm(1, mean = meandiff, sd = sd)
                     } else {
                         trait_values[i] <- trait_values[i] - rnorm(1, mean = meandiff, sd = sd)
