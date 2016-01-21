@@ -467,7 +467,7 @@ process_mappings <- function(mapping_df,
   # LOOP THROUGH ALL UNIQUE PHENOTYPES
   for( i in 1:length(phenotypes) ){
     
-    print(paste(100*signif(i/length(phenotypes),3), "%",sep=""))
+    #print(paste(100*signif(i/length(phenotypes),3), "%",sep=""))
     
     # PREP DATA FRAME FOR PEAK IDENTIFICATION
     
