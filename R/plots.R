@@ -280,3 +280,42 @@ plot_peak_ld <- function(plot_df, trait = NULL){
     return(ldplot)
   }
 }
+
+
+#' QQ-plot implemented in ggplot2
+#'
+#' \code{qq_plot} generates a QQ plot given a vector of log10(p) values 
+#'
+#'
+#' @param log10p vector of log10(p) values 
+#' @return returns a ggplot2 object 
+#' @export
+
+qq_plot <- function(log10p) # argument: vector of numbers
+{
+  # following four lines from base R's qqline()
+  y <- quantile(vec[!is.na(vec)], c(0.25, 0.75))
+  x <- qnorm(c(0.25, 0.75))
+  slope <- diff(y)/diff(x)
+  int <- y[1L] - slope * x[1L]
+  
+  d <- data.frame(resids = vec)
+  
+  qqpl <- ggplot2::ggplot(d, ggplot2::aes(sample = resids)) + 
+    ggplot2::stat_qq() + 
+    ggplot2::geom_abline(slope = slope, intercept = int, color = "red")+
+    ggplot2::theme_bw()+
+    ggplot2::theme(axis.text.x = ggplot2::element_text(size = 24,face = "bold", color = "black"), 
+                   axis.text.y = ggplot2::element_text(size = 24, face = "bold", color = "black"), 
+                   axis.title.x = ggplot2::element_text(size = 24, face = "bold", color = "black", vjust = -0.3), 
+                   axis.title.y = ggplot2::element_text(size = 24,face = "bold", color = "black"), 
+                   strip.text.x = ggplot2::element_text(size = 24,face = "bold", color = "black"), 
+                   strip.text.y = ggplot2::element_text(size = 16, face = "bold", color = "black"), 
+                   plot.title = ggplot2::element_text(size = 24, face = "bold", vjust = 1), 
+                   legend.position = "none", 
+                   panel.background = ggplot2::element_rect(color = "black", size = 1.2), 
+                   strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
+    labs(x = "Theoretical", y = "Observed")
+ 
+  return(qqpl) 
+}
