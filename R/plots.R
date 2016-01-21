@@ -252,8 +252,8 @@ plot_peak_ld <- function(plot_df, trait = NULL){
     
     ldplot <- ggplot2::ggplot(LDs)+
       ggplot2::aes(x = SNP1, y = SNP2)+
-      ggplot2::geom_raster(aes(fill = Dprime))+
-      ggplot2::geom_text(aes(label = signif(Dprime,3)), fontface = "bold", size = 12)+
+      ggplot2::geom_raster(ggplot2::aes(fill = Dprime))+
+      ggplot2::geom_text(ggplot2::aes(label = signif(Dprime,3)), fontface = "bold", size = 12)+
       ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
                      axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
                      axis.title.x = ggplot2::element_text(size=0, face="bold", color="black", vjust=-.3),
