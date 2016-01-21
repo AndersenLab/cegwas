@@ -291,8 +291,7 @@ plot_peak_ld <- function(plot_df, trait = NULL){
 #' @return returns a ggplot2 object 
 #' @export
 
-qq_plot <- function(log10p) # argument: vector of numbers
-{
+qq_plot <- function(log10p){
   # following four lines from base R's qqline()
   y <- quantile(log10p[!is.na(log10p)], c(0.25, 0.75))
   x <- qnorm(c(0.25, 0.75))
