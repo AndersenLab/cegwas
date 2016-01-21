@@ -294,12 +294,12 @@ plot_peak_ld <- function(plot_df, trait = NULL){
 qq_plot <- function(log10p) # argument: vector of numbers
 {
   # following four lines from base R's qqline()
-  y <- quantile(vec[!is.na(vec)], c(0.25, 0.75))
+  y <- quantile(log10p[!is.na(log10p)], c(0.25, 0.75))
   x <- qnorm(c(0.25, 0.75))
   slope <- diff(y)/diff(x)
   int <- y[1L] - slope * x[1L]
   
-  d <- data.frame(resids = vec)
+  d <- data.frame(resids = log10p)
   
   qqpl <- ggplot2::ggplot(d, ggplot2::aes(sample = resids)) + 
     ggplot2::stat_qq() + 
