@@ -421,7 +421,7 @@ fetch_id_type <- function(id_type = NA) {
 #' @export
 
 interval_summary <- function(query, filter_variants = T, impute = F) {
-  elegans_gff <- dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
+  elegans_gff <- get_db()
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
   interval <- (dplyr::collect(elegans_gff %>%
     dplyr::filter(locus == query | gene_id == query | sequence_name == query) %>%
@@ -454,21 +454,21 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
     variants <- dplyr::filter(variants, FILTER == "PASS", FT == "PASS")
   }
   
-  variant_gene_summary <- variants %>% dplyr::select(gene_id, gene_name, effect, impact) %>% 
+  variant_gene_effects <- variants %>% dplyr::select(gene_id, gene_name, effect, impact) %>% 
     dplyr::mutate(gene_name = ifelse(gene_name == "", gene_id, gene_name)) %>%
     dplyr::group_by(gene_id, effect) %>%
     dplyr::filter(!grepl("-", gene_id)) %>% # Remove intergene regions
-    dplyr::distinct() %>%
-    tidyr::nest(gene_id, gene_name) %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(n_genes = length(gene_id))
+    dplyr::mutate(gene_name = ifelse(is.na(gene_name), gene_id, gene_name)) %>%
+    dplyr::distinct() 
 
 
+  # Calculate max severity variants
   mvariants <- variants %>% dplyr::group_by(CHROM, POS, effect) %>%
               dplyr::select(CHROM, POS, impact, effect) %>%
               dplyr::distinct() %>%
               tidyr::spread(effect, impact) %>%
-              dplyr::mutate_each(dplyr::funs(sev), matches("_"))
+              dplyr::mutate_each(dplyr::funs(sev), matches("_")) %>%
+              dplyr::ungroup()
   
   mvariants$max_severity <- rseverity[apply(mvariants %>% dplyr::select(-CHROM, -POS) %>% t(), 2, max)]
   
@@ -500,6 +500,7 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
        "genes_w_variants" = genes_w_variants,
        "genes_w_MOD_HIGH" = genes_w_MOD_HIGH,
        "genes_w_HIGH" = genes_w_HIGH,
+       "variant_gene_effects" = variant_gene_effects, 
        "variant_summary" = variant_summary,
        "max_severity_variants" = max_severity,
        "region_genes" = region_elements
