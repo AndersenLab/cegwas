@@ -461,6 +461,9 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
     dplyr::mutate(gene_name = ifelse(is.na(gene_name), gene_id, gene_name)) %>%
     dplyr::distinct() 
 
+  variant_gene_summary <- variant_gene_effects %>%
+      dplyr::group_by(gene_name, effect, impact) %>%
+      dplyr::summarize(n = n())
 
   # Calculate max severity variants
   mvariants <- variants %>% dplyr::group_by(CHROM, POS, effect) %>%
