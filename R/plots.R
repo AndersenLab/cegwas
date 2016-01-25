@@ -283,11 +283,6 @@ plot_peak_ld <- function(plot_df, trait = NULL){
   }
 }
 
-format_peak <- function(x) { 
-  peak_split <- stringr::str_split(gsub("_", ":", x), ":")[[1]]
-  paste0(peak_split[1], ":", round(as.numeric(peak_split[2])/1E6, 2))
-}
-
 #' QQ-plot implemented in ggplot2
 #'
 #' \code{qq_plot} generates a QQ plot given a vector of log10(p) values 
