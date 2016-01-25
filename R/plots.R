@@ -262,7 +262,10 @@ plot_peak_ld <- function(plot_df, trait = NULL){
                      plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
                      legend.position="none",
                      panel.background = ggplot2::element_rect( color="black",size=1.2),
-                     strip.background = ggplot2::element_rect(color = "black", size = 1.2))
+                     strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
+                     scale_x_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
+                     scale_y_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
+                     scale_fill_continuous(high = "#0080FF", low = "#CCCCCC", na.value = "white")
     
     #     rgb.palette <- grDevices::colorRampPalette(rev(c("blue", 
     #                                                      "orange", "red")), space = "rgb")
@@ -280,6 +283,10 @@ plot_peak_ld <- function(plot_df, trait = NULL){
   }
 }
 
+format_peak <- function(x) { 
+  peak_split <- stringr::str_split(gsub("_", ":", x), ":")[[1]]
+  paste0(peak_split[1], ":", round(as.numeric(peak_split[2])/1E6, 2))
+}
 
 #' QQ-plot implemented in ggplot2
 #'
