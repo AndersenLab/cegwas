@@ -101,11 +101,12 @@ tajimas_d <- function(vcf_path = paste0(path.package("cegwas"),"/"),
 #' @param variant character value corresponding amino acid change you are interested in plotting. Currently only supports visualization of SNVs that alter an amino acid residue.
 #' @param location region to restrict plot to. Uses google api for lookup. Examples: \code{europe}.
 #' @param colors character vector containing two colors. The first element of the vector will be the ALT genotype and the second will be the REF genotype. Default values are c("purple","salmon").
+#' @param alpha Set marker alpha.
 #' @return Outputs a ggplot object containing a visualization of the global distribution of allele of interest
 #' @importFrom dplyr %>%
 #' @export
 
-allele_distribution <- function(locus = "top-2", variant = 797, location = NA,  colors = c("purple", "salmon")){
+allele_distribution <- function(locus = "top-2", variant = 797, location = NA,  colors = c("purple", "salmon"), alpha = 0.8){
     
     query <- snpeff(locus, severity = "ALL", elements = "ALL") 
   
@@ -124,7 +125,7 @@ allele_distribution <- function(locus = "top-2", variant = 797, location = NA,  
   
   rplot <- ggplot(allele_info) + 
     geom_path(data = map_data("world"), aes(x=long, y=lat, group=group)) +
-    geom_point(aes(x = longitude, y = latitude, color = GT), size = 5, position = "jitter", alpha = 0.5) +
+    geom_point(aes(x = longitude, y = latitude, color = GT), size = 5, position = "jitter", alpha = alpha) +
     scale_color_manual(values = colors) +
     theme_minimal() +
     theme(axis.text = element_blank(),
