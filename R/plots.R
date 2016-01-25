@@ -82,16 +82,15 @@ pxg_plot <- function(plot_df, loc = NA, use_base = F, color_strains = c("N2","CB
      }
       
       to_plot <- snpeff(loc[[1]], severity = "ALL", elements = "ALL") %>%
-      dplyr::select(CHROM, POS, strain, GT, REF, ALT) %>%
+      dplyr::select(strain, GT, REF, ALT) %>%
       dplyr::distinct() 
       
       if (!is.na(loc)) {
-
         to_plot <- dplyr::left_join(to_plot, plot_peak) %>%
           dplyr::mutate(chr_pos = paste(CHROM, POS, sep="_"))
       }
       
-      to_plot <- dplyr::left_join(to_plot, plot_peak)
+      to_plot <- dplyr::left_join(to_plot, plot_peak, by = "strain")
       to_plot <- dplyr::filter(to_plot, !is.na(value)) %>%
       dplyr::distinct(strain, value, POS) %>%
       dplyr::filter(!is.na(GT)) %>%
