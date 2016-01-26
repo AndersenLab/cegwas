@@ -3,7 +3,7 @@
 \name{strain_isotype}
 \alias{strain_isotype}
 \title{Strain Isotypes (Dataset)}
-\format{"strain" isotype" "latitude" "longitude""sequenced" "prev_names" "warning_msg" "alternative_name"}
+\format{"strain" isotype" "latitude" "longitude""sequenced" "previous_names" "warning_message" "alternative_name"}
 \description{
 Strain Isotype
 }

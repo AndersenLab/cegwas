@@ -51,5 +51,5 @@ NULL
 #'
 #' Strain Isotype
 #' @name strain_isotype
-#' @format "strain" isotype" "latitude" "longitude""sequenced" "prev_names" "warning_msg" "alternative_name"
+#' @format "strain" isotype" "latitude" "longitude""sequenced" "previous_names" "warning_message" "alternative_name"
 NULL

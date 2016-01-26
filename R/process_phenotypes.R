@@ -36,7 +36,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
   
-  strain_isotype_df <- get_strain_isotype() %>% dplyr::select(strain, isotype, warning_msg)
+  strain_isotype_df <- get_strain_isotype() %>% dplyr::select(strain, isotype, warning_message)
   
   # Strain - Isotype Issues; Duplicate check
   data <- tidyr::gather(data, "strain", "val", 2:ncol(data)) %>%
@@ -48,14 +48,14 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   # Warn user of potential issues with strains
   
   issue_warnings <- dplyr::ungroup(data) %>%
-                    dplyr::filter(!is.na(warning_msg)) %>% 
-                    dplyr::select(strain, warning_msg) %>%
-                    dplyr::group_by(strain, warning_msg) %>%
+                    dplyr::filter(!is.na(warning_message)) %>% 
+                    dplyr::select(strain, warning_message) %>%
+                    dplyr::group_by(strain, warning_message) %>%
                     unique()
   if (nrow(issue_warnings) > 0) {
     for(x in 1:nrow(issue_warnings)) {
         warn <- issue_warnings[x,]
-        warn <- paste(warn$strain, ":", warn$warning_msg)
+        warn <- paste(warn$strain, ":", warn$warning_message)
         warning(warn, call. = F)
     }
   }
