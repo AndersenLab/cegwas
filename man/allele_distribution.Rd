@@ -5,7 +5,7 @@
 \title{Geographic distribution of alleles}
 \usage{
 allele_distribution(locus = "top-2", variant = 797, location = NA,
-  colors = c("purple", "salmon"))
+  colors = c("purple", "salmon"), alpha = 0.8)
 }
 \arguments{
 \item{locus}{A gene or position. Examples: \code{top-2}, \code{II:14425175}, or "WBGene00010785"}
@@ -15,6 +15,8 @@ allele_distribution(locus = "top-2", variant = 797, location = NA,
 \item{location}{region to restrict plot to. Uses google api for lookup. Examples: \code{europe}.}
 
 \item{colors}{character vector containing two colors. The first element of the vector will be the ALT genotype and the second will be the REF genotype. Default values are c("purple","salmon").}
+
+\item{alpha}{Set marker alpha.}
 }
 \value{
 Outputs a ggplot object containing a visualization of the global distribution of allele of interest

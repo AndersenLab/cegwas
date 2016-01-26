@@ -245,13 +245,21 @@ plot_peak_ld <- function(plot_df, trait = NULL){
   }
   else {
     
-    LDs <- data.frame(genetics::LD(test)[[3]]) %>%
-      mutate(SNP1 = row.names(.))%>%
-      tidyr::gather(SNP2, Dprime, -SNP1)
+    LDs <- tbl_df(data.frame(genetics::LD(test)[[3]]) %>%
+      dplyr::mutate(SNP1 = row.names(.))%>%
+      tidyr::gather(SNP2, Dprime, -SNP1) %>%
+      dplyr::filter(!is.na(Dprime)))
+    
+    # Melt LD plot
+    LDs <- dplyr::bind_rows(LDs, LDs %>% dplyr::rename(SNP2 = SNP1, SNP1 = SNP2)) %>%
+      tidyr::spread(SNP1, Dprime) %>%
+      dplyr::mutate_each(funs(na_to_1), everything(), -SNP2) %>%
+      tidyr::gather(SNP1, Dprime, -SNP2)
+    
     
     ldplot <- ggplot2::ggplot(LDs)+
       ggplot2::aes(x = SNP1, y = SNP2)+
-      ggplot2::geom_raster(ggplot2::aes(fill = Dprime))+
+      ggplot2::geom_tile(ggplot2::aes(fill = Dprime), colour = "black") +
       ggplot2::geom_text(ggplot2::aes(label = signif(Dprime,3)), fontface = "bold", size = 12)+
       ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
                      axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
@@ -262,7 +270,10 @@ plot_peak_ld <- function(plot_df, trait = NULL){
                      plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
                      legend.position="none",
                      panel.background = ggplot2::element_rect( color="black",size=1.2),
-                     strip.background = ggplot2::element_rect(color = "black", size = 1.2))
+                     strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
+                     scale_x_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
+                     scale_y_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
+                     scale_fill_continuous(high = "#FF0000", low = "white", na.value = "white")
     
     #     rgb.palette <- grDevices::colorRampPalette(rev(c("blue", 
     #                                                      "orange", "red")), space = "rgb")
@@ -280,6 +291,8 @@ plot_peak_ld <- function(plot_df, trait = NULL){
   }
 }
 
+
+na_to_1 <- function(x) { ifelse(is.na(x), 1, x)}
 
 #' QQ-plot implemented in ggplot2
 #'
