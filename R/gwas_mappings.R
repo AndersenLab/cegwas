@@ -90,6 +90,7 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
 #' @param kin_matrix is a strainXstrain matrix. default kinship matrix is described above.
 #' @param snps is a set of mapping snps.
 #' @param mapping_snp_set Use simulation based snps when TRUE. Use 5\% cut when FALSE.
+#' @param snp_grouping defines grouping of peaks. Defined further below, default is 200.
 #' @return Outputs a two element list that contains two dataframes. 
 #' The first data frame is a processed mappings dataframe that contains the same columns
 #' as the output of \code{\link{gwas_mappings}} with two additional columns. One that contains
@@ -105,10 +106,11 @@ cegwas_map <- function(trait_data,
                        snpset = snps,
                        duplicate_method = "first",
                        BF = NA,
-                       mapping_snp_set = TRUE) {
+                       mapping_snp_set = TRUE,
+                       snp_grouping = 200) {
   processed_phenotypes <- process_pheno(trait_data, remove_strains = remove_strains, duplicate_method = "first")
   mapping_df <- gwas_mappings(processed_phenotypes, kin_matrix = kin_matrix, snpset = snpset, cores = cores, mapping_snp_set = mapping_snp_set)
-  processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = 200, BF = BF)
+  processed_mapping_df <- process_mappings(mapping_df, phenotype_df = processed_phenotypes, CI_size = 50, snp_grouping = snp_grouping, BF = BF)
 }
 
 
