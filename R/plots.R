@@ -243,21 +243,20 @@ plot_peak_ld <- function(plot_df, trait = NULL){
   }
   else {
     
-    LDs <- tbl_df(data.frame(genetics::LD(test)[[3]]) %>%
-      dplyr::mutate(SNP1 = row.names(.))%>%
-      tidyr::gather(SNP2, Dprime, -SNP1) %>%
-      dplyr::filter(!is.na(Dprime)))
+    ldcalc <- t(genetics::LD(test)[[3]])
+    diag(ldcalc) <- 1
     
-    # Melt LD plot
-    LDs <- dplyr::bind_rows(LDs, LDs %>% dplyr::rename(SNP2 = SNP1, SNP1 = SNP2)) %>%
-      tidyr::spread(SNP1, Dprime) %>%
-      dplyr::mutate_each(funs(na_to_1), everything(), -SNP2) %>%
-      tidyr::gather(SNP1, Dprime, -SNP2)
     
+    LDs <- tbl_df(data.frame(ldcalc) %>%
+          dplyr::add_rownames(var = "SNP1")) %>%
+          tidyr::gather(SNP2, Dprime, -SNP1) %>%
+          dplyr::arrange(SNP1) %>%
+          tidyr::separate(SNP1, sep = "_", into = c("CHROM1", "POS1"), remove = F) %>%
+          dplyr::arrange(CHROM1, as.numeric(POS1))
     
     ldplot <- ggplot2::ggplot(LDs)+
-      ggplot2::aes(x = SNP1, y = SNP2)+
-      ggplot2::geom_tile(ggplot2::aes(fill = Dprime), colour = "black") +
+      ggplot2::aes(x = factor(SNP1, levels = SNP1, ordered = T), y = factor(SNP2, levels = SNP1, ordered = T)) +
+      ggplot2::geom_tile(ggplot2::aes(fill = Dprime)) +
       ggplot2::geom_text(ggplot2::aes(label = signif(Dprime,3)), fontface = "bold", size = 12)+
       ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
                      axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
@@ -273,6 +272,9 @@ plot_peak_ld <- function(plot_df, trait = NULL){
                      scale_y_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
                      scale_fill_continuous(high = "#FF0000", low = "white", na.value = "white")
     
+    
+    
+    ldplot <- cowplot::ggdraw(cowplot::switch_axis_position(ldplot, 'y'))
     #     rgb.palette <- grDevices::colorRampPalette(rev(c("blue", 
     #                                                      "orange", "red")), space = "rgb")
     #     ld_outs <- LDheatmap::LDheatmap(test, LDmeasure = "r", 
