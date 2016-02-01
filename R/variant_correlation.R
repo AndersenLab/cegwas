@@ -16,7 +16,8 @@
 
 variant_correlation <- function(df, 
                                 quantile_cutoff_high = .9, 
-                                quantile_cutoff_low = .1){
+                                quantile_cutoff_low = .1,
+                                variant_severity = c("MODERATE", "SEVERE")){
   
   # source("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/read_vcf.R") # Get snpeff function
   
@@ -59,7 +60,7 @@ variant_correlation <- function(df,
     region_of_interest <- paste0(chr,":",left,"-",right)
     
     # run variant effect prediction function
-    snpeff_output <- snpeff(region = region_of_interest) 
+    snpeff_output <- snpeff(region = region_of_interest, severity = variant_severity) 
     
     # prune snpeff outputs
     pruned_snpeff_output <- snpeff_output %>%
