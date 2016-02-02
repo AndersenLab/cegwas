@@ -9,6 +9,8 @@
 #' @param df is a dataframe that is output from the \code{process_mappings} function
 #' @param quantile_cutoff_high is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients greater than the 90th quantile
 #' @param quantile_cutoff_low is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients less than the 10th quantile
+#' @param variant_severity what variants to look at from snpeff output
+#' @param gene_types what gene types to look at from snpeff output
 #' @return Outputs a list. Each list contains two data frames, the first contains mapping information (e.g. log10p, confidence interval start and stop), phenotype information, and gene ids. 
 #' The second element of the list contains more detailed gene information
 #' @importFrom dplyr %>%
