@@ -22,7 +22,7 @@ get_strain_isotype <- function() {
 #'   \item{AB1}{first strain in collection, followed by all other strains}
 #'   ...
 #' }
-NULL
+"snps"
 
 #' Relatedness matrix (Dataset)
 #'
@@ -30,7 +30,7 @@ NULL
 #' Whole-genome SNP data was used to generate the relatedness of the strains in this file.
 #' @name kinship
 #' @format A Strain x Strain data frame for 152 strains
-NULL
+"kinship"
 
 #' Gene IDs (Dataset)
 #'
