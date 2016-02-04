@@ -37,14 +37,14 @@ get_strain_isotype <- function() {
 #' A list of wormbase to standard gene identifier (e.g. _pot-2_) identifiers.
 #' @name gene_ids
 #' @format list
-NULL
+"gene_ids"
 
 #' Genome Build (Dataset)
 #'
 #' The wormbase build currently in use
 #' @name wb_build
 #' @format A single element vector
-NULL
+"wb_build"
 
 
 #' Strain Isotypes (Dataset)
@@ -52,4 +52,4 @@ NULL
 #' Strain Isotype
 #' @name strain_isotype
 #' @format "strain" isotype" "latitude" "longitude""sequenced" "previous_names" "warning_message" "alternative_name"
-NULL
+"strain_isotype"
