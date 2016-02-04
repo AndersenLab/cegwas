@@ -58,4 +58,5 @@ get_strain_isotype <- function() {
 #'   \item{POS}{physical position in genome}
 #'   \item{AB1}{first strain in collection, followed by all other strains}
 #'   ...
+#' }
 "mapping_snps"
