@@ -1,7 +1,7 @@
 #' Strain Isotype (Dataset)
 #'
-#' @description Strain and isotype information.
-#' @name get_strain_isotype
+#' Strain and isotype information.
+#' 
 #' @export
 #' @format tbl_df
 
@@ -14,6 +14,7 @@ get_strain_isotype <- function() {
 #'
 #' Genotype information for C. elegans wild isolates. SNPs used from RADseq data set but 
 #' includes all 124 wild isolates from whole-genome sequencing project
+#'
 #' @format A data frame with snps as rows and columns as strains:
 #' \describe{
 #'   \item{CHROM}{chromosome in roman numerals}
@@ -21,6 +22,7 @@ get_strain_isotype <- function() {
 #'   \item{AB1}{first strain in collection, followed by all other strains}
 #'   ...
 #' }
+#' @export
 "snps"
 
 #' Relatedness matrix (Dataset)
@@ -28,18 +30,21 @@ get_strain_isotype <- function() {
 #' Kinship matrix generated using the \code{a.mat} function in the rrBLUP package. 
 #' Whole-genome SNP data was used to generate the relatedness of the strains in this file.
 #' @format A Strain x Strain data frame for 152 strains
+#' @export
 "kinship"
 
 #' Gene IDs (Dataset)
 #'
 #' A list of wormbase to standard gene identifier (e.g. _pot-2_) identifiers.
 #' @format list
+#' @export
 "gene_ids"
 
 #' Genome Build (Dataset)
 #'
 #' The wormbase build currently in use
 #' @format A single element vector
+#' @export
 "wb_build"
 
 
@@ -47,6 +52,7 @@ get_strain_isotype <- function() {
 #'
 #' Strain Isotype
 #' @format "strain" isotype" "latitude" "longitude""sequenced" "previous_names" "warning_message" "alternative_name"
+#' @export
 "strain_isotype"
 
 #' Mapping SNPs (Dataset)
@@ -59,4 +65,5 @@ get_strain_isotype <- function() {
 #'   \item{AB1}{first strain in collection, followed by all other strains}
 #'   ...
 #' }
+#' @export
 "mapping_snps"
