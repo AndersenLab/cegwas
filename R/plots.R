@@ -33,11 +33,11 @@ manplot <- function(plot_df, bf_line_color = "gray") {
         ggplot2::geom_point( ggplot2::aes(color= factor(aboveBF)) ) +
         ggplot2::facet_grid( . ~ CHROM, scales = "free_x" ) +
         ggplot2::theme_bw() +
-        ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
-                       axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
-                       axis.title.x = ggplot2::element_text(size=24, face="bold", color="black", vjust=-.3),
-                       axis.title.y = ggplot2::element_text(size=24, face="bold", color="black"),
-                       strip.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
+        ggplot2::theme(axis.text.x = ggplot2::element_text(size=14, face="bold", color="black"),
+                       axis.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
+                       axis.title.x = ggplot2::element_text(size=20, face="bold", color="black", vjust=-.3),
+                       axis.title.y = ggplot2::element_text(size=20, face="bold", color="black"),
+                       strip.text.x = ggplot2::element_text(size=20, face="bold", color="black"),
                        strip.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
                        plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
                        legend.position="none",
