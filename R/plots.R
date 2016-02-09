@@ -73,7 +73,7 @@ pxg_plot <- function(plot_df, loc = NA, use_base = F, color_strains = c("N2","CB
       dplyr::filter(trait == x) %>%
       dplyr::distinct(strain, value, peakPOS) %>%
       dplyr::select(strain, value, CHROM, POS = peakPOS, -allele) %>%
-      dplyr::mutate(chr_pos = paste(CHROM, POS, sep="_"))
+      dplyr::mutate(chr_pos = paste(CHROM, POS, sep=":"))
     
      if (is.na(loc)) {   
       loc <- plot_peak %>% dplyr::select(CHROM, POS) %>% 
