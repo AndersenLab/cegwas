@@ -116,7 +116,7 @@ allele_distribution <- function(locus = "top-2", variant = 797, location = NA,  
       dplyr::filter(grepl(paste0("[^0-9]", variant, "[^0-9]"),aa_change)) 
   } else {
     chrom_pos <- stringr::str_split(locus, ":")[[1]]
-    allele_info <- snpeff(locus) %>%
+    allele_info <- snpeff(locus, severity = "ALL", elements = "ALL") %>%
       dplyr::select(CHROM, POS, isotype = strain, aa_change,GT) %>%
       dplyr::filter(CHROM == chrom_pos[1], POS == chrom_pos[2]) 
   }
