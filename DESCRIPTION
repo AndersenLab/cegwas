@@ -17,7 +17,6 @@ Imports:
     stringr,
     tidyr,
     data.table,
-    biomaRt,
     ggplot2,
     jsonlite,
     RCurl,

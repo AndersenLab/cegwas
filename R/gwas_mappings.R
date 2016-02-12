@@ -49,8 +49,7 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
       
       ph = data.frame(strains,  i)
       colnames(ph) <- c("strain", as.character(nm))
-      
-      
+
       pmap <- rrBLUP::GWAS(pheno = ph,
                            geno = y,
                            K = kin,
