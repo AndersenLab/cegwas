@@ -9,6 +9,8 @@
 #' @param df is a dataframe that is output from the \code{process_mappings} function
 #' @param quantile_cutoff_high is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients greater than the 90th quantile
 #' @param quantile_cutoff_low is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients less than the 10th quantile
+#' @param variant_severity what variants to look at from snpeff output
+#' @param gene_types what gene types to look at from snpeff output
 #' @return Outputs a list. Each list contains two data frames, the first contains mapping information (e.g. log10p, confidence interval start and stop), phenotype information, and gene ids. 
 #' The second element of the list contains more detailed gene information
 #' @importFrom dplyr %>%
@@ -16,7 +18,9 @@
 
 variant_correlation <- function(df, 
                                 quantile_cutoff_high = .9, 
-                                quantile_cutoff_low = .1){
+                                quantile_cutoff_low = .1,
+                                variant_severity = c("MODERATE", "SEVERE"),
+                                gene_types = "ALL"){
   
   # source("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/read_vcf.R") # Get snpeff function
   
@@ -59,7 +63,7 @@ variant_correlation <- function(df,
     region_of_interest <- paste0(chr,":",left,"-",right)
     
     # run variant effect prediction function
-    snpeff_output <- snpeff(region = region_of_interest) 
+    snpeff_output <- snpeff(region = region_of_interest, severity = variant_severity, elements = gene_types) 
     
     # prune snpeff outputs
     pruned_snpeff_output <- snpeff_output %>%

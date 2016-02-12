@@ -31,7 +31,7 @@ Imports:
     maps,
     sp
 License: GPL
-LazyData: false
+LazyData: true
 Suggests:
     testthat
 RoxygenNote: 5.0.1

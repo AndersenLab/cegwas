@@ -21,13 +21,14 @@
 #' \cr\cr
 #' @param remove_strains Remove strains with no known isotype. Default is TRUE.
 #' @param duplicate_method Method for dealing with the presence of multiple strains falling into the same isotype. Either \code{"average"} or \code{"first"}.
+#' @param use_bamf use bamf prune to remove outliers
 #' @return Outputs a list. The first element of the list is an ordered vector of traits. 
 #' The second element of the list is a dataframe containing one column for each strain, with values corresponding to traits in element 1 for rows.
 #' @importFrom dplyr %>%
 #' @importFrom foreach %dopar%
 #' @export
 
-process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first"){
+process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first", use_bamf = TRUE){
   
   # Reshape data from wide to long
   if (sum(row.names(cegwas::kinship) %in% data[[1]]) > 3) {
@@ -120,7 +121,12 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   phen1 <- remove_lowFreq_phenotypes(phen)
   # run modified version of bamf_prune from easy sorter package
   # does the same thing as bamf_prune, just different input data structure
-  phen2 <- mod_bamf_prune(phen1)
+  if(use_bamf == TRUE){
+    phen2 <- mod_bamf_prune(phen1)
+  } else {
+    phen2 <- phen1
+  }
+
   # removes binary phenotypes where one phenotype is in less than 5% of strains
   phen3 <- remove_lowFreq_phenotypes(phen2, wide = FALSE)
   

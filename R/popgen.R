@@ -107,26 +107,33 @@ tajimas_d <- function(vcf_path = paste0(path.package("cegwas"),"/"),
 #' @export
 
 allele_distribution <- function(locus = "top-2", variant = 797, location = NA,  colors = c("purple", "salmon"), alpha = 0.8){
-    
-    query <- snpeff(locus, severity = "ALL", elements = "ALL") 
   
-    if (!grepl(":", locus)) {
+  query <- snpeff(locus, severity = "ALL", elements = "ALL") 
+  
+  if (!grepl(":", locus)) {
     allele_info <- query %>%
       dplyr::select(CHROM, POS, isotype = strain, aa_change,GT) %>%
       dplyr::filter(grepl(paste0("[^0-9]", variant, "[^0-9]"),aa_change)) 
   } else {
     chrom_pos <- stringr::str_split(locus, ":")[[1]]
-    allele_info <- snpeff(locus) %>%
+    allele_info <- snpeff(locus, severity = "ALL", elements = "ALL") %>%
       dplyr::select(CHROM, POS, isotype = strain, aa_change,GT) %>%
       dplyr::filter(CHROM == chrom_pos[1], POS == chrom_pos[2]) 
   }
   allele_info <- allele_info %>% dplyr::distinct(isotype) %>%
-                  dplyr::left_join(., get_strain_isotype(), by = "isotype")
+    dplyr::left_join(., get_strain_isotype(), by = "isotype")
   
   rplot <- ggplot(allele_info) + 
     geom_path(data = map_data("world"), aes(x=long, y=lat, group=group)) +
-    geom_point(aes(x = longitude, y = latitude, color = GT), size = 5, position = "jitter", alpha = alpha) +
-    scale_color_manual(values = colors) +
+    geom_point(data = subset(allele_info, GT == "REF"), 
+               aes(x = longitude, y = latitude, color = colors[1], ordered = TRUE), 
+               size = 3, position = "jitter", alpha = alpha) +
+    geom_point(data = subset(allele_info, GT == "ALT"), 
+               aes(x = longitude, y = latitude, color = colors[2], ordered = TRUE), 
+               size = 3, position = "jitter", alpha = alpha)+ 
+    scale_color_manual(values = colors, 
+                       labels = c("REF", "ALT"),
+                       name = "Genotype") +
     theme_minimal() +
     theme(axis.text = element_blank(),
           axis.title = element_blank(),
