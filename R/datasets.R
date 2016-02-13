@@ -4,11 +4,11 @@
 #' 
 #' @export
 #' @format tbl_df
-
 get_strain_isotype <- function() {
   readr::read_tsv("http://storage.googleapis.com/andersen_lab_strains/processed/strain_isotype.tsv") %>%
     dplyr::arrange(strain, isotype)
 }
+
 
 #' SNP set (Dataset)
 #'
@@ -25,6 +25,7 @@ get_strain_isotype <- function() {
 #' @export
 "snps"
 
+
 #' Relatedness matrix (Dataset)
 #'
 #' Kinship matrix generated using the \code{a.mat} function in the rrBLUP package. 
@@ -33,12 +34,14 @@ get_strain_isotype <- function() {
 #' @export
 "kinship"
 
+
 #' Gene IDs (Dataset)
 #'
 #' A list of wormbase to standard gene identifier (e.g. _pot-2_) identifiers.
 #' @format list
 #' @export
 "gene_ids"
+
 
 #' Genome Build (Dataset)
 #'
@@ -47,13 +50,6 @@ get_strain_isotype <- function() {
 #' @export
 "wb_build"
 
-
-#' Strain Isotypes (Dataset)
-#'
-#' Strain Isotype
-#' @format "strain" isotype" "latitude" "longitude""sequenced" "previous_names" "warning_message" "alternative_name"
-#' @export
-"strain_isotype"
 
 #' Mapping SNPs (Dataset)
 #'
@@ -67,3 +63,4 @@ get_strain_isotype <- function() {
 #' }
 #' @export
 "mapping_snps"
+
