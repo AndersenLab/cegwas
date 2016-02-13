@@ -37,7 +37,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
   
-  names(data)[2:length(names(data))] <- resolve_isotype(names(data)[2:length(names(data))], strain_isotype_df)
+  names(data)[2:length(names(data))] <- resolve_isotype(names(data)[2:length(names(data))], strain_isotype_df())
   
   strain_isotype_df <- get_strain_isotype() %>% dplyr::select(strain, reference_strain, isotype, previous_names, warning_message)
   
