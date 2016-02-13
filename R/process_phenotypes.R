@@ -158,10 +158,10 @@ resolve_isotype <- function(name_list, db) {
                        (isotype == name) |
                        (name %in% previous_names)))$isotype
   if (length(ri) > 1) {
-    warning(paste0("Multiple resolved isotypes", ri))
+    warning(paste0("Multiple resolved isotypes: ", ri))
   }
   ri
-  }))
+  }))[[1]]
 }
 
 # called functions
