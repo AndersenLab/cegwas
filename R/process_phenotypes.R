@@ -37,13 +37,11 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  
   }
   
-  strain_isotype_df <- get_strain_isotype() %>% dplyr::select(strain, reference_strain, isotype, previous_names, warning_message)
-  
   # Strain - Isotype Issues; Duplicate check
   data <- tidyr::gather(data, "strain", "val", 2:ncol(data)) %>%
           dplyr::rowwise() %>% 
-          dplyr::mutate(isotype = resolve_isotype(strain, strain_isotype_df)[[1]]) %>%
-          dplyr::left_join(strain_isotype_df) %>%
+          dplyr::mutate(isotype = resolve_isotype(strain)[[1]]) %>%
+          dplyr::left_join(strain_isotype) %>%
           dplyr::group_by(trait, isotype) %>% 
           dplyr::mutate(iso_count = n()) 
 
@@ -150,16 +148,17 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   return(output)
 }
 
-resolve_isotype <- function(name_list, db) {
+resolve_isotype <- function(name_list) {
   as.vector(sapply(name_list, function(name) {
-  ri <- (db %>% dplyr::mutate(previous_names = stringr::str_split(previous_names, "\\|")) %>%
+  ri <- unique((strain_isotype %>% dplyr::mutate(previous_names = stringr::str_split(previous_names, "\\|")) %>%
           dplyr::rowwise() %>% 
           dplyr::filter((strain == name) |
-                       (reference_strain == name) |
                        (isotype == name) |
-                       (name %in% previous_names)))$isotype
-  if (length(ri) > 1) {
+                       (name %in% previous_names)))$isotype)
+  if (length(unique(ri)) > 1) {
     warning(paste0("Multiple resolved isotypes: ", ri))
+  } else if (length(ri) == 0) {
+    NA
   }
   ri
   }))

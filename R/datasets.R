@@ -2,12 +2,9 @@
 #'
 #' Strain and isotype information.
 #' 
-#' @export
 #' @format tbl_df
-get_strain_isotype <- function() {
-  readr::read_tsv("http://storage.googleapis.com/andersen_lab_strains/processed/strain_isotype.tsv") %>%
-    dplyr::arrange(strain, isotype)
-}
+#' @export
+"strain_isotype"
 
 
 #' SNP set (Dataset)

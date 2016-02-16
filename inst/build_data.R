@@ -19,17 +19,18 @@ library("devtools")
 # save(gene_ids, file = "data/gene_ids.rda")
 
 # Strain Isotype File
-strain_isotype <- readr::read_tsv("http://storage.googleapis.com/andersen_lab_strains/processed/strain_isotype.tsv") %>%
-  dplyr::arrange(strain, isotype) %>%
-  dplyr::select(strain, reference_strain, isotype, latitude, longitude, sequenced, previous_names, warning_message, alternative_name)
+strain_isotype <- readr::read_tsv("https://storage.googleapis.com/andersen_lab_strains/processed/strain_isotype.tsv") %>%
+    dplyr::arrange(strain, isotype)
+
 
 load("data/gene_ids.rda")
 load("data/kinship.rda")
 load("data/snps.rda")
+load("data/mapping_snps.rda")
 
 wb_build <- 245
 kinship <- generate_kinship(vcf_path)
 snps <- generate_mapping(vcf_path)
 
 # Save Datasets
-devtools::use_data(kinship, snps, mapping_snps, gene_ids, wb_build, internal = T, overwrite = T)
+devtools::use_data(kinship, snps, strain_isotype, mapping_snps, gene_ids, wb_build, internal = T, overwrite = T)

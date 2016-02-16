@@ -121,7 +121,7 @@ allele_distribution <- function(locus = "top-2", variant = 797, location = NA,  
       dplyr::filter(CHROM == chrom_pos[1], POS == chrom_pos[2]) 
   }
   allele_info <- allele_info %>% dplyr::distinct(isotype) %>%
-    dplyr::left_join(., get_strain_isotype(), by = "isotype")
+    dplyr::left_join(., strain_isotype, by = "isotype")
   
   rplot <- ggplot(allele_info) + 
     geom_path(data = map_data("world"), aes(x=long, y=lat, group=group)) +
