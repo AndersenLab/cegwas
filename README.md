@@ -10,6 +10,12 @@ Install package:
 devtools::install_github("AndersenLab/cegwas")
 ```
 
+Install bcftools using [homebrew](http://brew.sh/)
+
+```bash
+brew install bcftools
+```
+
 A set of functions to process phenotype data, perform GWAS, and perform post-mapping data processing for C. elegans.
 
 ##### The pipeline is split into three steps
