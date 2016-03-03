@@ -305,16 +305,16 @@ na_to_1 <- function(x) { ifelse(is.na(x), 1, x)}
 
 qq_plot <- function(log10p){
   # following four lines from base R's qqline()
-  y <- quantile(log10p[!is.na(log10p)], c(0.25, 0.75))
-  x <- qnorm(c(0.25, 0.75))
-  slope <- diff(y)/diff(x)
-  int <- y[1L] - slope * x[1L]
+  ps <- 10^(-log10p)
+  y <- -log10(sort(ps, decreasing = F))
+  x <- -log10(ppoints(length(y)))
   
-  d <- data.frame(resids = log10p)
+  d <- data.frame(Observed = y,
+                  Expected = x)
   
-  qqpl <- ggplot2::ggplot(d, ggplot2::aes(sample = resids)) + 
-    ggplot2::stat_qq() + 
-    ggplot2::geom_abline(slope = slope, intercept = int, color = "red")+
+  qqpl <- ggplot2::ggplot(d, ggplot2::aes(x = Expected, y = Observed)) + 
+    ggplot2::geom_point() + 
+    ggplot2::geom_abline(slope = 1, intercept = 0, color = "red")+
     ggplot2::theme_bw()+
     ggplot2::theme(axis.text.x = ggplot2::element_text(size = 24,face = "bold", color = "black"), 
                    axis.text.y = ggplot2::element_text(size = 24, face = "bold", color = "black"), 
@@ -327,6 +327,6 @@ qq_plot <- function(log10p){
                    panel.background = ggplot2::element_rect(color = "black", size = 1.2), 
                    strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
     labs(x = "Theoretical", y = "Observed")
- 
+  
   return(qqpl) 
 }
