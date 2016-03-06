@@ -258,21 +258,14 @@ plot_peak_ld <- function(plot_df, trait = NULL){
       ggplot2::aes(x = factor(SNP1, levels = SNP1, ordered = T), y = factor(SNP2, levels = SNP1, ordered = T)) +
       ggplot2::geom_tile(ggplot2::aes(fill = Dprime)) +
       ggplot2::geom_text(ggplot2::aes(label = signif(Dprime,3)), fontface = "bold", size = 12)+
-      ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
-                     axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
+      ggplot2::theme(axis.text.x = ggplot2::element_text(size=16, face="bold", color="black"),
+                     axis.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
                      axis.title.x = ggplot2::element_text(size=0, face="bold", color="black", vjust=-.3),
                      axis.title.y = ggplot2::element_text(size=0, face="bold", color="black"),
-                     strip.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
-                     strip.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
-                     plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
-                     legend.position="none",
-                     panel.background = ggplot2::element_rect( color="black",size=1.2),
-                     strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
-                     scale_x_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
-                     scale_y_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
-                     scale_fill_continuous(high = "#FF0000", low = "white", na.value = "white")
-    
-    
+                     legend.position="none") +
+      scale_x_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
+      scale_y_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
+      scale_fill_continuous(high = "#FF0000", low = "white", na.value = "white")
     
     ldplot <- cowplot::ggdraw(cowplot::switch_axis_position(ldplot, 'y'))
     #     rgb.palette <- grDevices::colorRampPalette(rev(c("blue", 
@@ -290,7 +283,6 @@ plot_peak_ld <- function(plot_df, trait = NULL){
     return(ldplot)
   }
 }
-
 
 na_to_1 <- function(x) { ifelse(is.na(x), 1, x)}
 
