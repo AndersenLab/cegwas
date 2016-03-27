@@ -19,7 +19,7 @@ library("devtools")
 # save(gene_ids, file = "data/gene_ids.rda")
 
 # Strain Isotype File
-strain_isotype <- readr::read_tsv("https://docs.google.com/spreadsheets/d/1V6YHzblaDph01sFDI8YK_fP0H7sVebHQTXypGdiQIjI/pub?output=tsv") %>%
+strain_isotype <- rio::import("https://docs.google.com/spreadsheets/d/1V6YHzblaDph01sFDI8YK_fP0H7sVebHQTXypGdiQIjI/pub?output=tsv") %>%
     dplyr::arrange(strain, isotype)
 
 
