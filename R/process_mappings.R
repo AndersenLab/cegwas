@@ -61,7 +61,7 @@ calculate_VE <- function( mapping_df,
   
   # Trim snps to only contain those that are significant from mappings
   
-  snp_df <- data.frame(snps)
+  snp_df <-snps %>% dplyr::select(-REF, -ALT)
   
   gINFO <- snp_df %>%
     dplyr::mutate( marker = paste(CHROM, POS, sep = "_")) %>%
@@ -418,7 +418,7 @@ process_mappings <- function(mapping_df,
   
   # Trim snps to only contain those that are significant from mappings
   
-  snp_df <- data.frame(snps)
+  snp_df <- snps %>% dplyr::select(-REF, -ALT)
   
   gINFO <- snp_df %>%
     dplyr::mutate( marker = paste(CHROM, POS, sep = "_")) %>%
