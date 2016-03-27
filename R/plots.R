@@ -230,11 +230,11 @@ plot_peak_ld <- function(plot_df, trait = NULL){
   ld_snps <- dplyr::filter(snps, CHROM %in% snp_df$CHROM, POS %in% 
                              snp_df$POS)
   ld_snps <- data.frame(snp_id = paste(ld_snps$CHROM, ld_snps$POS, 
-                                       sep = "_"), data.frame(ld_snps)[, 3:ncol(ld_snps)])
+                                       sep = "_"), data.frame(ld_snps)[, 5:ncol(ld_snps)])
   sn <- list()
   for (i in 1:nrow(ld_snps)) {
     sn[[i]] <- genetics::genotype(as.character(gsub(1, "T/T", 
-                                                    gsub(-1, "A/A", ld_snps[i, 2:ncol(ld_snps)]))))
+                                                    gsub(-1, "A/A", ld_snps[i, 4:ncol(ld_snps)]))))
   }
   test <- data.frame(sn)
   colnames(test) <- (ld_snps$snp_id)
