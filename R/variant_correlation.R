@@ -279,17 +279,17 @@ snpeff <- function(...,
                 "nt_change", "aa_change", "cDNA_position/cDNA_len", 
                 "protein_position", "distance_to_feature", "error", "extra")
   # If using long format provide additional information.
-  format <- "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT]\n'"
+  format <- "'%CHROM\\t%POS\\t%REF\\t%ALT\\t%FILTER\\t%ANN[\\t%TGT]\\n'"
   if (long == T) {
-    format <- "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT!%FT!%DP!%DP4!%SP!%HP]\n'"
+    format <- "'%CHROM\\t%POS\\t%REF\\t%ALT\\t%FILTER\\t%ANN[\\t%TGT!%FT!%DP!%DP4!%SP!%HP]\\n'"
   }
   command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
   if (!is.na(region)) {
     message(paste0("Query: ", query, "; region - ", region, "; "))
-    tsv <- try(readr::read_tsv(pipe(command), col_names = c(base_header, "ANN", sample_names )), silent = T) %>%
+    tsv <- try(tbl_df(data.table::fread(command, col.names = c(base_header, "ANN", sample_names ), sep = "\t"))) %>%
            dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
                   ALT = ifelse(ALT==TRUE, "T", ALT))
-    # If no results are returned, stop.
+  # If no results are returned, stop.
     if (typeof(tsv) == "character" | nrow(tsv) == 0) {
       warning("No Variants")
       NA
