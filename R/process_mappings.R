@@ -386,10 +386,12 @@ process_mappings <- function(mapping_df,
     BF <- -log10(BF)
   }
   
-  Processed <- mapping_df %>%
+  mapping_df <- mapping_df %>%
     dplyr::group_by( trait ) %>%
     dplyr::mutate( BF = ifelse(is.na(BF), -log10(.05/sum(log10p > 0, na.rm = T)), BF) ) %>% #  add BF threshold
-    dplyr::mutate( aboveBF = ifelse(log10p >= BF, 1, 0)) %>% #  label SNPs as significant
+    dplyr::mutate( aboveBF = ifelse(log10p >= BF, 1, 0)) 
+  
+  Processed <- mapping_df %>% #  label SNPs as significant
     dplyr::filter(sum(aboveBF, na.rm = T) > 0) %>% # keep only significant mappings
     dplyr::ungroup()
 
@@ -434,13 +436,14 @@ process_mappings <- function(mapping_df,
     dplyr::left_join( rawTr, ., by=c( "trait", "strain", "marker") )) # join to phenotypes
   
   # calculate variance explained using spearman correlation
+  if (nrow(gINFO) > 0) {
   cors <- gINFO %>%
     # each significant snp contains genotype and phenotype information for all strains
     # so group by both to calculate variance explained for each significant snp
     dplyr::group_by( trait, marker ) %>% 
     # calculate correlation
     dplyr::mutate( var.exp = cor(value, allele, use = "pairwise.complete.obs", method="spearman")^2 )  
-  
+
   # bring it all together, that :
   # # # genotypes
   # # # phenotypes
@@ -660,7 +663,19 @@ process_mappings <- function(mapping_df,
                                                 copy = TRUE ))
   
   return(Final_Processed_Mappings)
-  
+  }
+  # Return original df
+  Processed <- mapping_df %>%
+    dplyr::mutate(strain = NA,
+                  value = NA,
+                  allele = NA,
+                  var.exp = NA,
+                  startPOS = NA,
+                  peakPOS = NA,
+                  endPOS = NA,
+                  peak_id = NA,
+                  interval_size = NA)
+  return(Processed)
 }
 
 
