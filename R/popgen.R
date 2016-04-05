@@ -25,7 +25,7 @@ tajimas_d <- function(vcf_path = paste0(path.package("cegwas"),"/"),
                       interval_end = 12008179, 
                       window_size = 300, 
                       slide_distance = 100, 
-                      samples = colnames(snps[,3:ncol(snps)]),
+                      samples = colnames(snps[,5:ncol(snps)]),
                       outgroup = "N2",
                       site_of_interest = 11875145){
   

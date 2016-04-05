@@ -7,7 +7,7 @@
 tajimas_d(vcf_path = paste0(path.package("cegwas"), "/"),
   vcf_name = "WI.20160106.impute.vcf.gz", chromosome = "II",
   interval_start = 11021073, interval_end = 12008179, window_size = 300,
-  slide_distance = 100, samples = colnames(snps[, 3:ncol(snps)]),
+  slide_distance = 100, samples = colnames(snps[, 5:ncol(snps)]),
   outgroup = "N2", site_of_interest = 11875145)
 }
 \arguments{

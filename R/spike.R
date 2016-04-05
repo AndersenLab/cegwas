@@ -10,10 +10,9 @@
 
 
 spike <- function(snps, snpindex) {
+    set.seed(17)
+    strains <- colnames(snps)[-c(1:4)]
     if (length(snpindex) == 1) {
-        set.seed(17)
-        
-        strains <- colnames(snps)[-c(1, 2)]
         trait_values <- seq_along(strains)
         snps <- data.frame(snps)
         for(i in seq_along(strains)) {
@@ -32,8 +31,6 @@ spike <- function(snps, snpindex) {
         colnames(pheno) <- c("trait", strains)
         return(pheno)
     } else {
-        set.seed(17)
-        strains <- colnames(snps)[-c(1, 2)]
         trait_values <- rep(0, times = length(strains))
         snps <- data.frame(snps)
         

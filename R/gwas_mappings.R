@@ -23,8 +23,9 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
     tidyr::spread(trait, value) # extract phenotypes from phenotype object
   
   # add marker column to snp set
-  y <- data.frame(marker = paste(snpset$CHROM,snpset$POS,sep="_"),
-                  snpset)
+  y <- snpset %>% dplyr::mutate(marker = paste0(CHROM, "_", POS)) %>% 
+       dplyr::select(marker, everything(), -REF, -ALT) %>%
+       as.data.frame()
 
   # option to only keep snp set identified using simulations
   if(mapping_snp_set == TRUE){

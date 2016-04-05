@@ -230,11 +230,11 @@ plot_peak_ld <- function(plot_df, trait = NULL){
   ld_snps <- dplyr::filter(snps, CHROM %in% snp_df$CHROM, POS %in% 
                              snp_df$POS)
   ld_snps <- data.frame(snp_id = paste(ld_snps$CHROM, ld_snps$POS, 
-                                       sep = "_"), data.frame(ld_snps)[, 3:ncol(ld_snps)])
+                                       sep = "_"), data.frame(ld_snps)[, 5:ncol(ld_snps)])
   sn <- list()
   for (i in 1:nrow(ld_snps)) {
     sn[[i]] <- genetics::genotype(as.character(gsub(1, "T/T", 
-                                                    gsub(-1, "A/A", ld_snps[i, 2:ncol(ld_snps)]))))
+                                                    gsub(-1, "A/A", ld_snps[i, 4:ncol(ld_snps)]))))
   }
   test <- data.frame(sn)
   colnames(test) <- (ld_snps$snp_id)
@@ -258,21 +258,14 @@ plot_peak_ld <- function(plot_df, trait = NULL){
       ggplot2::aes(x = factor(SNP1, levels = SNP1, ordered = T), y = factor(SNP2, levels = SNP1, ordered = T)) +
       ggplot2::geom_tile(ggplot2::aes(fill = Dprime)) +
       ggplot2::geom_text(ggplot2::aes(label = signif(Dprime,3)), fontface = "bold", size = 12)+
-      ggplot2::theme(axis.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
-                     axis.text.y = ggplot2::element_text(size=24, face="bold", color="black"),
+      ggplot2::theme(axis.text.x = ggplot2::element_text(size=16, face="bold", color="black"),
+                     axis.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
                      axis.title.x = ggplot2::element_text(size=0, face="bold", color="black", vjust=-.3),
                      axis.title.y = ggplot2::element_text(size=0, face="bold", color="black"),
-                     strip.text.x = ggplot2::element_text(size=24, face="bold", color="black"),
-                     strip.text.y = ggplot2::element_text(size=16, face="bold", color="black"),
-                     plot.title = ggplot2::element_text(size=24, face="bold", vjust = 1),
-                     legend.position="none",
-                     panel.background = ggplot2::element_rect( color="black",size=1.2),
-                     strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
-                     scale_x_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
-                     scale_y_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
-                     scale_fill_continuous(high = "#FF0000", low = "white", na.value = "white")
-    
-    
+                     legend.position="none") +
+      scale_x_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
+      scale_y_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
+      scale_fill_continuous(high = "#FF0000", low = "white", na.value = "white")
     
     ldplot <- cowplot::ggdraw(cowplot::switch_axis_position(ldplot, 'y'))
     #     rgb.palette <- grDevices::colorRampPalette(rev(c("blue", 
@@ -291,7 +284,6 @@ plot_peak_ld <- function(plot_df, trait = NULL){
   }
 }
 
-
 na_to_1 <- function(x) { ifelse(is.na(x), 1, x)}
 
 #' QQ-plot implemented in ggplot2
@@ -305,16 +297,16 @@ na_to_1 <- function(x) { ifelse(is.na(x), 1, x)}
 
 qq_plot <- function(log10p){
   # following four lines from base R's qqline()
-  y <- quantile(log10p[!is.na(log10p)], c(0.25, 0.75))
-  x <- qnorm(c(0.25, 0.75))
-  slope <- diff(y)/diff(x)
-  int <- y[1L] - slope * x[1L]
+  ps <- 10^(-log10p)
+  y <- -log10(sort(ps, decreasing = F))
+  x <- -log10(ppoints(length(y)))
   
-  d <- data.frame(resids = log10p)
+  d <- data.frame(Observed = y,
+                  Expected = x)
   
-  qqpl <- ggplot2::ggplot(d, ggplot2::aes(sample = resids)) + 
-    ggplot2::stat_qq() + 
-    ggplot2::geom_abline(slope = slope, intercept = int, color = "red")+
+  qqpl <- ggplot2::ggplot(d, ggplot2::aes(x = Expected, y = Observed)) + 
+    ggplot2::geom_point() + 
+    ggplot2::geom_abline(slope = 1, intercept = 0, color = "red")+
     ggplot2::theme_bw()+
     ggplot2::theme(axis.text.x = ggplot2::element_text(size = 24,face = "bold", color = "black"), 
                    axis.text.y = ggplot2::element_text(size = 24, face = "bold", color = "black"), 
@@ -327,6 +319,6 @@ qq_plot <- function(log10p){
                    panel.background = ggplot2::element_rect(color = "black", size = 1.2), 
                    strip.background = ggplot2::element_rect(color = "black", size = 1.2)) +
     labs(x = "Theoretical", y = "Observed")
- 
+  
   return(qqpl) 
 }

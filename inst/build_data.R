@@ -19,16 +19,19 @@ library("devtools")
 # save(gene_ids, file = "data/gene_ids.rda")
 
 # Strain Isotype File
-strain_isotype <- readr::read_tsv("https://storage.googleapis.com/andersen_lab_strains/processed/strain_isotype.tsv") %>%
+strain_isotype <- rio::import("https://docs.google.com/spreadsheets/d/1V6YHzblaDph01sFDI8YK_fP0H7sVebHQTXypGdiQIjI/pub?output=tsv") %>%
     dplyr::arrange(strain, isotype)
 
 
 load("data/gene_ids.rda")
-load("data/kinship.rda")
-load("data/snps.rda")
+#load("data/kinship.rda")
+#load("data/snps.rda")
 load("data/mapping_snps.rda")
 
+
+
 wb_build <- 245
+vcf_path <- "~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/WI.20160326.impute.vcf.gz"
 kinship <- generate_kinship(vcf_path)
 snps <- generate_mapping(vcf_path)
 

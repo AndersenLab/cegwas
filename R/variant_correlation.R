@@ -279,17 +279,17 @@ snpeff <- function(...,
                 "nt_change", "aa_change", "cDNA_position/cDNA_len", 
                 "protein_position", "distance_to_feature", "error", "extra")
   # If using long format provide additional information.
-  format <- "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT]\n'"
+  format <- "'%CHROM\\t%POS\\t%REF\\t%ALT\\t%FILTER\\t%ANN[\\t%TGT]\\n'"
   if (long == T) {
-    format <- "'%CHROM\t%POS\t%REF\t%ALT\t%FILTER\t%ANN[\t%TGT!%FT!%DP!%DP4!%SP!%HP]\n'"
+    format <- "'%CHROM\\t%POS\\t%REF\\t%ALT\\t%FILTER\\t%ANN[\\t%TGT!%FT!%DP!%DP4!%SP!%HP]\\n'"
   }
   command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
   if (!is.na(region)) {
     message(paste0("Query: ", query, "; region - ", region, "; "))
-    tsv <- try(readr::read_tsv(pipe(command), col_names = c(base_header, "ANN", sample_names )), silent = T) %>%
+    tsv <- try(tbl_df(data.table::fread(command, col.names = c(base_header, "ANN", sample_names ), sep = "\t"))) %>%
            dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
                   ALT = ifelse(ALT==TRUE, "T", ALT))
-    # If no results are returned, stop.
+  # If no results are returned, stop.
     if (typeof(tsv) == "character" | nrow(tsv) == 0) {
       warning("No Variants")
       NA
@@ -346,9 +346,9 @@ get_vcf <- function(remote = F, impute = T) {
   
   # Set vcf path; determine whether local or remote
   if (impute == F) {
-    vcf_name = "WI.20160106.snpeff.vcf.gz"
+    vcf_name = "WI.20160326.snpeff.vcf.gz"
   } else {
-    vcf_name = "WI.20160106.impute.snpeff.vcf.gz"
+    vcf_name = "WI.20160326.impute.snpeff.vcf.gz"
   }
   
   
@@ -356,7 +356,7 @@ get_vcf <- function(remote = F, impute = T) {
   # Use remote if not available.
   local_or_remote <- "locally"
   if (!file.exists(vcf_path) | remote == T) {
-    vcf_path <- paste0("http://storage.googleapis.com/andersen/", vcf_name)
+    vcf_path <- paste0("http://storage.googleapis.com/andersen_dist/vcf/all/20160326/", vcf_name)
     message("Using remote vcf")
   }
   if (local_or_remote == "locally") {
