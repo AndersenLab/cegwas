@@ -31,7 +31,7 @@ load("data/mapping_snps.rda")
 
 
 wb_build <- 245
-vcf_path <- "~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/WI.20160326.impute.vcf.gz"
+vcf_path <- "~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/WI.20160408.impute.vcf.gz"
 kinship <- generate_kinship(vcf_path)
 snps <- generate_mapping(vcf_path)
 
