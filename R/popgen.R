@@ -19,7 +19,7 @@
 #' @export
 
 tajimas_d <- function(vcf_path = paste0(path.package("cegwas"),"/"),
-                      vcf_name = "WI.20160106.impute.vcf.gz", 
+                      vcf_name = paste0("WI.", vcf_version, ".impute.vcf.gz"), 
                       chromosome = "II", 
                       interval_start = 11021073, 
                       interval_end = 12008179, 

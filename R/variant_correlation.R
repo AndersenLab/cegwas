@@ -346,9 +346,9 @@ get_vcf <- function(remote = F, impute = T) {
   
   # Set vcf path; determine whether local or remote
   if (impute == F) {
-    vcf_name = "WI.20160326.snpeff.vcf.gz"
+    vcf_name = paste0("WI.", vcf_version, ".snpeff.vcf.gz")
   } else {
-    vcf_name = "WI.20160326.impute.snpeff.vcf.gz"
+    vcf_name = paste0("WI.", vcf_version, ".impute.snpeff.vcf.gz")
   }
   
   
@@ -356,7 +356,7 @@ get_vcf <- function(remote = F, impute = T) {
   # Use remote if not available.
   local_or_remote <- "locally"
   if (!file.exists(vcf_path) | remote == T) {
-    vcf_path <- paste0("http://storage.googleapis.com/andersen_dist/vcf/all/20160326/", vcf_name)
+    vcf_path <- paste0("http://storage.googleapis.com/andersen_dist/vcf/all/", vcf_version, "/", vcf_name)
     message("Using remote vcf")
   }
   if (local_or_remote == "locally") {

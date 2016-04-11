@@ -18,18 +18,19 @@ library("devtools")
 # save(gene_info, file = "data/gene_info.rda")
 # save(gene_ids, file = "data/gene_ids.rda")
 
+load("R/sysdata.rda")
+
 # Strain Isotype File
 strain_isotype <- rio::import("https://docs.google.com/spreadsheets/d/1V6YHzblaDph01sFDI8YK_fP0H7sVebHQTXypGdiQIjI/pub?output=tsv") %>%
     dplyr::arrange(strain, isotype)
 
-
-load("R/sysdata.rda")
+vcf_version <- 20160408
 
 wb_build <- 245
-vcf_path <- "~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/WI.20160408.impute.vcf.gz"
+vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/WI.", vcf_version, ".impute.vcf.gz")
 kinship <- generate_kinship(vcf_path)
 snps <- generate_mapping(vcf_path)
 
 
 # Save Datasets
-devtools::use_data(kinship, snps, strain_isotype, mapping_snps, gene_ids, wb_build, internal = T, overwrite = T)
+devtools::use_data(kinship, snps, strain_isotype, mapping_snps, gene_ids, wb_build, vcf_version, internal = T, overwrite = T)
