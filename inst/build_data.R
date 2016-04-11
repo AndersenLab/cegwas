@@ -23,17 +23,13 @@ strain_isotype <- rio::import("https://docs.google.com/spreadsheets/d/1V6YHzblaD
     dplyr::arrange(strain, isotype)
 
 
-load("data/gene_ids.rda")
-#load("data/kinship.rda")
-#load("data/snps.rda")
-load("data/mapping_snps.rda")
-
-
+load("R/sysdata.rda")
 
 wb_build <- 245
 vcf_path <- "~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/WI.20160408.impute.vcf.gz"
 kinship <- generate_kinship(vcf_path)
 snps <- generate_mapping(vcf_path)
+
 
 # Save Datasets
 devtools::use_data(kinship, snps, strain_isotype, mapping_snps, gene_ids, wb_build, internal = T, overwrite = T)
