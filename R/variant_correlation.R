@@ -375,14 +375,13 @@ get_vcf <- function(remote = F, impute = T) {
 
 
 get_db <- function() {
-  wb_build <- 245
   file_path <- paste0("~/.WS", wb_build, ".elegans_gff.db")
   if (file.info(file_path)$size == 0 | is.na(file.info(file_path)$size == 0)) {
     message(paste0("Downloading Gene Database to ", file_path))
     url <- paste0("http://storage.googleapis.com/cegwas/WS", vcf_version , ".celegans_gff.db")
     download.file(url, file_path)
   }
-  dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", vcf_version, ".elegans_gff.db")), "feature_set")
+  dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
 }
 
 

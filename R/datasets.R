@@ -39,6 +39,13 @@
 #' @export
 "gene_ids"
 
+#' VCF Version (Dataset)
+#'
+#' Current VCF Version.
+#' @format vector
+#' @export
+"vcf_version"
+
 
 #' Genome Build (Dataset)
 #'
