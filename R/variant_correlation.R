@@ -382,7 +382,7 @@ get_db <- function() {
     url <- paste0("http://storage.googleapis.com/cegwas/WS", vcf_version , ".celegans_gff.db")
     download.file(url, file_path)
   }
-  dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", vcf_version, ".elegans_gff.db")), "feature_set")
+  dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
 }
 
 
