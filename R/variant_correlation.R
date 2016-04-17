@@ -375,7 +375,6 @@ get_vcf <- function(remote = F, impute = T) {
 
 
 get_db <- function() {
-  wb_build <- 245
   file_path <- paste0("~/.WS", wb_build, ".elegans_gff.db")
   if (file.info(file_path)$size == 0 | is.na(file.info(file_path)$size == 0)) {
     message(paste0("Downloading Gene Database to ", file_path))
