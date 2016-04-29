@@ -258,9 +258,14 @@ snpeff <- function(...,
     elegans_gff <- get_db()
     # Pull out regions by element type.
     region <- paste((dplyr::bind_rows(lapply(elements, function(e) {
-      dplyr::collect(dplyr::filter(elegans_gff, locus == query | gene_id == query | sequence_name == query, type_of == e))
+      dplyr::collect(dplyr::filter(elegans_gff, locus == query | gene_id == query | sequence_name == query, type_of == e) %>%
+                       dplyr::select(chrom, start, end, gene_id, biotype, type_of, locus, sequence_name) %>%
+                       dplyr::distinct())
       })) %>%
-      dplyr::mutate(region_format = paste0(chrom, ":", start, "-", end)))$region_format, collapse = ",")
+      dplyr::summarize(chrom = chrom[1], start = min(start), end = max(end)) %>%
+      dplyr::mutate(region_format = paste0(chrom, ":", start, "-", end)) %>%
+        dplyr::select(region_format) %>%
+        dplyr::distinct())$region_format, collapse = ",")
       if (stringr::str_length(regions[[1]]) == 0) {
         message(paste0(query, " not found."))
         region <- NA
