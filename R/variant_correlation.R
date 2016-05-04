@@ -291,9 +291,14 @@ snpeff <- function(...,
   command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
   if (!is.na(region)) {
     message(paste0("Query: ", query, "; region - ", region, "; "))
-    tsv <- try(tbl_df(data.table::fread(command, col.names = c(base_header, "ANN", sample_names ), sep = "\t"))) %>%
+    result <- try(tbl_df(data.table::fread(command, col.names = c(base_header, "ANN", sample_names ), sep = "\t")), silent = TRUE)
+    if(!grepl("^Error.*", result[[1]][1])) {
+    tsv <- result %>%
            dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
                   ALT = ifelse(ALT==TRUE, "T", ALT))
+    } else {
+      tsv <- as.data.frame(NULL)
+    }
   # If no results are returned, stop.
     if (typeof(tsv) == "character" | nrow(tsv) == 0) {
       warning("No Variants")
