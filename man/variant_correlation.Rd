@@ -6,7 +6,7 @@
 \usage{
 variant_correlation(df, quantile_cutoff_high = 0.9,
   quantile_cutoff_low = 0.1, variant_severity = c("MODERATE", "SEVERE"),
-  gene_types = "ALL")
+  gene_types = "ALL", kin = cegwas::kinship)
 }
 \arguments{
 \item{df}{is a dataframe that is output from the \code{process_mappings} function}
@@ -18,6 +18,8 @@ variant_correlation(df, quantile_cutoff_high = 0.9,
 \item{variant_severity}{what variants to look at from snpeff output}
 
 \item{gene_types}{what gene types to look at from snpeff output}
+
+\item{kin}{is a strain by strain relatedness matrix you want to correct you trait with}
 }
 \value{
 Outputs a list. Each list contains two data frames, the first contains mapping information (e.g. log10p, confidence interval start and stop), phenotype information, and gene ids. 

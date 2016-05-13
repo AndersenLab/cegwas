@@ -11,6 +11,7 @@
 #' @param quantile_cutoff_low is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients less than the 10th quantile
 #' @param variant_severity what variants to look at from snpeff output
 #' @param gene_types what gene types to look at from snpeff output
+#' @param kin is a strain by strain relatedness matrix you want to correct you trait with
 #' @return Outputs a list. Each list contains two data frames, the first contains mapping information (e.g. log10p, confidence interval start and stop), phenotype information, and gene ids. 
 #' The second element of the list contains more detailed gene information
 #' @importFrom dplyr %>%
@@ -20,138 +21,95 @@ variant_correlation <- function(df,
                                 quantile_cutoff_high = .9, 
                                 quantile_cutoff_low = .1,
                                 variant_severity = c("MODERATE", "SEVERE"),
-                                gene_types = "ALL"){
+                                gene_types = "ALL",
+                                kin = cegwas::kinship){
   
   # source("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/read_vcf.R") # Get snpeff function
   
   
   # loosely identify unique peaks
-  intervals <- df %>%
-    na.omit() %>%
+  intervals <- df %>% na.omit() %>% 
     dplyr::distinct(CHROM, startPOS, endPOS) %>%
-    dplyr::distinct(CHROM, startPOS ) %>%
-    dplyr::distinct(CHROM, endPOS ) %>%
-    dplyr::arrange(CHROM, startPOS) 
+    dplyr::distinct(CHROM, startPOS) %>% 
+    dplyr::distinct(CHROM, endPOS) %>% 
+    dplyr::arrange(CHROM,  startPOS)
   
-  
-  # unique strains to filter snpeff output for GWAS data - doesnt matter for genomic traits
   strains <- as.character(na.omit(unique(df$strain)))
-  #   # set up the database to search for gene annotations using the biomart package
-  #   ensembl = useMart("ENSEMBL_MART_ENSEMBL", host="www.ensembl.org", dataset="celegans_gene_ensembl")
-  
-  # initialize a list to store gene annotations for genes most highly correlated with phenotype
   intervalGENES <- list()
   
-  # loop through all unique intervals
-  for( i in 1:nrow(intervals)){
-    
-    print(paste(100*signif(i/nrow(intervals),3), "%",sep=""))
-    
-    
-    nstrains <- data.frame(df) %>%
-      na.omit() %>%
-      dplyr::filter(trait == as.character(intervals[i,"trait"]))
-    
+  for (i in 1:nrow(intervals)) {
+    print(paste(100 * signif(i/nrow(intervals), 3), "%", 
+                sep = ""))
+    nstrains <- data.frame(df) %>% na.omit() %>% dplyr::filter(trait == 
+                                                                 as.character(intervals[i, "trait"]))
     nstrains <- length(unique(nstrains$strain))
-    
-    # define chromosome and left and right bound for intervals
-    chr <- as.character(intervals[i,]$CHROM)
-    left <- intervals[i,]$startPOS
-    right <- intervals[i,]$endPOS
-    
-    # define region of interest for Dan's snpeff function input
-    region_of_interest <- paste0(chr,":",left,"-",right)
-    
-    # run variant effect prediction function
-    snpeff_output <- snpeff(region = region_of_interest, severity = variant_severity, elements = gene_types) 
-    
-    # prune snpeff outputs
-    pruned_snpeff_output <- snpeff_output %>%
-      dplyr::filter(strain %in% strains) %>% # only keep strains used in mappings
-      dplyr::filter(!is.na(impact)) %>% # remove rows with NA in impact (looked to be mostly splice variants)
-      dplyr::distinct(CHROM, POS, strain, effect, gene_id) %>% # remove duplicates
+    chr <- as.character(intervals[i, ]$CHROM)
+    left <- intervals[i, ]$startPOS
+    right <- intervals[i, ]$endPOS
+    region_of_interest <- paste0(chr, ":", left, "-", right)
+    snpeff_output <- snpeff(region = region_of_interest, severity = variant_severity, elements = gene_types)
+    pruned_snpeff_output <- snpeff_output %>% 
+      dplyr::filter(strain %in% strains) %>% 
+      dplyr::filter(!is.na(impact)) %>% 
+      dplyr::distinct(CHROM, POS, strain, effect, gene_id) %>% 
       dplyr::arrange(effect) %>% 
-      # pull out columns of interest
-      dplyr::select(CHROM, POS, REF, ALT, GT, effect, nt_change, aa_change, gene_name, gene_id,transcript_biotype, feature_type, strain) %>%
-      dplyr::group_by(CHROM, POS, effect) %>% # group for individual genes and effects
-      # make numeric allele column, this makes HETs and NAs in the GT column NAs - these are excluded from the correlation analysis
-      # need to elimante hets and NAs from GT
-      dplyr::filter(!is.na(GT), GT != "HET")%>%
-      # make numeric
-      dplyr::mutate(num_allele = ifelse(GT == "REF", 0, 
-                                        ifelse(GT == "ALT", 1, NA)))%>%
-      # determine if any alleles are present in less that 5% of the population
-      dplyr::mutate(num_alt_allele = sum(num_allele, na.rm=T),
-                    num_strains = n())%>%
-      # if they are, eliminate
-      dplyr::filter(num_alt_allele / num_strains > .05) %>%
-      dplyr::filter(num_strains > nstrains*.8) %>%
+      dplyr::select(CHROM, POS, REF, ALT, GT, effect, nt_change, 
+                    aa_change, gene_name, gene_id, transcript_biotype, 
+                    feature_type, strain)  %>% 
+      dplyr::group_by(CHROM, POS, effect) %>%
+      dplyr::filter(!is.na(GT), GT != "HET") %>% 
+      dplyr::mutate(num_allele = ifelse(GT == "REF", 0, ifelse(GT == "ALT", 1, NA))) %>% 
+      dplyr::mutate(num_alt_allele = sum(num_allele,  na.rm = T), num_strains = n()) %>% 
+      dplyr::filter(num_alt_allele/num_strains > 0.05) %>% 
+      dplyr::filter(num_strains > nstrains * 0.8) %>% 
       dplyr::ungroup()
-    
-    if( nrow(pruned_snpeff_output) > 0 ){
-      # pull unique interval from processed mapping DF to recover, phenotypes, strains, log10p, phenotype value
-      # this is useful to pull out all intervals with the same confidence interval that were pruned above.
-      interval_df <- df %>%
-        dplyr::filter(CHROM == chr, startPOS == left, endPOS == right)%>% # filter for confidence interval of interest
-        dplyr::group_by(trait, CHROM, startPOS,endPOS) %>% # group by unique phenotype and interval
-        dplyr::filter(log10p == max(log10p)) %>% # pull out most significant snp to minimize redundancy
+    if (nrow(pruned_snpeff_output) > 0) {
+      interval_df <- df %>% 
+        dplyr::filter(CHROM == chr, startPOS == left, endPOS == right) %>% 
+        dplyr::group_by(trait, CHROM, startPOS, endPOS) %>% 
+        dplyr::filter(log10p ==  max(log10p)) %>% 
         dplyr::distinct(trait, startPOS, endPOS, peakPOS, strain) %>% 
-        dplyr::ungroup() %>%
-        dplyr::select(trait, startPOS, endPOS, peakPOS, strain, log10p, pheno_value = value) 
+        dplyr::ungroup() %>% 
+        dplyr::select(trait, startPOS, endPOS, peakPOS, 
+                      strain, log10p, pheno_value = value) %>%
+        na.omit()
+      
+      correct_it <- list()
+      for(j in 1:length(unique(interval_df$trait))){
+        
+        temp_pheno <- filter(interval_df, trait == unique(interval_df$trait)[j])
+        
+        k <- kin[row.names(kin)%in%temp_pheno$strain,colnames(kin)%in%temp_pheno$strain]
+        
+        correct_it[[j]] <- data.frame(t(temp_pheno$pheno_value) %*% k) %>%
+          tidyr::gather(strain, corrected_pheno)  %>%
+          dplyr::mutate(trait = unique(interval_df$trait)[j])
+      }
+      
+      correct_df <- dplyr::rbind_all(correct_it)
       
       
-      # calculate the correlation between interval variants and the phenotype 
-      # pull out only the most correlated genes 
-      
-      pheno_snpeff_df <- pruned_snpeff_output %>%
-        dplyr::left_join(., interval_df, by = "strain", copy = TRUE) %>% # join snpeff variant df to phenotype df for a particular interval
-        dplyr::distinct(strain, trait, pheno_value, gene_id,CHROM,POS, aa_change) %>% # remove redundancy
-        dplyr::group_by(trait, CHROM, POS, effect, feature_type) %>% # group_by unique variant and phenotype
-        dplyr::mutate(spearman_cor = cor(pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs"))%>% # calculate correlation
-        dplyr::ungroup()%>% # ungroup to calculate quantiles of correlations
-        # dplyr::mutate(q90 = quantile(spearman_cor, probs = .9, na.rm = T) )%>%
-        # we want to keep high positively correlated and high negatively correlated variants
-        dplyr::mutate(abs_spearman_cor = abs(spearman_cor))%>%
-        dplyr::filter(abs_spearman_cor > quantile(abs_spearman_cor, probs = quantile_cutoff_high, na.rm = T) )%>%
-        dplyr::ungroup()%>%
-        # organize DF by correlation
+      pheno_snpeff_df <- pruned_snpeff_output %>% 
+        dplyr::left_join(., interval_df, by = "strain", copy = TRUE) %>% 
+        dplyr::distinct(strain, trait, pheno_value, gene_id,  CHROM, POS, aa_change) %>% 
+        dplyr::group_by(trait, CHROM, POS, effect, feature_type) %>% 
+        na.omit()%>%
+        dplyr::left_join(., correct_df, by=c("strain","trait")) %>%
+        dplyr::mutate(corrected_spearman_cor = cor(corrected_pheno, num_allele, method = "spearman", use = "pairwise.complete.obs"),
+                      spearman_cor = cor( pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs")) %>% 
+        dplyr::ungroup() %>% 
+        dplyr::mutate(abs_spearman_cor = abs(corrected_spearman_cor)) %>% 
+        dplyr::filter(abs_spearman_cor > quantile(abs_spearman_cor, 
+                                                  probs = quantile_cutoff_high, na.rm = T)) %>% 
+        dplyr::ungroup() %>% 
         dplyr::arrange(desc(abs_spearman_cor))
       
-      # below is old code to use biomart to get gene annotation information - this will updated in the future.      
-      #       # get gene annotations usining biomart package
-      #       # attributes are the columns you want to return
-      #       # filters are the columns you want to filter by, in this case we want to filter by wormbase_gene - e.g. WBGene00012953
-      #       # values are the values you want to be present in the filter column, i.e the genes you want information from
-      #       # this is pulled from the highly correlated variant DF above
-      #       # mart is defined above as the annoted c.elegans genome
-      #       gene_annotations <- getBM(attributes=c('entrezgene','go_id',"external_gene_name",
-      #                                              "external_transcript_name","gene_biotype",
-      #                                              "transcript_biotype","description", "family_description",
-      #                                              "name_1006","wormbase_gene"), 
-      #                                 filters = "wormbase_gene",
-      #                                 values = unique(pheno_snpeff_df$gene_id),
-      #                                 mart=ensembl) %>%
-      #         dplyr::distinct(entrezgene, go_id) %>% # pu;; distinct genes
-      #         dplyr::rename(gene_id = wormbase_gene) # change column for joining
-      #       
-      #       # attach the correlation coefficient to gene annotation data frame to minimize looking at multiple data frames
-      #       gene_cors <- pheno_snpeff_df %>%
-      #         dplyr::select(gene_id, spearman_cor)%>%
-      #         dplyr::distinct(gene_id, spearman_cor) %>%
-      #         dplyr::left_join(gene_annotations, ., by = "gene_id") %>%
-      #         dplyr::arrange(desc(spearman_cor))
-      #       
-      # append phenotype-snpeff-correlation DF and gene annotation DF to list for every unique interval
-      # intervalGENES[[i]] <- list(pheno_snpeff_df, gene_cors)
       intervalGENES[[i]] <- pheno_snpeff_df
-    } 
-    else
-    {
+    }
+    else {
       intervalGENES[[i]] <- NA
     }
-    
   }
-  
   return(intervalGENES)
 }
 
@@ -168,44 +126,21 @@ variant_correlation <- function(df,
 
 process_correlations <- function(df, gene_information = gene_functions){
   
-  # initialize list
-  cors <-list()
-  
-  # separate list objects and remove green traits
-  for(i in 1:length(df)){
-    
-    if(length(unique(df[[i]])) > 1){
-      
-      cors[[i]] <- df[[i]] %>%
-        dplyr::filter(!grepl("green",trait)) %>%
-        dplyr::filter(trait != "")
-      
-      #       cors[[i]] <- df[[i]][[1]] %>%
-      #         dplyr::filter(!grepl("green",trait)) %>%
-      #         dplyr::filter(trait != "")
-      #       
-      #       genes[[i]] <- df[[i]][[2]] 
-      
+  cors <- list()
+  for (i in 1:length(df)) {
+    if (length(unique(df[[i]])) > 1) {
+      cors[[i]] <- df[[i]] %>% dplyr::filter(!grepl("green", 
+                                                    trait)) %>% dplyr::filter(trait != "")
     }
   }
-  
-  # bind phenotype data
-  variant_pheno <- dplyr::rbind_all(cors)%>%
-    dplyr::select(CHROM, POS, REF, ALT, nt_change, aa_change, gene_name, transcript_biotype, gene_id, effect, num_alt_allele, num_strains, strain, GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, abs_spearman_cor) %>%
-    dplyr::arrange(desc(abs_spearman_cor),desc(pheno_value)) %>%
-    dplyr::distinct(CHROM, POS, REF, ALT, strain, gene_id, trait) %>%
-    dplyr::arrange(desc(abs_spearman_cor), CHROM, POS, desc(pheno_value)) %>%
+  variant_pheno <- dplyr::rbind_all(cors) %>% dplyr::select(CHROM,POS, REF, ALT, nt_change, aa_change, gene_name, transcript_biotype, 
+                                                            gene_id, effect, num_alt_allele, num_strains, strain, 
+                                                            GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, corrected_spearman_cor,
+                                                            abs_spearman_cor) %>%
+    dplyr::arrange(desc(abs_spearman_cor), desc(pheno_value)) %>% 
+    dplyr::distinct(CHROM, POS, REF,  ALT, strain, gene_id, trait) %>% dplyr::arrange(desc(abs_spearman_cor),  CHROM, POS, desc(pheno_value)) %>% 
     dplyr::left_join(., gene_information, by = "gene_id")
-  
-  
-  # bind gene data and join to phenotype data
-  #   max_cor <- dplyr::rbind_all(genes) %>%
-  #     dplyr::select(gene_id, external_gene_name, external_transcript_name, description, family_description, name_1006)%>%
-  #     dplyr::left_join(variant_pheno, ., by = "gene_id") %>%
-  #     dplyr::distinct(CHROM, POS, REF, ALT, strain, gene_id, trait, external_transcript_name) %>%
-  #     dplyr::arrange(desc(abs_spearman_cor), CHROM, POS, desc(pheno_value))
-  
-  return(variant_pheno) 
+  return(variant_pheno)
 }
 
 
