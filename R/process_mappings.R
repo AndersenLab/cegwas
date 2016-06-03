@@ -388,6 +388,7 @@ process_mappings <- function(mapping_df,
   
   mapping_df <- mapping_df %>%
     dplyr::group_by( trait ) %>%
+    dplyr::filter( log10p != 0 ) %>%
     dplyr::mutate( BF = ifelse(is.na(BF), -log10(.05/sum(log10p > 0, na.rm = T)), BF) ) %>% #  add BF threshold
     dplyr::mutate( aboveBF = ifelse(log10p >= BF, 1, 0)) 
   
