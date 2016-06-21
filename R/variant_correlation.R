@@ -226,7 +226,7 @@ snpeff <- function(...,
   command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
   if (!is.na(region)) {
     message(paste0("Query: ", query, "; region - ", region, "; "))
-    result <- try(tbl_df(data.table::fread(command, col.names = c(base_header, "ANN", sample_names ), sep = "\t")), silent = TRUE)
+    result <- try(dplyr::tbl_df(data.table::fread(command, col.names = c(base_header, "ANN", sample_names ), sep = "\t")), silent = TRUE)
     if(!grepl("^Error.*", result[[1]][1])) {
     tsv <- result %>%
            dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
