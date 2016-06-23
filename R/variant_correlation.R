@@ -81,7 +81,7 @@ variant_correlation <- function(df,
       for(j in 1:length(unique(interval_df$trait))){
         
         temp_pheno <- dplyr::filter(interval_df, trait == unique(interval_df$trait)[j])%>%
-          select(trait, strain, value = pheno_value)
+          dplyr::select(trait, strain, value = pheno_value)
 
         correct_it[[j]] <- kinship_correction(temp_pheno) %>%
           dplyr::mutate(trait = unique(interval_df$trait)[j])
