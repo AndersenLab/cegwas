@@ -29,7 +29,8 @@ Imports:
     ggmap,
     plyr,
     maps,
-    sp
+    sp,
+    regress
 License: GPL
 LazyData: true
 Suggests:

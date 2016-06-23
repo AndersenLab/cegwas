@@ -74,15 +74,16 @@ variant_correlation <- function(df,
                       strain, log10p, pheno_value = value) %>%
         na.omit()
       
+      
+      
+      
       correct_it <- list()
       for(j in 1:length(unique(interval_df$trait))){
         
-        temp_pheno <- filter(interval_df, trait == unique(interval_df$trait)[j])
-        
-        k <- kin[row.names(kin)%in%temp_pheno$strain,colnames(kin)%in%temp_pheno$strain]
-        
-        correct_it[[j]] <- data.frame(t(temp_pheno$pheno_value) %*% k) %>%
-          tidyr::gather(strain, corrected_pheno)  %>%
+        temp_pheno <- dplyr::filter(interval_df, trait == unique(interval_df$trait)[j])%>%
+          select(trait, strain value = pheno_value)
+
+        correct_it[[j]] <- kinship_correction(temp_pheno) %>%
           dplyr::mutate(trait = unique(interval_df$trait)[j])
       }
       
@@ -472,4 +473,33 @@ sev <- function(col) { sapply(col, function(x) {
   }
 })
 }
+
+
+# # y is a data.frame that contains a trait, strain, and value column
+# # function is adapted from the kinship.on.the.fly function from the cape package
+kinship_correction <- function(y, kin = cegwas::kinship){
+  
+  K <- kin[colnames(kin) %in% y$strain, rownames(kin) %in% y$strain]
+  y <- y %>% filter(strain %in% colnames(K))
+  
+  model = regress(as.vector(y$value)~1,~K, pos = c(TRUE, TRUE))	
+  
+  #This err.cov is the same as err.cov in Dan's code using estVC
+  err.cov = summary(model)$sigma[1]*K+summary(model)$sigma[2]*diag(nrow(K))
+  
+  eW = eigen(err.cov, symmetric = TRUE)
+  
+  if(min(eW$values) < 0 && abs(min(eW$values)) > sqrt(.Machine$double.eps)){
+  }else{
+    eW$values[eW$values <= 0] = Inf
+  } 
+  
+  err.cov = eW$vector %*% diag(eW$values^-0.5) %*% t(eW$vector)
+  new.pheno <- err.cov %*% y$value
+  
+  new.pheno <- data.frame(strain = y$strain, corrected_pheno = new.pheno)
+  
+  return(new.pheno)
+}
+
 
