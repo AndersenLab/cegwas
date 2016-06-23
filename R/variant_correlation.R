@@ -485,7 +485,7 @@ kinship_correction <- function(y, kin = cegwas::kinship){
   model = regress::regress(as.vector(y$value)~1,~K, pos = c(TRUE, TRUE))	
   
   #This err.cov is the same as err.cov in Dan's code using estVC
-  err.cov = summary(model)$sigma[1]*K+summary(model)$sigma[2]*diag(nrow(K))
+  err.cov = regress::summary.regress(model)$sigma[1]*K+regress::summary.regress(model)$sigma[2]*diag(nrow(K))
   
   eW = eigen(err.cov, symmetric = TRUE)
   
