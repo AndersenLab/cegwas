@@ -82,7 +82,7 @@ variant_correlation <- function(df,
         
         temp_pheno <- dplyr::filter(interval_df, trait == unique(interval_df$trait)[j])%>%
           dplyr::select(trait, strain, value = pheno_value)
-
+        
         correct_it[[j]] <- kinship_correction(temp_pheno) %>%
           dplyr::mutate(trait = unique(interval_df$trait)[j])
       }
@@ -183,92 +183,92 @@ snpeff <- function(...,
   }
   
   results <- suppressWarnings(lapply(regions, function(query) {
-  # Save region as query
-
-  # Fix region specifications
-  query <- gsub("\\.\\.", "-", query)
-  query <- gsub(",", "", query)
-
-  # Resolve region names
-  if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
-    elegans_gff <- get_db()
-    # Pull out regions by element type.
-    region <- paste((dplyr::bind_rows(lapply(elements, function(e) {
-      dplyr::collect(dplyr::filter(elegans_gff, locus == query | gene_id == query | sequence_name == query, type_of == e) %>%
-                       dplyr::select(chrom, start, end, gene_id, biotype, type_of, locus, sequence_name) %>%
-                       dplyr::distinct())
+    # Save region as query
+    
+    # Fix region specifications
+    query <- gsub("\\.\\.", "-", query)
+    query <- gsub(",", "", query)
+    
+    # Resolve region names
+    if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
+      elegans_gff <- get_db()
+      # Pull out regions by element type.
+      region <- paste((dplyr::bind_rows(lapply(elements, function(e) {
+        dplyr::collect(dplyr::filter(elegans_gff, locus == query | gene_id == query | sequence_name == query, type_of == e) %>%
+                         dplyr::select(chrom, start, end, gene_id, biotype, type_of, locus, sequence_name) %>%
+                         dplyr::distinct())
       })) %>%
-      dplyr::summarize(chrom = chrom[1], start = min(start), end = max(end)) %>%
-      dplyr::mutate(region_format = paste0(chrom, ":", start, "-", end)) %>%
+        dplyr::summarize(chrom = chrom[1], start = min(start), end = max(end)) %>%
+        dplyr::mutate(region_format = paste0(chrom, ":", start, "-", end)) %>%
         dplyr::select(region_format) %>%
         dplyr::distinct())$region_format, collapse = ",")
       if (stringr::str_length(regions[[1]]) == 0) {
         message(paste0(query, " not found."))
         region <- NA
       }
-  } else {
-    region <- query
-  }
-
-  vcf_path <- get_vcf(remote = remote, impute = impute)
-  
-  sample_names <- readr::read_lines(suppressWarnings(pipe(paste("bcftools","query","-l",vcf_path))))
-  base_header <- c("CHROM", "POS", "REF","ALT","FILTER")
-  ANN_header = c("allele", "effect", "impact",
-                "gene_name", "gene_id", "feature_type", 
-                "feature_id", "transcript_biotype","exon_intron_rank",
-                "nt_change", "aa_change", "cDNA_position/cDNA_len", 
-                "protein_position", "distance_to_feature", "error", "extra")
-  # If using long format provide additional information.
-  format <- "'%CHROM\\t%POS\\t%REF\\t%ALT\\t%FILTER\\t%ANN[\\t%TGT]\\n'"
-  if (long == T) {
-    format <- "'%CHROM\\t%POS\\t%REF\\t%ALT\\t%FILTER\\t%ANN[\\t%TGT!%FT!%DP!%DP4!%SP!%HP]\\n'"
-  }
-  command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
-  if (!is.na(region)) {
-    message(paste0("Query: ", query, "; region - ", region, "; "))
-    result <- try(dplyr::tbl_df(data.table::fread(command, col.names = c(base_header, "ANN", sample_names ), sep = "\t")), silent = TRUE)
-    if(!grepl("^Error.*", result[[1]][1])) {
-    tsv <- result %>%
-           dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
-                  ALT = ifelse(ALT==TRUE, "T", ALT))
     } else {
-      tsv <- as.data.frame(NULL)
+      region <- query
     }
-  # If no results are returned, stop.
-    if (typeof(tsv) == "character" | nrow(tsv) == 0) {
-      warning("No Variants")
-      NA
-    } else {
-      tsv <-  dplyr::mutate(tsv, ANN=strsplit(ANN,",")) %>%
-              tidyr::unnest(ANN) %>%
-              tidyr::separate(ANN, into = ANN_header, sep = "\\|") %>%
-              dplyr::select(one_of(c(base_header, ANN_header)), everything(), -extra) %>%
-              dplyr::mutate(gene_name = as.character(gene_ids[gene_name])) %>%
-              dplyr::mutate(query = query, region = region) %>%
-              dplyr::select(CHROM, POS, query, region, everything())
-      
-      tsv <-  dplyr::filter(tsv, impact %in% severity) 
-      if (nrow(tsv) == 0) {
-        message(paste("No Results for", region, "after filtering"))
-      }
-      if (long == FALSE) {
-        tsv
+    
+    vcf_path <- get_vcf(remote = remote, impute = impute)
+    
+    sample_names <- readr::read_lines(suppressWarnings(pipe(paste("bcftools","query","-l",vcf_path))))
+    base_header <- c("CHROM", "POS", "REF","ALT","FILTER")
+    ANN_header = c("allele", "effect", "impact",
+                   "gene_name", "gene_id", "feature_type", 
+                   "feature_id", "transcript_biotype","exon_intron_rank",
+                   "nt_change", "aa_change", "cDNA_position/cDNA_len", 
+                   "protein_position", "distance_to_feature", "error", "extra")
+    # If using long format provide additional information.
+    format <- "'%CHROM\\t%POS\\t%REF\\t%ALT\\t%FILTER\\t%ANN[\\t%TGT]\\n'"
+    if (long == T) {
+      format <- "'%CHROM\\t%POS\\t%REF\\t%ALT\\t%FILTER\\t%ANN[\\t%TGT!%FT!%DP!%DP4!%SP!%HP]\\n'"
+    }
+    command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
+    if (!is.na(region)) {
+      message(paste0("Query: ", query, "; region - ", region, "; "))
+      result <- try(dplyr::tbl_df(data.table::fread(command, col.names = c(base_header, "ANN", sample_names ), sep = "\t")), silent = TRUE)
+      if(!grepl("^Error.*", result[[1]][1])) {
+        tsv <- result %>%
+          dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
+                        ALT = ifelse(ALT==TRUE, "T", ALT))
       } else {
-        tsv <- tidyr::gather_(tsv, "strain", "GT", names(tsv)[23:length(tsv)])  %>%
-          tidyr::separate(GT, into=c("a1","a2", "FT", "DP", "DP4", "SP", "HP"), sep="/|\\||\\!", remove=T) %>%
-          dplyr::mutate(a1=ifelse(a1 == ".", NA, a1)) %>%
-          dplyr::mutate(a2=ifelse(a2 == ".", NA, a2)) %>%
-          dplyr::mutate(GT = NA) %>%
-          dplyr::mutate(GT = ifelse(a1 == REF & a2 == REF & !is.na(a1), "REF",GT)) %>%
-          dplyr::mutate(GT = ifelse(a1 != a2 & !is.na(a1), "HET",GT)) %>%
-          dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
-          dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, FT, FILTER, DP, DP4, SP, HP, everything()) %>%
-          dplyr::arrange(CHROM, POS) 
+        tsv <- as.data.frame(NULL)
       }
+      # If no results are returned, stop.
+      if (typeof(tsv) == "character" | nrow(tsv) == 0) {
+        warning("No Variants")
+        NA
+      } else {
+        tsv <-  dplyr::mutate(tsv, ANN=strsplit(ANN,",")) %>%
+          tidyr::unnest(ANN) %>%
+          tidyr::separate(ANN, into = ANN_header, sep = "\\|") %>%
+          dplyr::select(one_of(c(base_header, ANN_header)), everything(), -extra) %>%
+          dplyr::mutate(gene_name = as.character(gene_ids[gene_name])) %>%
+          dplyr::mutate(query = query, region = region) %>%
+          dplyr::select(CHROM, POS, query, region, everything())
+        
+        tsv <-  dplyr::filter(tsv, impact %in% severity) 
+        if (nrow(tsv) == 0) {
+          message(paste("No Results for", region, "after filtering"))
+        }
+        if (long == FALSE) {
+          tsv
+        } else {
+          tsv <- tidyr::gather_(tsv, "strain", "GT", names(tsv)[23:length(tsv)])  %>%
+            tidyr::separate(GT, into=c("a1","a2", "FT", "DP", "DP4", "SP", "HP"), sep="/|\\||\\!", remove=T) %>%
+            dplyr::mutate(a1=ifelse(a1 == ".", NA, a1)) %>%
+            dplyr::mutate(a2=ifelse(a2 == ".", NA, a2)) %>%
+            dplyr::mutate(GT = NA) %>%
+            dplyr::mutate(GT = ifelse(a1 == REF & a2 == REF & !is.na(a1), "REF",GT)) %>%
+            dplyr::mutate(GT = ifelse(a1 != a2 & !is.na(a1), "HET",GT)) %>%
+            dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
+            dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, FT, FILTER, DP, DP4, SP, HP, everything()) %>%
+            dplyr::arrange(CHROM, POS) 
+        }
         tsv
+      }
     }
-  }
   }
   ))
   results <- do.call(rbind, results)
@@ -342,18 +342,18 @@ get_db <- function() {
 #' @export
 
 fetch_id_type <- function(id_type = NA) {
-    elegans_gff <- get_db()
-    valid_id_types <- dplyr::collect(elegans_gff %>%
-                                       dplyr::select(biotype) %>%
-                                       dplyr::distinct())$biotype
-    if (!(id_type %in% valid_id_types)) {
-        message("Available ID Types:")
-        cat(valid_id_types, sep = "\n")
-    } else {
-        (dplyr::collect(elegans_gff %>%
-        dplyr::filter(biotype == id_type, type_of == "exon") %>%
-        dplyr::select(gene_id)))$gene_id
-    }
+  elegans_gff <- get_db()
+  valid_id_types <- dplyr::collect(elegans_gff %>%
+                                     dplyr::select(biotype) %>%
+                                     dplyr::distinct())$biotype
+  if (!(id_type %in% valid_id_types)) {
+    message("Available ID Types:")
+    cat(valid_id_types, sep = "\n")
+  } else {
+    (dplyr::collect(elegans_gff %>%
+                      dplyr::filter(biotype == id_type, type_of == "exon") %>%
+                      dplyr::select(gene_id)))$gene_id
+  }
   
 }
 
@@ -372,11 +372,11 @@ fetch_id_type <- function(id_type = NA) {
 interval_summary <- function(query, filter_variants = T, impute = F) {
   elegans_gff <- get_db()
   if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
-  interval <- (dplyr::collect(elegans_gff %>%
-    dplyr::filter(locus == query | gene_id == query | sequence_name == query) %>%
-    dplyr::select(chrom, start, end) %>% 
-    dplyr::summarize(chrom = chrom, start = min(start), end = max(end))) %>%
-    dplyr::mutate(interval = paste0(chrom, ":", start, "-", end)))$interval
+    interval <- (dplyr::collect(elegans_gff %>%
+                                  dplyr::filter(locus == query | gene_id == query | sequence_name == query) %>%
+                                  dplyr::select(chrom, start, end) %>% 
+                                  dplyr::summarize(chrom = chrom, start = min(start), end = max(end))) %>%
+                   dplyr::mutate(interval = paste0(chrom, ":", start, "-", end)))$interval
   } else {
     interval <- query
   }
@@ -388,17 +388,17 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
   qend   <- as.integer(q_interval[[3]])
   
   region_elements <- dplyr::collect(elegans_gff %>%
-    dplyr::filter(chrom == qchrom, start >= qstart, end <= qend) %>% 
-    dplyr::group_by(biotype) %>%
-    dplyr::select(biotype, locus, gene_id) %>%
-    dplyr::distinct()) %>%
+                                      dplyr::filter(chrom == qchrom, start >= qstart, end <= qend) %>% 
+                                      dplyr::group_by(biotype) %>%
+                                      dplyr::select(biotype, locus, gene_id) %>%
+                                      dplyr::distinct()) %>%
     dplyr::mutate(locus = ifelse(is.na(locus), gene_id, locus)) %>%
     dplyr::select(biotype, locus) %>%
     dplyr::group_by(biotype)
   
   variants <- snpeff(interval, severity = "ALL", elements = "ALL", impute = impute) %>%
-              dplyr::filter(GT != "REF") 
-
+    dplyr::filter(GT != "REF") 
+  
   if (filter_variants == TRUE & impute == FALSE) {
     variants <- dplyr::filter(variants, FILTER == "PASS", FT == "PASS")
   }
@@ -409,18 +409,18 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
     dplyr::filter(!grepl("-", gene_id)) %>% # Remove intergene regions
     dplyr::mutate(gene_name = ifelse(is.na(gene_name), gene_id, gene_name)) %>%
     dplyr::distinct() 
-
+  
   variant_gene_summary <- variant_gene_effects %>%
-      dplyr::group_by(gene_name, effect, impact) %>%
-      dplyr::summarize(n = n())
-
+    dplyr::group_by(gene_name, effect, impact) %>%
+    dplyr::summarize(n = n())
+  
   # Calculate max severity variants
   mvariants <- variants %>% dplyr::group_by(CHROM, POS, effect) %>%
-              dplyr::select(CHROM, POS, impact, effect) %>%
-              dplyr::distinct() %>%
-              tidyr::spread(effect, impact) %>%
-              dplyr::mutate_each(dplyr::funs(sev), matches("_")) %>%
-              dplyr::ungroup()
+    dplyr::select(CHROM, POS, impact, effect) %>%
+    dplyr::distinct() %>%
+    tidyr::spread(effect, impact) %>%
+    dplyr::mutate_each(dplyr::funs(sev), matches("_")) %>%
+    dplyr::ungroup()
   
   mvariants$max_severity <- rseverity[apply(mvariants %>% dplyr::select(-CHROM, -POS) %>% t(), 2, max)]
   
@@ -429,36 +429,36 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
   
   # Calculate raw number of annotations
   variant_summary <- as.data.frame(t(mvariants %>% dplyr::select(-CHROM, -POS, -max_severity) %>% dplyr::summarize_each(dplyr::funs(sum(. > 0))))) %>%
-                 dplyr::add_rownames() %>%
-                 dplyr::rename(effect = rowname, n_variants = V1) %>%
-                 dplyr::left_join(variant_gene_summary, .)
+    dplyr::add_rownames() %>%
+    dplyr::rename(effect = rowname, n_variants = V1) %>%
+    dplyr::left_join(variant_gene_summary, .)
   
   # Count total number of snps
   total_snps <- nrow(variants %>% dplyr::select(CHROM, POS) %>% dplyr::distinct())
-
+  
   # Genes with variants:
   total_genes <- nrow(region_elements)
   genes_w_variants <- length(unique(unlist((variant_gene_summary %>% dplyr::filter(impact != "MODIFIER"))$gene_name)))
   genes_w_MOD_HIGH <- length(unique(unlist((variant_gene_summary %>% dplyr::filter(impact %in% c("MODERATE","HIGH")))$gene_name)))
   genes_w_HIGH <-  length(unique(unlist((variant_gene_summary %>% dplyr::filter(impact %in% c("HIGH")))$gene_name)))
   
- results <-  list("query" = query,
-       "region" = interval,
-       "chrom" = qchrom,
-       "start" = qstart,
-       "end" = qend,
-       "snps" = total_snps,
-       "genes" = total_genes,
-       "genes_w_variants" = genes_w_variants,
-       "genes_w_MOD_HIGH" = genes_w_MOD_HIGH,
-       "genes_w_HIGH" = genes_w_HIGH,
-       "variant_gene_effects" = variant_gene_effects, 
-       "variant_summary" = variant_summary,
-       "max_severity_variants" = max_severity,
-       "region_genes" = region_elements
-       )
+  results <-  list("query" = query,
+                   "region" = interval,
+                   "chrom" = qchrom,
+                   "start" = qstart,
+                   "end" = qend,
+                   "snps" = total_snps,
+                   "genes" = total_genes,
+                   "genes_w_variants" = genes_w_variants,
+                   "genes_w_MOD_HIGH" = genes_w_MOD_HIGH,
+                   "genes_w_HIGH" = genes_w_HIGH,
+                   "variant_gene_effects" = variant_gene_effects, 
+                   "variant_summary" = variant_summary,
+                   "max_severity_variants" = max_severity,
+                   "region_genes" = region_elements
+  )
   results
-   
+  
 }
 
 tf <- function(x) { ifelse(!is.na(x), T, F)}
@@ -480,9 +480,9 @@ sev <- function(col) { sapply(col, function(x) {
 kinship_correction <- function(y, kin = cegwas::kinship){
   
   K <- kin[colnames(kin) %in% y$strain, rownames(kin) %in% y$strain]
-  y <- y %>% filter(strain %in% colnames(K))
+  y <- y %>% dplyr::filter(strain %in% colnames(K))
   
-  model = regress(as.vector(y$value)~1,~K, pos = c(TRUE, TRUE))	
+  model = regress::regress(as.vector(y$value)~1,~K, pos = c(TRUE, TRUE))	
   
   #This err.cov is the same as err.cov in Dan's code using estVC
   err.cov = summary(model)$sigma[1]*K+summary(model)$sigma[2]*diag(nrow(K))
