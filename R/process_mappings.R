@@ -491,7 +491,7 @@ process_mappings <- function(mapping_df,
       dplyr::filter( trait == phenotypes[i] ) %>%
       dplyr::group_by( CHROM, trait ) %>%
       dplyr::mutate( index = 1:n() )%>%
-      dplyr::distinct( CHROM, POS, .keep_all = T, .keep_all = T )%>%
+      dplyr::distinct( CHROM, POS, .keep_all = T )%>%
       dplyr::select( CHROM, POS, index )%>%
       dplyr::filter( POS == min(POS) | POS == max(POS) )
     
