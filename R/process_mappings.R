@@ -154,7 +154,7 @@ find_peaks <- function( processed_mapping_df,
       dplyr::filter( trait == phenotypes[i] ) %>%
       dplyr::group_by( CHROM, trait ) %>%
       dplyr::mutate( index = 1:n() )%>%
-      dplyr::distinct( CHROM, POS )%>%
+      dplyr::distinct( CHROM, POS, .keep_all = T )%>%
       dplyr::select( CHROM, POS, index )%>%
       dplyr::filter( POS == min(POS) | POS == max(POS) )
     
@@ -302,7 +302,7 @@ identify_CI <- function( processed_mapping_df,
     
     peak_list[[i]]$trait <- as.character(peak_list[[i]]$trait)
     
-    peak_list[[i]] <- dplyr::distinct(peak_list[[i]], pID)
+    peak_list[[i]] <- dplyr::distinct(peak_list[[i]], pID, .keep_all = T)
     
     # FILTER TO LOOK AT ONE PHENOTYPE AT A TIME
     # FILTER APPROPRIATE INTERVAL INDICIES AND CHROMOSOMES FOR THAT PHENOTYPE
@@ -331,7 +331,7 @@ identify_CI <- function( processed_mapping_df,
                     peakPOS = POS.y,
                     endPOS = max(POS.x)) %>%
       # ELIMINATE REDUNDANT DATA
-      dplyr::distinct(trait, CHROM, pID, peakPOS) %>%
+      dplyr::distinct(trait, CHROM, pID, peakPOS, .keep_all = T) %>%
       # SELECT COLUMNS OF NTEREST
       dplyr::select(trait, CHROM, POS = POS.y, startPOS, peakPOS, endPOS, peak_id = pID))
     
@@ -491,7 +491,7 @@ process_mappings <- function(mapping_df,
       dplyr::filter( trait == phenotypes[i] ) %>%
       dplyr::group_by( CHROM, trait ) %>%
       dplyr::mutate( index = 1:n() )%>%
-      dplyr::distinct( CHROM, POS )%>%
+      dplyr::distinct( CHROM, POS, .keep_all = T, .keep_all = T )%>%
       dplyr::select( CHROM, POS, index )%>%
       dplyr::filter( POS == min(POS) | POS == max(POS) )
     
@@ -616,7 +616,7 @@ process_mappings <- function(mapping_df,
     
     peak_list[[i]] <- peak_list[[i]] %>%
       dplyr::arrange(desc(log10p)) %>%
-      dplyr::distinct( pID)
+      dplyr::distinct( pID, .keep_all = T)
     
     # FILTER TO LOOK AT ONE PHENOTYPE AT A TIME
     # FILTER APPROPRIATE INTERVAL INDICIES AND CHROMOSOMES FOR THAT PHENOTYPE
@@ -645,7 +645,7 @@ process_mappings <- function(mapping_df,
                     peakPOS = POS.y,
                     endPOS = max(POS.x)) %>%
       # ELIMINATE REDUNDANT DATA
-      dplyr::distinct(trait, CHROM, pID, peakPOS) %>%
+      dplyr::distinct(trait, CHROM, pID, peakPOS, .keep_all = T) %>%
       # SELECT COLUMNS OF NTEREST
       dplyr::select(trait, CHROM, POS = POS.y, startPOS, peakPOS, endPOS, peak_id = pID)
     
