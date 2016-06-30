@@ -15,7 +15,7 @@ manplot <- function(plot_df, bf_line_color = "gray") {
     plots <- lapply(plot_traits, function(i) {
         plot_df %>%
         dplyr::filter(trait == i) %>%
-        dplyr::distinct(marker) %>%
+        dplyr::distinct(marker, .keep_all = T) %>%
         ggplot2::ggplot(.) +
         ggplot2::aes(x = POS/1e6, y = log10p) +
         ggplot2::scale_color_manual(values = c("black","blue","red")) +
@@ -71,26 +71,26 @@ pxg_plot <- function(plot_df, loc = NA, use_base = F, color_strains = c("N2","CB
      plot_peak <- plot_df %>%
       na.omit() %>%
       dplyr::filter(trait == x) %>%
-      dplyr::distinct(strain, value, peakPOS) %>%
+      dplyr::distinct(strain, value, peakPOS, .keep_all = T) %>%
       dplyr::select(strain, value, CHROM, POS = peakPOS, -allele) %>%
       dplyr::mutate(chr_pos = paste(CHROM, POS, sep=":"))
     
      if (is.na(loc)) {   
       loc <- plot_peak %>% dplyr::select(CHROM, POS) %>% 
-        dplyr::distinct() %>% 
+        dplyr::distinct(.keep_all = T) %>% 
         dplyr::transmute(chr_pos = paste0(CHROM, ":",POS))
      }
       
       to_plot <- snpeff(loc[1], severity = "ALL", elements = "ALL") %>%
       dplyr::select(strain, CHROM, POS, GT, REF, ALT) %>%
-      dplyr::distinct() %>%
+      dplyr::distinct( .keep_all = T) %>%
       dplyr::mutate(chr_pos = paste0(CHROM, ":", POS))
 
       to_plot <- dplyr::left_join(to_plot, plot_peak) %>%
           dplyr::mutate(chr_pos = paste(CHROM, POS, sep=":"))
 
       to_plot <- dplyr::filter(to_plot, !is.na(value)) %>%
-      dplyr::distinct(strain, value, POS) %>%
+      dplyr::distinct(strain, value, POS, .keep_all = T) %>%
       dplyr::filter(!is.na(GT)) %>%
       dplyr::group_by(GT) %>%
       dplyr::mutate(GT2 = ifelse(use_base, ifelse(GT == "REF", REF, ALT), GT )) %>%
