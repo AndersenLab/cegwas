@@ -29,9 +29,9 @@ variant_correlation <- function(df,
   
   # loosely identify unique peaks
   intervals <- df %>% na.omit() %>% 
-    dplyr::distinct(CHROM, startPOS, endPOS) %>%
-    dplyr::distinct(CHROM, startPOS) %>% 
-    dplyr::distinct(CHROM, endPOS) %>% 
+    dplyr::distinct(CHROM, startPOS, endPOS, .keep_all = TRUE) %>%
+    dplyr::distinct(CHROM, startPOS, .keep_all = TRUE) %>% 
+    dplyr::distinct(CHROM, endPOS, .keep_all = TRUE) %>% 
     dplyr::arrange(CHROM,  startPOS)
   
   strains <- as.character(na.omit(unique(df$strain)))
@@ -51,7 +51,7 @@ variant_correlation <- function(df,
     pruned_snpeff_output <- snpeff_output %>% 
       dplyr::filter(strain %in% strains) %>% 
       dplyr::filter(!is.na(impact)) %>% 
-      dplyr::distinct(CHROM, POS, strain, effect, gene_id) %>% 
+      dplyr::distinct(CHROM, POS, strain, effect, gene_id, .keep_all = TRUE) %>% 
       dplyr::arrange(effect) %>% 
       dplyr::select(CHROM, POS, REF, ALT, GT, effect, nt_change, 
                     aa_change, gene_name, gene_id, transcript_biotype, 
@@ -68,7 +68,7 @@ variant_correlation <- function(df,
         dplyr::filter(CHROM == chr, startPOS == left, endPOS == right) %>% 
         dplyr::group_by(trait, CHROM, startPOS, endPOS) %>% 
         dplyr::filter(log10p ==  max(log10p)) %>% 
-        dplyr::distinct(trait, startPOS, endPOS, peakPOS, strain) %>% 
+        dplyr::distinct(trait, startPOS, endPOS, peakPOS, strain, .keep_all = TRUE) %>% 
         dplyr::ungroup() %>% 
         dplyr::select(trait, startPOS, endPOS, peakPOS, 
                       strain, log10p, pheno_value = value) %>%
@@ -92,7 +92,7 @@ variant_correlation <- function(df,
       
       pheno_snpeff_df <- pruned_snpeff_output %>% 
         dplyr::left_join(., interval_df, by = "strain", copy = TRUE) %>% 
-        dplyr::distinct(strain, trait, pheno_value, gene_id,  CHROM, POS, aa_change) %>% 
+        dplyr::distinct(strain, trait, pheno_value, gene_id,  CHROM, POS, aa_change, .keep_all = TRUE) %>% 
         dplyr::group_by(trait, CHROM, POS, effect, feature_type) %>% 
         # na.omit()%>%
         dplyr::left_join(., correct_df, by=c("strain","trait")) %>%
@@ -139,7 +139,7 @@ process_correlations <- function(df, gene_information = gene_functions){
                                                             GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, corrected_spearman_cor,
                                                             abs_spearman_cor) %>%
     dplyr::arrange(desc(abs_spearman_cor), desc(pheno_value)) %>% 
-    dplyr::distinct(CHROM, POS, REF,  ALT, strain, gene_id, trait) %>% dplyr::arrange(desc(abs_spearman_cor),  CHROM, POS, desc(pheno_value)) %>% 
+    dplyr::distinct(CHROM, POS, REF,  ALT, strain, gene_id, trait, .keep_all = TRUE) %>% dplyr::arrange(desc(abs_spearman_cor),  CHROM, POS, desc(pheno_value)) %>% 
     dplyr::left_join(., gene_information, by = "gene_id")
   return(variant_pheno)
 }
@@ -196,12 +196,12 @@ snpeff <- function(...,
       region <- paste((dplyr::bind_rows(lapply(elements, function(e) {
         dplyr::collect(dplyr::filter(elegans_gff, locus == query | gene_id == query | sequence_name == query, type_of == e) %>%
                          dplyr::select(chrom, start, end, gene_id, biotype, type_of, locus, sequence_name) %>%
-                         dplyr::distinct())
+                         dplyr::distinct( .keep_all = TRUE))
       })) %>%
         dplyr::summarize(chrom = chrom[1], start = min(start), end = max(end)) %>%
         dplyr::mutate(region_format = paste0(chrom, ":", start, "-", end)) %>%
         dplyr::select(region_format) %>%
-        dplyr::distinct())$region_format, collapse = ",")
+        dplyr::distinct(.keep_all = TRUE))$region_format, collapse = ",")
       if (stringr::str_length(regions[[1]]) == 0) {
         message(paste0(query, " not found."))
         region <- NA
@@ -345,7 +345,7 @@ fetch_id_type <- function(id_type = NA) {
   elegans_gff <- get_db()
   valid_id_types <- dplyr::collect(elegans_gff %>%
                                      dplyr::select(biotype) %>%
-                                     dplyr::distinct())$biotype
+                                     dplyr::distinct(.keep_all = TRUE))$biotype
   if (!(id_type %in% valid_id_types)) {
     message("Available ID Types:")
     cat(valid_id_types, sep = "\n")
@@ -391,7 +391,7 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
                                       dplyr::filter(chrom == qchrom, start >= qstart, end <= qend) %>% 
                                       dplyr::group_by(biotype) %>%
                                       dplyr::select(biotype, locus, gene_id) %>%
-                                      dplyr::distinct()) %>%
+                                      dplyr::distinct(.keep_all = TRUE)) %>%
     dplyr::mutate(locus = ifelse(is.na(locus), gene_id, locus)) %>%
     dplyr::select(biotype, locus) %>%
     dplyr::group_by(biotype)
@@ -408,7 +408,7 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
     dplyr::group_by(gene_id, effect) %>%
     dplyr::filter(!grepl("-", gene_id)) %>% # Remove intergene regions
     dplyr::mutate(gene_name = ifelse(is.na(gene_name), gene_id, gene_name)) %>%
-    dplyr::distinct() 
+    dplyr::distinct(.keep_all = TRUE) 
   
   variant_gene_summary <- variant_gene_effects %>%
     dplyr::group_by(gene_name, effect, impact) %>%
@@ -417,7 +417,7 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
   # Calculate max severity variants
   mvariants <- variants %>% dplyr::group_by(CHROM, POS, effect) %>%
     dplyr::select(CHROM, POS, impact, effect) %>%
-    dplyr::distinct() %>%
+    dplyr::distinct(.keep_all = TRUE) %>%
     tidyr::spread(effect, impact) %>%
     dplyr::mutate_each(dplyr::funs(sev), matches("_")) %>%
     dplyr::ungroup()
@@ -434,7 +434,7 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
     dplyr::left_join(variant_gene_summary, .)
   
   # Count total number of snps
-  total_snps <- nrow(variants %>% dplyr::select(CHROM, POS) %>% dplyr::distinct())
+  total_snps <- nrow(variants %>% dplyr::select(CHROM, POS) %>% dplyr::distinct(.keep_all = TRUE))
   
   # Genes with variants:
   total_genes <- nrow(region_elements)
