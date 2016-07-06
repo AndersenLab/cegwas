@@ -94,7 +94,7 @@ variant_correlation <- function(df,
         dplyr::left_join(., interval_df, by = "strain", copy = TRUE) %>% 
         dplyr::distinct(strain, trait, pheno_value, gene_id,  CHROM, POS, aa_change) %>% 
         dplyr::group_by(trait, CHROM, POS, effect, feature_type) %>% 
-        na.omit()%>%
+        # na.omit()%>%
         dplyr::left_join(., correct_df, by=c("strain","trait")) %>%
         dplyr::mutate(corrected_spearman_cor = cor(corrected_pheno, num_allele, method = "spearman", use = "pairwise.complete.obs"),
                       spearman_cor = cor( pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs")) %>% 
