@@ -29,9 +29,9 @@ variant_correlation <- function(df,
   
   # loosely identify unique peaks
   intervals <- df %>% na.omit() %>% 
-    dplyr::distinct(CHROM, startPOS, endPOS, .keep_all = TRUE) %>%
-    dplyr::distinct(CHROM, startPOS, .keep_all = TRUE) %>% 
-    dplyr::distinct(CHROM, endPOS, .keep_all = TRUE) %>% 
+    dplyr::distinct(CHROM, startPOS, endPOS, trait, .keep_all = TRUE) %>%
+    dplyr::distinct(CHROM, startPOS, trait, .keep_all = TRUE) %>% 
+    dplyr::distinct(CHROM, endPOS, trait, .keep_all = TRUE) %>% 
     dplyr::arrange(CHROM,  startPOS)
   
   strains <- as.character(na.omit(unique(df$strain)))
