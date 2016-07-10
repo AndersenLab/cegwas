@@ -35,7 +35,7 @@ variant_correlation <- function(df,
     dplyr::distinct(CHROM, endPOS, trait, .keep_all = TRUE) %>% 
     dplyr::arrange(CHROM,  startPOS)
   
-  if(condition_trait = T){
+  if(condition_trait == T){
     intervals <- processed_mapping_df %>% na.omit() %>% 
       tidyr::separate(trait, into = c("condition", "trait"), sep = "_")%>%
       dplyr::distinct(CHROM, startPOS, endPOS, condition, .keep_all = TRUE) %>%
