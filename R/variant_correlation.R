@@ -22,7 +22,8 @@ variant_correlation <- function(df,
                                 quantile_cutoff_low = .1,
                                 variant_severity = c("MODERATE", "SEVERE"),
                                 gene_types = "ALL",
-                                kin = cegwas::kinship){
+                                kin = cegwas::kinship,
+                                condition_trait){
   
   # source("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/read_vcf.R") # Get snpeff function
   
@@ -33,6 +34,16 @@ variant_correlation <- function(df,
     dplyr::distinct(CHROM, startPOS, trait, .keep_all = TRUE) %>% 
     dplyr::distinct(CHROM, endPOS, trait, .keep_all = TRUE) %>% 
     dplyr::arrange(CHROM,  startPOS)
+  
+  if(condition_trait = T){
+    intervals <- processed_mapping_df %>% na.omit() %>% 
+      tidyr::separate(trait, into = c("condition", "trait"), sep = "_")%>%
+      dplyr::distinct(CHROM, startPOS, endPOS, condition, .keep_all = TRUE) %>%
+      dplyr::distinct(CHROM, startPOS, condition, .keep_all = TRUE) %>% 
+      dplyr::distinct(CHROM, endPOS, condition, .keep_all = TRUE) %>% 
+      dplyr::arrange(CHROM,  startPOS)%>%
+      tidyr::unite(trait, condition, trait, sep = "_")
+  }
   
   strains <- as.character(na.omit(unique(df$strain)))
   intervalGENES <- list()
