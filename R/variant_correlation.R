@@ -145,7 +145,7 @@ process_correlations <- function(df, gene_information = gene_functions){
                                                     trait)) %>% dplyr::filter(trait != "")
     }
   }
-  variant_pheno <- dplyr::rbind_all(cors) %>% dplyr::select(CHROM,POS, REF, ALT, nt_change, aa_change, gene_name, transcript_biotype, 
+  variant_pheno <- dplyr::bind_rows(cors) %>% dplyr::select(CHROM,POS, REF, ALT, nt_change, aa_change, gene_name, transcript_biotype, 
                                                             gene_id, effect, num_alt_allele, num_strains, strain, 
                                                             GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, corrected_spearman_cor,
                                                             abs_spearman_cor) %>%
