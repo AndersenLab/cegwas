@@ -148,16 +148,13 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   return(output)
 }
 
+
+
 resolve_isotype <- function(name_list) {
+  
   as.vector(sapply(name_list, function(name) {
-  ri <- unique((strain_isotype %>% dplyr::mutate(previous_names = stringr::str_split(previous_names, "\\|")) %>%
-          dplyr::rowwise() %>% 
-          dplyr::filter((strain == name) |
-                       (isotype == name) |
-                       (name %in% previous_names)))$isotype)
-  if (length(unique(ri)) > 1) {
-    warning(paste0("Multiple resolved isotypes: ", ri))
-  } else if (length(ri) == 0) {
+  ri <- (dplyr::filter(strain_isotype_mapping, strain == name))$isotype
+  if (length(ri) == 0) {
     NA
   }
   ri

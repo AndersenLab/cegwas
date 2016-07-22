@@ -21,8 +21,21 @@ library("devtools")
 load("R/sysdata.rda")
 
 # Strain Isotype File
-strain_isotype <- rio::import("https://docs.google.com/spreadsheets/d/1V6YHzblaDph01sFDI8YK_fP0H7sVebHQTXypGdiQIjI/pub?output=tsv") %>%
+strain_isotype <- data.table::fread("https://docs.google.com/spreadsheets/d/1V6YHzblaDph01sFDI8YK_fP0H7sVebHQTXypGdiQIjI/pub?output=tsv") %>%
     dplyr::arrange(strain, isotype)
+
+# Create Strain --> Isotype Table
+strain_isotype_mapping <- dplyr::bind_rows(strain_isotype %>% 
+  dplyr::select(previous_names, isotype) %>%
+  dplyr::filter(complete.cases(.), isotype != "") %>%
+  dplyr::mutate(previous_names = stringr::str_split(previous_names, "\\|")) %>%
+  tidyr::unnest(previous_names) %>%
+  dplyr::rename(strain = previous_names), 
+strain_isotype %>%
+  dplyr::select(strain, isotype) %>%
+  dplyr::filter(complete.cases(.), isotype != ""))  %>%
+  dplyr::distinct() %>%
+  dplyr::select(strain, isotype)
 
 vcf_version <- 20160408
 
@@ -33,4 +46,4 @@ snps <- generate_mapping(vcf_path)
 
 
 # Save Datasets
-devtools::use_data(kinship, snps, strain_isotype, mapping_snps, gene_ids, wb_build, vcf_version, internal = T, overwrite = T)
+devtools::use_data(kinship, snps, strain_isotype, mapping_snps, gene_ids, wb_build, vcf_version, strain_isotype_mapping, internal = T, overwrite = T)
