@@ -149,10 +149,16 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
 }
 
 
+#' \code{resolve_isotype} determines the isotype from a strain name.
+#'
+#' This is the detail section if you want to fill out in the future
+#'
+#' @param name_list A list of strains
+#' @return A list of isotypes.
+#' @export
 
-resolve_isotype <- function(name_list) {
-  
-  as.vector(sapply(name_list, function(name) {
+resolve_isotype <- function(strain_list) {
+  as.vector(sapply(strain_list, function(name) {
   ri <- (dplyr::filter(strain_isotype_mapping, strain == name))$isotype
   if (length(ri) == 0) {
     NA
