@@ -65,7 +65,7 @@ tajimas_d <- function(vcf_path = paste0(path.package("cegwas"),"/"),
                   ewindow= max(as.numeric(position)))%>%
     dplyr::mutate(midwindow = (swindow+ewindow)/2)%>%
     dplyr::rename(Td = pop.1)%>%
-    dplyr::distinct(Td, window)
+    dplyr::distinct(Td, window,.keep_all = T)
   
   tajimas_d_plot <- ggplot2::ggplot(td)+
     ggplot2::aes(x = position/1e6, y = Td)+
@@ -120,7 +120,7 @@ allele_distribution <- function(locus = "top-2", variant = 797, location = NA,  
       dplyr::select(CHROM, POS, isotype = strain, aa_change,GT) %>%
       dplyr::filter(CHROM == chrom_pos[1], POS == chrom_pos[2]) 
   }
-  allele_info <- allele_info %>% dplyr::distinct(isotype) %>%
+  allele_info <- allele_info %>% dplyr::distinct(isotype,.keep_all = T) %>%
     dplyr::left_join(., strain_isotype, by = "isotype")
   
   rplot <- ggplot(allele_info) + 
