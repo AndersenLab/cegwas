@@ -30,6 +30,7 @@ calculate_VE <- function( mapping_df,
   
   
   Processed <- mapping_df %>%
+    dplyr::filter(log10p > 0)%>%
     dplyr::group_by( trait ) %>%
     dplyr::mutate( BF = -log10(.05/(sum(log10p>0))) ) %>% #  add BF threshold
     dplyr::group_by( trait ) %>%
