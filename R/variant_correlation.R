@@ -166,6 +166,7 @@ process_correlations <- function(df, gene_information = gene_functions){
 #' @param long Return dataset in long or wide format. Default is to return in long format.
 #' @param remote Use remote data. Checks for local data if possible. False by default.
 #' @param impute Use imputed data. Default is FALSE.
+#' @param use custom vcf file.
 #' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
 #' @examples snpeff("pot-2","II:1-10000","WBGene00010785")
 #' @export
@@ -175,7 +176,8 @@ snpeff <- function(...,
                    elements = c("exon"),
                    long = TRUE,
                    remote = FALSE,
-                   impute = FALSE) {
+                   impute = FALSE,
+                   vcf = NA) {
   
   regions <- unlist(list(...))
   
@@ -221,7 +223,12 @@ snpeff <- function(...,
       region <- query
     }
     
-    vcf_path <- get_vcf(remote = remote, impute = impute)
+    if(is.na(vcf)) {
+        vcf_path <- get_vcf(remote = remote, impute = impute)
+    } else {
+        vcf_path <- vcf
+        gene_ids <- NA
+    }
     
     sample_names <- readr::read_lines(suppressWarnings(pipe(paste("bcftools","query","-l",vcf_path))))
     base_header <- c("CHROM", "POS", "REF","ALT","FILTER")
