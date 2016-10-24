@@ -18,7 +18,7 @@ manplot <- function(plot_df, bf_line_color = "gray") {
         dplyr::distinct(marker, .keep_all = T) %>%
         ggplot2::ggplot(.) +
         ggplot2::aes(x = POS/1e6, y = log10p) +
-        ggplot2::scale_color_manual(values = c("black","blue","red")) +
+        ggplot2::scale_color_manual(values = c("black","cyan","red")) +
         ggplot2::geom_rect(ggplot2::aes(xmin = startPOS/1e6, 
                                xmax = endPOS/1e6, 
                                ymin = 0, 
