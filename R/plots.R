@@ -23,9 +23,9 @@ manplot <- function(plot_df, bf_line_color = "gray") {
                                xmax = endPOS/1e6, 
                                ymin = 0, 
                                ymax = Inf, 
-                               fill = "blue", 
-                               alpha=.1), 
-                           color = NA)+
+                               fill = "blue"), 
+                           color = "blue",fill = "cyan",linetype = 2, 
+                           alpha=.3)+
         ggplot2::geom_hline(ggplot2::aes(yintercept = BF),
                             color = bf_line_color, 
                             alpha = .75,  
