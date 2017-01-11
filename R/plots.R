@@ -219,7 +219,6 @@ gene_variants <- function(gene){
 
 plot_peak_ld <- function(plot_df, trait = NULL){
   
-  
   if (is.null(trait)) {
     snp_df <- plot_df %>% na.omit()
   }
@@ -264,10 +263,9 @@ plot_peak_ld <- function(plot_df, trait = NULL){
                      axis.title.y = ggplot2::element_text(size=0, face="bold", color="black"),
                      legend.position="none") +
       scale_x_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
-      scale_y_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
+      scale_y_discrete(position = "right", labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
       scale_fill_continuous(high = "#FF0000", low = "white", na.value = "white")
     
-    ldplot <- cowplot::ggdraw(cowplot::switch_axis_position(ldplot, 'y'))
     #     rgb.palette <- grDevices::colorRampPalette(rev(c("blue", 
     #                                                      "orange", "red")), space = "rgb")
     #     ld_outs <- LDheatmap::LDheatmap(test, LDmeasure = "r", 
