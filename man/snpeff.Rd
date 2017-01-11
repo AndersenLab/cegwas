@@ -5,7 +5,7 @@
 \title{Browse Variant Info}
 \usage{
 snpeff(..., severity = c("HIGH", "MODERATE"), elements = c("exon"),
-  long = TRUE, remote = FALSE, impute = FALSE)
+  long = TRUE, remote = FALSE, impute = FALSE, vcf = NA)
 }
 \arguments{
 \item{...}{Gene names, regions, or wormbase identifiers to query.}
@@ -19,6 +19,8 @@ snpeff(..., severity = c("HIGH", "MODERATE"), elements = c("exon"),
 \item{remote}{Use remote data. Checks for local data if possible. False by default.}
 
 \item{impute}{Use imputed data. Default is FALSE.}
+
+\item{use}{custom vcf file.}
 }
 \value{
 Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.

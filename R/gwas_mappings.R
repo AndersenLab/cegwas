@@ -16,7 +16,7 @@
 #' @importFrom foreach %dopar%
 #' @export
 
-gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship, snpset = snps, min.MAF = 0.05, mapping_snp_set = TRUE){
+gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship, snpset = snps, min.MAF = 0.05, mapping_snp_set = TRUE) {
   # phenotype prep
   x <- data.frame(trait = data[[1]], data[[2]]) %>%
     tidyr::gather(strain, value, -trait) %>%
