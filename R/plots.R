@@ -265,7 +265,6 @@ plot_peak_ld <- function(plot_df, trait = NULL){
       scale_x_discrete(labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
       scale_y_discrete(position = "right", labels = function(x) { gsub("_", ":", x)}, expand = c(0,0)) +
       scale_fill_continuous(high = "#FF0000", low = "white", na.value = "white")
-    
     #     rgb.palette <- grDevices::colorRampPalette(rev(c("blue", 
     #                                                      "orange", "red")), space = "rgb")
     #     ld_outs <- LDheatmap::LDheatmap(test, LDmeasure = "r", 
