@@ -46,4 +46,4 @@ snps <- generate_mapping(vcf_path)
 
 
 # Save Datasets
-devtools::use_data(kinship, snps, strain_isotype, mapping_snps, gene_ids, wb_build, vcf_version, strain_isotype_mapping, internal = T, overwrite = T)
+devtools::use_data(kinship, snps, strain_isotype, mapping_snps, gene_ids, wb_build, vcf_version, strain_isotype_mapping, internal = F, overwrite = T)

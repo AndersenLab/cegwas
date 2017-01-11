@@ -10,7 +10,7 @@
 #' SNP set (Dataset)
 #'
 #' Genotype information for C. elegans wild isolates. SNPs used from RADseq data set but 
-#' includes all 124 wild isolates from whole-genome sequencing project
+#' includes all 152 wild isolates from whole-genome sequencing project
 #'
 #' @format A data frame with snps as rows and columns as strains:
 #' \describe{
