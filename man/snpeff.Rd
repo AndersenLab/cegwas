@@ -5,7 +5,7 @@
 \title{Browse Variant Info}
 \usage{
 snpeff(..., severity = c("HIGH", "MODERATE"), elements = c("exon"),
-  long = TRUE, remote = FALSE, impute = FALSE, vcf = NA)
+  long = TRUE, remote = FALSE, vcf = NA)
 }
 \arguments{
 \item{...}{Gene names, regions, or wormbase identifiers to query.}
@@ -17,8 +17,6 @@ snpeff(..., severity = c("HIGH", "MODERATE"), elements = c("exon"),
 \item{long}{Return dataset in long or wide format. Default is to return in long format.}
 
 \item{remote}{Use remote data. Checks for local data if possible. False by default.}
-
-\item{impute}{Use imputed data. Default is FALSE.}
 
 \item{use}{custom vcf file.}
 }

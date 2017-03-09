@@ -165,7 +165,6 @@ process_correlations <- function(df, gene_information = gene_functions){
 #' @param elements A vector containing gene structural elements (CDS, five_prime_UTR, exon, intron, three_prime_UTR). Use "ALL" to return all variants.
 #' @param long Return dataset in long or wide format. Default is to return in long format.
 #' @param remote Use remote data. Checks for local data if possible. False by default.
-#' @param impute Use imputed data. Default is FALSE.
 #' @param use custom vcf file.
 #' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
 #' @examples snpeff("pot-2","II:1-10000","WBGene00010785")
@@ -176,7 +175,6 @@ snpeff <- function(...,
                    elements = c("exon"),
                    long = TRUE,
                    remote = FALSE,
-                   impute = FALSE,
                    vcf = NA) {
   
   regions <- unlist(list(...))
@@ -215,16 +213,20 @@ snpeff <- function(...,
         dplyr::mutate(region_format = paste0(chrom, ":", start, "-", end)) %>%
         dplyr::select(region_format) %>%
         dplyr::distinct(.keep_all = TRUE))$region_format, collapse = ",")
+      
+        query_type <- "locus"
+      
       if (stringr::str_length(regions[[1]]) == 0) {
         message(paste0(query, " not found."))
         region <- NA
       }
     } else {
       region <- query
+      query_type <- "region"
     }
     
     if(is.na(vcf)) {
-        vcf_path <- get_vcf(remote = remote, impute = impute)
+        vcf_path <- get_vcf(remote = remote, impute = FALSE)
     } else {
         vcf_path <- vcf
         gene_ids <- NA
@@ -253,6 +255,7 @@ snpeff <- function(...,
       } else {
         tsv <- as.data.frame(NULL)
       }
+      
       # If no results are returned, stop.
       if (typeof(tsv) == "character" | nrow(tsv) == 0) {
         warning("No Variants")
@@ -265,6 +268,11 @@ snpeff <- function(...,
           dplyr::mutate(gene_name = as.character(gene_ids[gene_name])) %>%
           dplyr::mutate(query = query, region = region) %>%
           dplyr::select(CHROM, POS, query, region, everything())
+        
+        # For locus queries, filter out non-matching genes.
+        if (query_type == 'locus') {
+          tsv <- dplyr::filter(tsv, (query == gene_id) | (query == gene_name) | (query == feature_id) )
+        }
         
         tsv <-  dplyr::filter(tsv, impact %in% severity) 
         if (nrow(tsv) == 0) {
