@@ -33,7 +33,11 @@ strain_isotype_mapping <- dplyr::bind_rows(strain_isotype %>%
   dplyr::rename(strain = previous_names), 
 strain_isotype %>%
   dplyr::select(strain, isotype) %>%
-  dplyr::filter(complete.cases(.), isotype != ""))  %>%
+  dplyr::filter(complete.cases(.), isotype != ""),
+  strain_isotype %>% 
+    dplyr::select(strain, isotype) %>%
+    dplyr::mutate(strain = isotype)
+)  %>%
   dplyr::distinct() %>%
   dplyr::select(strain, isotype)
 
