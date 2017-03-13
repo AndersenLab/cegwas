@@ -25,7 +25,6 @@ Imports:
     rrBLUP,
     readr,
     dplyr,
-    PopGenome,
     ggmap,
     plyr,
     maps,
@@ -34,5 +33,6 @@ Imports:
 License: GPL
 LazyData: true
 Suggests:
-    testthat
+    testthat,
+    PopGenome
 RoxygenNote: 5.0.1
