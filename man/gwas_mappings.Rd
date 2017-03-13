@@ -4,8 +4,10 @@
 \alias{gwas_mappings}
 \title{GWAS Mappings}
 \usage{
-gwas_mappings(data, cores = parallel::detectCores(), kin_matrix = kinship,
-  snpset = snps, min.MAF = 0.05, mapping_snp_set = TRUE)
+gwas_mappings(data, cores = parallel::detectCores(),
+  kin_matrix = get(paste0("kinship_", vcf_version)),
+  snpset = get(paste0("snps_", vcf_version)), min.MAF = 0.05,
+  mapping_snp_set = TRUE)
 }
 \arguments{
 \item{data}{two element list. element 1 : traits. element 2: trait values with strains in columns

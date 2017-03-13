@@ -6,7 +6,8 @@
 \usage{
 variant_correlation(df, quantile_cutoff_high = 0.9,
   quantile_cutoff_low = 0.1, variant_severity = c("MODERATE", "SEVERE"),
-  gene_types = "ALL", kin = cegwas::kinship, condition_trait)
+  gene_types = "ALL", kin = get(paste0("kinship_", vcf_version)),
+  condition_trait)
 }
 \arguments{
 \item{df}{is a dataframe that is output from the \code{process_mappings} function}
