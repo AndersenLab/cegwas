@@ -37,7 +37,7 @@ strain_isotype %>%
   dplyr::distinct() %>%
   dplyr::select(strain, isotype)
 
-vcf_version <- 20160408
+vcf_version <- 20170312
 
 wb_build <- 245
 vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/Variation/Andersen_VCF/WI.", vcf_version, ".impute.vcf.gz")
