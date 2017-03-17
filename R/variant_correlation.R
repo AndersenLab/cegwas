@@ -22,7 +22,7 @@ variant_correlation <- function(df,
                                 quantile_cutoff_low = .1,
                                 variant_severity = c("MODERATE", "SEVERE"),
                                 gene_types = "ALL",
-                                kin = get(paste0("kinship_", vcf_version)),
+                                kin = kinship),
                                 condition_trait){
   
   # source("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/read_vcf.R") # Get snpeff function
@@ -275,7 +275,7 @@ sev <- function(col) { sapply(col, function(x) {
 
 # # y is a data.frame that contains a trait, strain, and value column
 # # function is adapted from the kinship.on.the.fly function from the cape package
-kinship_correction <- function(y, kin = get(paste0("kinship_", vcf_version))) {
+kinship_correction <- function(y, kin = kinship) {
   
   K <- kin[colnames(kin) %in% y$strain, rownames(kin) %in% y$strain]
   y <- y %>% dplyr::filter(strain %in% colnames(K))

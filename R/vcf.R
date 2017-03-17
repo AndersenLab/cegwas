@@ -9,7 +9,6 @@
 #' @param long Return dataset in long or wide format. Default is to return in long format.
 #' @param remote Use remote data. Checks for local data if possible. False by default.
 #' @param use custom vcf file.
-#' @param version Which snp version to use. Current versions are: 20160408 (152 set), and 20170312 (234 set).
 #' @return Outputs a data frame that contains phenotype data, mapping data, and gene information for highly correlated variants in a particular QTL confidence interval.
 #' @examples snpeff("pot-2","II:1-10000","WBGene00010785")
 #' @export
@@ -19,8 +18,7 @@ snpeff <- function(...,
                    elements = c("exon"),
                    long = TRUE,
                    remote = FALSE,
-                   vcf = NA,
-                   version = vcf_version) {
+                   vcf = NA) {
   
   regions <- unlist(list(...))
   

@@ -47,9 +47,9 @@ vcf_version_d <- "2017-03-12"
 wb_build <- 245
 
 vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/_SEQ/WI/WI-", vcf_version_d, "/vcf/impute.", vcf_version, ".vcf.gz")
-kinship_20170312 <- generate_kinship(vcf_path)
-snps_20170312 <- generate_mapping(vcf_path)
+kinship <- generate_kinship(vcf_path)
+snps <- generate_mapping(vcf_path)
 
 
 # Save Datasets
-devtools::use_data(kinship_20170312, snps_20170312, strain_isotype, mapping_snps, gene_ids, wb_build, vcf_version, strain_isotype_mapping, internal = F, overwrite = T)
+devtools::use_data(kinship, snps, strain_isotype, mapping_snps, gene_ids, wb_build, strain_isotype_mapping, internal = F, overwrite = T)
