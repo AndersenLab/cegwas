@@ -22,8 +22,8 @@ variant_correlation <- function(df,
                                 quantile_cutoff_low = .1,
                                 variant_severity = c("MODERATE", "SEVERE"),
                                 gene_types = "ALL",
-                                kin = kinship),
-                                condition_trait){
+                                kin = kinship,
+                                condition_trait) {
   
   # source("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/read_vcf.R") # Get snpeff function
   

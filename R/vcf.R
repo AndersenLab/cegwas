@@ -160,12 +160,12 @@ snpeff <- function(...,
 get_vcf <- function(remote = F, version = vcf_version) {
   
   # Set vcf path; determine whether local or remote
-  vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/_SEQ/WI/WI-", version, "/vcf/WI.", version, ".vcf.gz")
+  vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/_SEQ/WI/WI-", vcf_version, "/vcf/WI.", vcf_version, ".vcf.gz")
   
   # Use remote if not available.
   local_or_remote <- "locally"
   if (!file.exists(vcf_path) | remote == T) {
-    vcf_path <- paste0("http://storage.googleapis.com/andersen_dist/vcf/all/", version, "/WI.", version, ".vcf.gz")
+    vcf_path <- paste0("http://storage.googleapis.com/andersen_dist/vcf/all/", vcf_version, "/WI.", vcf_version, ".vcf.gz")
     message("Using remote vcf")
   }
   if (remote == F) {

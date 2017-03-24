@@ -28,10 +28,10 @@
 #' @importFrom foreach %dopar%
 #' @export
 
-process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first", use_bamf = TRUE){
+process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first", use_bamf = TRUE) {
   
   # Reshape data from wide to long
-  if (sum(row.names(kinship)) %in% data[[1]]) > 3) {
+  if (sum(row.names(kinship) %in% data[[1]]) > 3) {
     colnames(data)[1] <- "strain"
     names(data) <- stringr::str_to_lower(names(data))
     data <- data %>% tidyr::gather(trait,value,-strain) %>% tidyr::spread(strain, value)  

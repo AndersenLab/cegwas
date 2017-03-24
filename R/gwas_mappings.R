@@ -16,7 +16,7 @@
 #' @importFrom foreach %dopar%
 #' @export
 
-gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship), snpset = snps), min.MAF = 0.05, mapping_snp_set = TRUE) {
+gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = kinship, snpset = snps, min.MAF = 0.05, mapping_snp_set = TRUE) {
   # phenotype prep
   x <- data.frame(trait = data[[1]], data[[2]]) %>%
     tidyr::gather(strain, value, -trait) %>%
@@ -102,8 +102,8 @@ gwas_mappings <- function(data, cores = parallel::detectCores(), kin_matrix = ki
 cegwas_map <- function(trait_data, 
                        cores = parallel::detectCores(),
                        remove_strains = TRUE, 
-                       kin_matrix = kinship),
-                       snpset = snps),
+                       kin_matrix = kinship,
+                       snpset = snps,
                        duplicate_method = "first",
                        BF = NA,
                        mapping_snp_set = TRUE,
