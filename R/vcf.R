@@ -69,7 +69,7 @@ snpeff <- function(...,
     }
     
     if(is.na(vcf)) {
-      vcf_path <- get_vcf(remote = remote, version = version)
+      vcf_path <- get_vcf(remote = remote)
     } else {
       vcf_path <- vcf
       gene_ids <- NA
@@ -107,10 +107,10 @@ snpeff <- function(...,
         tsv <-  dplyr::mutate(tsv, ANN=strsplit(ANN,",")) %>%
           tidyr::unnest(ANN) %>%
           tidyr::separate(ANN, into = ANN_header, sep = "\\|") %>%
-          dplyr::select(one_of(c(base_header, ANN_header)), everything(), -extra) %>%
+          dplyr::select(dplyr::one_of(c(base_header, ANN_header)), dplyr::everything(), -extra) %>%
           dplyr::mutate(gene_name = as.character(gene_ids[gene_name])) %>%
           dplyr::mutate(query = query, region = region) %>%
-          dplyr::select(CHROM, POS, query, region, everything())
+          dplyr::select(CHROM, POS, query, region, dplyr::everything())
         
         # For locus queries, filter out non-matching genes.
         if (query_type == 'locus') {
@@ -132,7 +132,7 @@ snpeff <- function(...,
             dplyr::mutate(GT = ifelse(a1 == REF & a2 == REF & !is.na(a1), "REF",GT)) %>%
             dplyr::mutate(GT = ifelse(a1 != a2 & !is.na(a1), "HET",GT)) %>%
             dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
-            dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, FT, FILTER, DP, DP4, SP, HP, everything()) %>%
+            dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, FT, FILTER, DP, DP4, SP, HP, dplyr::everything()) %>%
             dplyr::arrange(CHROM, POS) 
         }
         tsv
@@ -160,15 +160,13 @@ snpeff <- function(...,
 get_vcf <- function(remote = F, version = vcf_version) {
   
   # Set vcf path; determine whether local or remote
-  vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/_SEQ/WI/WI-", vcf_version, "/vcf/WI.", vcf_version, ".vcf.gz")
-  
+  vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/_SEQ/WI/WI-", vcf_version, "/vcf/WI.", vcf_version, ".snpeff.vcf.gz")
   # Use remote if not available.
   local_or_remote <- "locally"
   if (!file.exists(vcf_path) | remote == T) {
-    vcf_path <- paste0("http://storage.googleapis.com/andersen_dist/vcf/all/", vcf_version, "/WI.", vcf_version, ".vcf.gz")
+    vcf_path <- paste0("http://storage.googleapis.com/andersen_dist/vcf/all/", vcf_version, "/WI.", vcf_version, ".snpeff.vcf.gz")
     message("Using remote vcf")
-  }
-  if (remote == F) {
+  } else {
     system(paste0("touch ", vcf_path,".csi"))
     message("Using local vcf")
   }
