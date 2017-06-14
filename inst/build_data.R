@@ -41,8 +41,8 @@ strain_isotype %>%
   dplyr::distinct() %>%
   dplyr::select(strain, isotype)
 
-vcf_version <- 20170312
-vcf_version_d <- "2017-03-12"
+vcf_version <- 20170531
+vcf_version_d <- "2017-05-31"
 
 wb_build <- 245
 

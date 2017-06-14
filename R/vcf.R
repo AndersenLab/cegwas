@@ -108,7 +108,7 @@ snpeff <- function(...,
           tidyr::unnest(ANN) %>%
           tidyr::separate(ANN, into = ANN_header, sep = "\\|") %>%
           dplyr::select(dplyr::one_of(c(base_header, ANN_header)), dplyr::everything(), -extra) %>%
-          dplyr::mutate(gene_name = as.character(gene_ids[gene_name])) %>%
+          #dplyr::mutate(gene_name = as.character(gene_ids[gene_name])) %>%
           dplyr::mutate(query = query, region = region) %>%
           dplyr::select(CHROM, POS, query, region, dplyr::everything())
         
@@ -164,7 +164,7 @@ get_vcf <- function(remote = F, version = vcf_version) {
   # Use remote if not available.
   local_or_remote <- "locally"
   if (!file.exists(vcf_path) | remote == T) {
-    vcf_path <- paste0("http://storage.googleapis.com/andersen_dist/vcf/all/", vcf_version, "/WI.", vcf_version, ".snpeff.vcf.gz")
+    vcf_path <- paste0("http://storage.googleapis.com/elegansvariation.org/releases/", vcf_version, "/WI.", vcf_version, ".soft-filtered.vcf.gz")
     message("Using remote vcf")
   } else {
     system(paste0("touch ", vcf_path,".csi"))
