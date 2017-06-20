@@ -40,4 +40,3 @@ This function takes raw phenotype data and eliminates outlier strains with a mod
 Additionally it eliminates any traits that have the same values for >95% of the strains (important for binary traits).
 If multiple strains are present that fall into the same isotype, they can be removed by setting \code{\link{remove_strains}} to
 }
-

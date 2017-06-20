@@ -15,4 +15,3 @@ A list of isotypes.
 \description{
 This is the detail section if you want to fill out in the future
 }
-

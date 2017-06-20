@@ -27,4 +27,3 @@ the spearman rank correlation coefficient.
 \details{
 This function requires three inputs, two of which are provided by the user and the other is loaded by the package.
 }
-

@@ -319,3 +319,46 @@ qq_plot <- function(log10p){
   
   return(qqpl) 
 }
+
+
+#' Fine mapping plot of GWAS confidence interval
+#'
+#' \code{fine_map_plot} Fine mapping plot of GWAS confidence interval 
+#'
+#'
+#' @param df is a dataframe that is output by \code{process_correlations} function
+#' @param plot_trait is a character vector corresponding to the trait of interest.  
+#' @param strain_comparison is a character vector corresponding to which strain genotype to use to color points by. Default is CB4856, which will color all variants that CB4856 contains a different color
+#' @param color1 is a character vector corresponding to the color of the ALT genotype points. Default is blue
+#' @param color2 is a character vector corresponding to the color of the REF genotype points. Default is orange
+#' @return returns a ggplot2 object 
+#' @export
+
+fine_map_plot <- function(df, plot_trait, strain_comparison = "CB4856", color1 = 'blue', color2 = 'orange'){
+  
+  fine_plot <- df %>% 
+    dplyr::filter(strain == strain_comparison,
+                  trait == plot_trait)%>%
+    ggplot2::ggplot(.)+
+    ggplot2::aes(x = POS/1e6, y = -log10(abs_spearman_cor), fill = GT)+
+    ggplot2::geom_point(shape=21, size =1, alpha = .7)+
+    ggplot2::scale_fill_manual(values = c("ALT" = color1, "REF" = color2))+
+    ggplot2::scale_color_manual(values = c("ALT" = color1, "REF" = color2))+
+    facet_grid(.~CHROM,scales="free")+
+    ggplot2::theme_bw() + 
+    ggplot2::theme(axis.text.x = ggplot2::element_text(size = 10, face = "bold", color = "black"),
+                   axis.text.y = ggplot2::element_text(size = 10, face = "bold", color = "black"), 
+                   axis.title.x = ggplot2::element_text(size = 10, face = "bold", color = "black", vjust = -0.3), 
+                   axis.title.y = ggplot2::element_text(size = 8, face = "bold", color = "black"), 
+                   strip.text.x = ggplot2::element_text(size = 10, face = "bold", color = "black"), 
+                   strip.text.y = ggplot2::element_text(size = 10,  face = "bold", color = "black"), 
+                   plot.title = ggplot2::element_text(size = 0,  face = "bold", vjust = 1),
+                   panel.background = ggplot2::element_rect(color = "black",  size = 1.2), 
+                   strip.background = ggplot2::element_rect(color = "black", size = 1.2),
+                   legend.position = 'none')+
+    labs(x = "Genomic Position (Mb)", y = expression(bold(-log[10](bolditalic(p)))))
+  
+  return(fine_plot)
+}
+
+

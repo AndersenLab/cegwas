@@ -24,4 +24,3 @@ Outputs a ggplot object containing a visualization of the global distribution of
 \description{
 \code{allele_distribution} uses the ggplot2 package to plot the global distribution of an allele of interest.
 }
-

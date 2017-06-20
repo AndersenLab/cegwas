@@ -26,4 +26,3 @@ variance explained, confidence interval information, genotype information
 Function to combine all of the previously generated data into one data frame. Converts SNP index confidence intervals
 into genomic position confidence intervals.
 }
-

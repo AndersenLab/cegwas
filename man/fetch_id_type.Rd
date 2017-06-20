@@ -18,4 +18,3 @@ Vector of identifiers.
 \examples{
 fetch_id_type("lincRNA")
 }
-

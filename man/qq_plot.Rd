@@ -15,4 +15,3 @@ returns a ggplot2 object
 \description{
 \code{qq_plot} generates a QQ plot given a vector of log10(p) values
 }
-

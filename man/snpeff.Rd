@@ -29,4 +29,3 @@ Outputs a data frame that contains phenotype data, mapping data, and gene inform
 \examples{
 snpeff("pot-2","II:1-10000","WBGene00010785")
 }
-

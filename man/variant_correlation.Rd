@@ -33,4 +33,3 @@ This function losely identifies unique intervals for QTL in a data set and brows
 Heterozygotes are ignored in the analysis. Correlations are only calculated for variants that are present in at least 5% of the assayed strains. Additionally, variant information needs to have been
 acquired for at least 80% of the phenotyped strains, this removes the possibility of discrepency between correlated variants and the correlation that led to the QTL.
 }
-

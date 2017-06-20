@@ -40,4 +40,3 @@ Outputs a list, where the first element is a dataframe containing Tajima's D cal
 \details{
 This is the detail section if you want to fill out in the future
 }
-

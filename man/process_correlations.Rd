@@ -20,4 +20,3 @@ Outputs a data frame that contains phenotype data, mapping data, and gene inform
 \details{
 Function to combine phenotype, mapping, and gene information from \code{variant_correlation} function output.
 }
-

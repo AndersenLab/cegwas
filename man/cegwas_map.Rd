@@ -42,4 +42,3 @@ The second data frame contains the variance explained data as well as all of the
 a mapping - returning a processed mapping data frame. \code{map} wraps \code{\link{process_pheno}}, \code{\link{gwas_mappings}}, 
 and \code{\link{process_mappings}} into a single function.
 }
-

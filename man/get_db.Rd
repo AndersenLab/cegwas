@@ -9,4 +9,3 @@ get_db()
 \description{
 Return database; If not available, download.
 }
-

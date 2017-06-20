@@ -29,4 +29,3 @@ are above the cutoff, the function asks if SNPs are within an arbitrary number o
 \code{snp_grouping} - default 200. If the significant SNPs are within this range, they are grouped into the same peak.
 If they are greater than this distance, then the peaks are considered unique.
 }
-

@@ -19,4 +19,3 @@ This function is used to generate a kinship matrix for mapping in conjunction wi
 \seealso{
 \link{vcf_to_matrix} \link{generate_kinship}
 }
-

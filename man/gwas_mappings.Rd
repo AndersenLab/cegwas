@@ -30,4 +30,3 @@ kinship matrix generated from whole-genome sequence data. Can use user developed
 \details{
 This is the detail section if you want to fill out in the future
 }
-

@@ -26,4 +26,3 @@ be adjusted using a text file that specifies \emph{CHROM}    \emph{POS}. A custo
 \seealso{
 \link{vcf_to_matrix} \link{generate_mapping}
 }
-

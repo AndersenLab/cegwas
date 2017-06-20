@@ -18,4 +18,3 @@ Confidence interval for a given peak is highlighted in red.
 \description{
 \code{manplot} generates a manhattan plot using \code{ggplot2}
 }
-

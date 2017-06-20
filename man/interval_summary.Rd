@@ -23,4 +23,3 @@ Can also be used to summarize regions by wormbase identifier or locus name.
 \examples{
 interval_summary("pot-1")
 }
-

@@ -19,5 +19,5 @@ returns an LDHeatmap object of SNPs that are above the Bonferroni corrected p-va
 }
 \examples{
  plot_peak_ld(processed_mapping_df) # for a one trait mapping data frame
+plot_peak_ld(plot_df = all_maps, trait = "amsacrine_f.l1") # for a multiple trait mapping data frame
 }
-

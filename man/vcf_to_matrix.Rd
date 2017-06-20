@@ -23,4 +23,3 @@ Uses only biallelic variants. Heterozygous calls are ignored. Requires bcftools.
 \seealso{
 \link{generate_kinship} \link{generate_mapping}
 }
-

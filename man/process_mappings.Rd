@@ -28,4 +28,3 @@ identifies peaks and associated confidence intervals
 \details{
 This function combines \code{calculate_VE}, \code{find_peaks}, and \code{identify_CI} into one function when intermediate dataframes are not wanted
 }
-

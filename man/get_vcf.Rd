@@ -17,4 +17,3 @@ character value corresponding to VCF location
 \description{
 \code{get_vcf} Generate directory path to VCF file
 }
-

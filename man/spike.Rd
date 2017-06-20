@@ -18,4 +18,3 @@ A phenotype data frame with the fake spiked data, ready for process_pheno
 This function generates fake data for testing GWAS mappings, with the option
 to generate QTL.
 }
-

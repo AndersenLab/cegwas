@@ -23,4 +23,3 @@ Genotypes are encoded as REF or ALT and are on the x-axis. Phenotypes are on y-a
 \description{
 \code{pxg_plot} generates a boxplot of phenotypes split by genotype at QTL peak position using \code{ggplot2}
 }
-

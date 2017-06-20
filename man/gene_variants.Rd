@@ -17,5 +17,6 @@ Ouput is a list of ggplot objects with strains on the Y axis and variants for ge
 }
 \examples{
  gene_variants(gene = c("top-2","pot-2"))
+ test[[1]]
+test[[2]]
 }
-
