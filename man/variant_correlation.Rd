@@ -4,16 +4,14 @@
 \alias{variant_correlation}
 \title{Process QTL Intervals}
 \usage{
-variant_correlation(df, quantile_cutoff_high = 0.9,
-  quantile_cutoff_low = 0.1, variant_severity = c("MODERATE", "SEVERE"),
-  gene_types = "ALL", kin = kinship, condition_trait)
+variant_correlation(df, quantile_cutoff = 0.9,
+  variant_severity = c("MODERATE", "SEVERE"), gene_types = "ALL",
+  kin = kinship, condition_trait)
 }
 \arguments{
 \item{df}{is a dataframe that is output from the \code{process_mappings} function}
 
-\item{quantile_cutoff_high}{is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients greater than the 90th quantile}
-
-\item{quantile_cutoff_low}{is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients less than the 10th quantile}
+\item{quantile_cutoff}{is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients greater than the 90th quantile}
 
 \item{variant_severity}{what variants to look at from snpeff output}
 

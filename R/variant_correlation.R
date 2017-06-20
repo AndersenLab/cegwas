@@ -7,8 +7,7 @@
 #' acquired for at least 80% of the phenotyped strains, this removes the possibility of discrepency between correlated variants and the correlation that led to the QTL.
 #'
 #' @param df is a dataframe that is output from the \code{process_mappings} function
-#' @param quantile_cutoff_high is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients greater than the 90th quantile
-#' @param quantile_cutoff_low is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients less than the 10th quantile
+#' @param quantile_cutoff is a quantile cutoff that determines what variants to keep, default is to keep all variants with correlation coefficients greater than the 90th quantile
 #' @param variant_severity what variants to look at from snpeff output
 #' @param gene_types what gene types to look at from snpeff output
 #' @param kin is a strain by strain relatedness matrix you want to correct you trait with
@@ -18,8 +17,7 @@
 #' @export
 
 variant_correlation <- function(df, 
-                                quantile_cutoff_high = .9, 
-                                quantile_cutoff_low = .1,
+                                quantile_cutoff = 0.9, 
                                 variant_severity = c("MODERATE", "SEVERE"),
                                 gene_types = "ALL",
                                 kin = kinship,
@@ -107,14 +105,13 @@ variant_correlation <- function(df,
         dplyr::group_by(trait, CHROM, POS, effect, feature_type) %>% 
         # na.omit()%>%
         dplyr::left_join(., correct_df, by=c("strain","trait")) %>%
-        dplyr::mutate(corrected_spearman_cor = cor(corrected_pheno, num_allele, method = "spearman", use = "pairwise.complete.obs"),
-                      spearman_cor = cor( pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs")) %>% 
+        dplyr::mutate(corrected_spearman_cor_p = cor.test(corrected_pheno, num_allele, method = "spearman", use = "pairwise.complete.obs")$p.value,
+                      spearman_cor_p = cor.test(pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs")$p.value) %>% 
         dplyr::ungroup() %>% 
-        dplyr::mutate(abs_spearman_cor = abs(corrected_spearman_cor)) %>% 
-        dplyr::filter(abs_spearman_cor > quantile(abs_spearman_cor, 
-                                                  probs = quantile_cutoff_high, na.rm = T)) %>% 
+        dplyr::filter(corrected_spearman_cor_p < quantile(corrected_spearman_cor_p, 
+                                                  probs = quantile_cutoff, na.rm = T)) %>% 
         dplyr::ungroup() %>% 
-        dplyr::arrange(desc(abs_spearman_cor))
+        dplyr::arrange(corrected_spearman_cor_p)
       
       intervalGENES[[i]] <- pheno_snpeff_df
     }
@@ -147,10 +144,11 @@ process_correlations <- function(df, gene_information = gene_functions){
   }
   variant_pheno <- dplyr::bind_rows(cors) %>% dplyr::select(CHROM,POS, REF, ALT, nt_change, aa_change, gene_name, transcript_biotype, 
                                                             gene_id, effect, num_alt_allele, num_strains, strain, 
-                                                            GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor, corrected_spearman_cor,
+                                                            GT, trait, pheno_value, startPOS, endPOS, log10p, spearman_cor_p, corrected_spearman_cor_p,
                                                             abs_spearman_cor) %>%
-    dplyr::arrange(desc(abs_spearman_cor), desc(pheno_value)) %>% 
-    dplyr::distinct(CHROM, POS, REF,  ALT, strain, gene_id, trait, .keep_all = TRUE) %>% dplyr::arrange(desc(abs_spearman_cor),  CHROM, POS, desc(pheno_value)) %>% 
+    dplyr::arrange(corrected_spearman_cor_p, desc(pheno_value)) %>% 
+    dplyr::distinct(CHROM, POS, REF,  ALT, strain, gene_id, trait, .keep_all = TRUE) %>% 
+    dplyr::arrange(corrected_spearman_cor_p,  CHROM, POS, desc(pheno_value)) %>% 
     dplyr::left_join(., gene_information, by = "gene_id")
   return(variant_pheno)
 }
