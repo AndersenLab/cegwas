@@ -96,7 +96,7 @@ variant_correlation <- function(df,
           dplyr::mutate(trait = unique(interval_df$trait)[j])
       }
       
-      correct_df <- dplyr::rbind_all(correct_it)
+      correct_df <- dplyr::bind_rows(correct_it)
       
       
       pheno_snpeff_df <- pruned_snpeff_output %>% 
