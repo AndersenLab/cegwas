@@ -105,8 +105,9 @@ variant_correlation <- function(df,
         dplyr::group_by(trait, CHROM, POS, effect, feature_type) %>% 
         # na.omit()%>%
         dplyr::left_join(., correct_df, by=c("strain","trait")) %>%
-        dplyr::mutate(corrected_spearman_cor_p = cor.test(corrected_pheno, num_allele, method = "spearman", use = "pairwise.complete.obs")$p.value,
-                      spearman_cor_p = cor.test(pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs")$p.value) %>% 
+        dplyr::filter(!is.na(trait))%>%
+        dplyr::mutate(corrected_spearman_cor_p = cor.test(corrected_pheno, num_allele, method = "spearman", use = "pairwise.complete.obs",exact = F)$p.value,
+                      spearman_cor_p = cor.test(pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs",exact = F)$p.value) %>% 
         dplyr::ungroup() %>% 
         dplyr::filter(corrected_spearman_cor_p < quantile(corrected_spearman_cor_p, 
                                                   probs = quantile_cutoff, na.rm = T)) %>% 
