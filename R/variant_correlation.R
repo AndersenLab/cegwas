@@ -66,7 +66,7 @@ variant_correlation <- function(df,
                     aa_change, gene_name, gene_id, transcript_biotype, 
                     feature_type, strain)  %>% 
       dplyr::group_by(CHROM, POS, effect) %>%
-      dplyr::filter(!is.na(GT), GT != "HET") %>% 
+      dplyr::filter(!is.na(GT), FILTER == "PASS", FT == "PASS") %>% 
       dplyr::mutate(num_allele = ifelse(GT == "REF", 0, ifelse(GT == "ALT", 1, NA))) %>% 
       dplyr::mutate(num_alt_allele = sum(num_allele,  na.rm = T), num_strains = n()) %>% 
       dplyr::filter(num_alt_allele/num_strains > 0.05) %>% 

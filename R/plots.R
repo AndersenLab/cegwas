@@ -91,7 +91,7 @@ pxg_plot <- function(plot_df, loc = NA, use_base = F, color_strains = c("N2","CB
 
       to_plot <- dplyr::filter(to_plot, !is.na(value)) %>%
       dplyr::distinct(strain, value, POS, .keep_all = T) %>%
-      dplyr::filter(!is.na(GT)) %>%
+      dplyr::filter(!is.na(GT), FILTER == "PASS", FT == "PASS") %>% 
       dplyr::group_by(GT) %>%
       dplyr::mutate(GT2 = ifelse(use_base, ifelse(GT == "REF", REF, ALT), GT )) %>%
       dplyr::ungroup() %>%
