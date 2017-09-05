@@ -102,7 +102,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   
   # Return data frame to previous state
   data <- data %>% dplyr::ungroup() %>% dplyr::select(trait, strain, val) %>%
-  dplyr::rename(strain = isotype) %>%
+  # dplyr::rename(strain = isotype) %>%
   tidyr::spread(strain, val)
   
   # identify any traits that only have 1 unique value
