@@ -101,7 +101,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   
   
   # Return data frame to previous state
-  data <- data %>% dplyr::select(trait, strain, val) %>%
+  data <- data %>% dplyr::ungroup() %>% dplyr::select(trait, strain, val) %>%
   dplyr::rename(strain = isotype) %>%
   tidyr::spread(strain, val)
   
