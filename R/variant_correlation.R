@@ -62,7 +62,7 @@ variant_correlation <- function(df,
       dplyr::filter(!is.na(impact)) %>% 
       dplyr::distinct(CHROM, POS, strain, effect, gene_id, .keep_all = TRUE) %>% 
       dplyr::arrange(effect) %>% 
-      dplyr::select(CHROM, POS, REF, ALT, GT, effect, nt_change, 
+      dplyr::select(CHROM, POS, REF, ALT, FILTER, FT, GT, effect, nt_change, 
                     aa_change, gene_name, gene_id, transcript_biotype, 
                     feature_type, strain)  %>% 
       dplyr::group_by(CHROM, POS, effect) %>%
