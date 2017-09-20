@@ -51,6 +51,7 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
                     dplyr::select(strain, warning_message) %>%
                     dplyr::group_by(strain, warning_message) %>%
                     unique()
+  
   if (nrow(issue_warnings) > 0) {
     for(x in 1:nrow(issue_warnings)) {
         warn <- issue_warnings[x,]
@@ -101,8 +102,8 @@ process_pheno <- function(data, remove_strains = TRUE, duplicate_method = "first
   
   
   # Return data frame to previous state
-  data <- data %>% dplyr::ungroup() %>% dplyr::select(trait, strain, val) %>%
-  # dplyr::rename(strain = isotype) %>%
+  data <- data %>% dplyr::ungroup() %>% 
+  dplyr::select(trait, strain = isotype, val) %>%
   tidyr::spread(strain, val)
   
   # identify any traits that only have 1 unique value
