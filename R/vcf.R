@@ -226,19 +226,26 @@ fetch_id_type <- function(id_type = NA) {
 #'
 #' @param vcf a bcf, vcf, or vcf.gz file
 #' @param allele_freq allele frequency to filter on. Default is 0
-#' @param variants A set of variants to filter on. By default, all variants are taken.
+#' @param tag_snips A set of variants to filter on. By default, all variants are taken.
+#' @param region A region to subset on.
 #' @return Matrix of genotype calls
 #' @seealso \link{generate_kinship} \link{generate_mapping}
 #' @export
 
-vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA) {
+vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, region = NA) {
   gt_file <- tempfile(pattern = "file", tmpdir = tempdir(), fileext = "")
   if (!is.na(tag_snps)) {
     tag_snps <- paste0("-T ", tag_snps)
   } else {
     tag_snps <- ""
   }
+  if (!is.na(region)) {
+    region <- c("--region", region)
+  } else {
+    region <- "" 
+  }
   command <- paste0("bcftools view ", tag_snps, " -m2 -M2 --min-af ", allele_freq, " ", vcf," | ",
+                    region,
                     "bcftools query --print-header -f '%CHROM\\t%POS\\t%REF\\t%ALT[\\t%GT]\\n' | ",
                     "sed 's/[[# 0-9]*\\]//g' | ", 
                     "sed 's/:GT//g' | ",         
@@ -271,8 +278,8 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA) {
 #' @seealso \link{vcf_to_matrix} \link{generate_kinship}
 #' @export
 
-generate_kinship <- function(vcf) {
-  df <- vcf_to_matrix(vcf) %>%
+generate_kinship <- function(vcf, region=NA) {
+  df <- vcf_to_matrix(vcf, region) %>%
     dplyr::select(-CHROM,-POS, -REF, -ALT)
   rrBLUP::A.mat(t(data.matrix(df)))
 }
