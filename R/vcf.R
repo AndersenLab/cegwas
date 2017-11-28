@@ -240,7 +240,7 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, region = NA) {
     tag_snps <- ""
   }
   if (!is.na(region)) {
-    region <- paste0("--region", region)
+    region <- paste0("--region ", region)
   } else {
     region <- "" 
   }
