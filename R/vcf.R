@@ -278,7 +278,7 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, region = NA) {
 #' @export
 
 generate_kinship <- function(vcf, region=NA) {
-  df <- vcf_to_matrix(vcf, region) %>%
+  df <- vcf_to_matrix(vcf, region=region) %>%
     dplyr::select(-CHROM,-POS, -REF, -ALT)
   rrBLUP::A.mat(t(data.matrix(df)))
 }
