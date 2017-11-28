@@ -244,8 +244,7 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, region = NA) {
   } else {
     region <- "" 
   }
-  command <- paste0("bcftools view ", tag_snps, " -m2 -M2 --min-af ", allele_freq, " ", vcf," | ",
-                    region,
+  command <- paste0("bcftools view ", tag_snps, " ", region, " -m2 -M2 --min-af ", allele_freq, " ", vcf," | ",
                     "bcftools query --print-header -f '%CHROM\\t%POS\\t%REF\\t%ALT[\\t%GT]\\n' | ",
                     "sed 's/[[# 0-9]*\\]//g' | ", 
                     "sed 's/:GT//g' | ",         
