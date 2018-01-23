@@ -82,7 +82,7 @@ pxg_plot <- function(plot_df, loc = NA, use_base = F, color_strains = c("N2","CB
      }
       
       to_plot <- snpeff(loc[1], severity = "ALL", elements = "ALL") %>%
-      dplyr::select(strain, CHROM, POS, GT, REF, ALT) %>%
+      dplyr::select(strain, CHROM, POS, FILTER, FT, GT, REF, ALT) %>%
       dplyr::distinct( .keep_all = T) %>%
       dplyr::mutate(chr_pos = paste0(CHROM, ":", POS))
 
