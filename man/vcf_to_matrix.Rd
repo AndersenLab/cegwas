@@ -4,14 +4,16 @@
 \alias{vcf_to_matrix}
 \title{VCF To Matrix}
 \usage{
-vcf_to_matrix(vcf, allele_freq = 0, tag_snps = NA)
+vcf_to_matrix(vcf, allele_freq = 0, tag_snps = NA, region = NA)
 }
 \arguments{
 \item{vcf}{a bcf, vcf, or vcf.gz file}
 
 \item{allele_freq}{allele frequency to filter on. Default is 0}
 
-\item{variants}{A set of variants to filter on. By default, all variants are taken.}
+\item{region}{A region to subset on.}
+
+\item{tag_snips}{A set of variants to filter on. By default, all variants are taken.}
 }
 \value{
 Matrix of genotype calls

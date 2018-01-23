@@ -4,7 +4,7 @@
 \alias{generate_kinship}
 \title{Generate Kinship}
 \usage{
-generate_kinship(vcf)
+generate_kinship(vcf, region = NA)
 }
 \arguments{
 \item{a}{vcf file.}
