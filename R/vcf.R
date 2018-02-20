@@ -1,8 +1,8 @@
 
 #' Browse Variant Info
 #'
-#' \code{snpeff} enables you to query variants called and annotated by the \href{http://www.andersenlab.org}{Andersen Lab}. 
-#' 
+#' \code{snpeff} enables you to query variants called and annotated by the \href{http://www.andersenlab.org}{Andersen Lab}.
+#'
 #' @param ... Gene names, regions, or wormbase identifiers to query.
 #' @param severity A vector with variants of given severities (LOW, MODERATE, HIGH, MODIFIER). Default takes moderate and high. Use "ALL" to return all variants.
 #' @param elements A vector containing gene structural elements (CDS, five_prime_UTR, exon, intron, three_prime_UTR). Use "ALL" to return all variants.
@@ -19,9 +19,9 @@ snpeff <- function(...,
                    long = TRUE,
                    remote = FALSE,
                    vcf = NA) {
-  
+
   regions <- unlist(list(...))
-  
+
   # Allow user to specify 'ALL'
   if ("ALL" %in% severity) {
     severity <-  c("LOW", "MODERATE", "HIGH", 'MODIFIER')
@@ -29,20 +29,20 @@ snpeff <- function(...,
   if ("ALL" %in% elements) {
     elements <- c("CDS", "five_prime_UTR", "exon", "intron", "three_prime_UTR")
   }
-  
+
   # Ensure that bcftools is available:
   bcftools_version <- as.double(stringr::str_extract(readLines(pipe("bcftools --version"))[1], "[0-9]+\\.[0-9]+"))
   if(is.na(bcftools_version) | bcftools_version < 1.2) {
     stop("bcftools 1.2+ required for this function")
   }
-  
+
   results <- suppressWarnings(lapply(regions, function(query) {
     # Save region as query
-    
+
     # Fix region specifications
     query <- gsub("\\.\\.", "-", query)
     query <- gsub(",", "", query)
-    
+
     # Resolve region names
     if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
       elegans_gff <- get_db()
@@ -56,9 +56,9 @@ snpeff <- function(...,
         dplyr::mutate(region_format = paste0(chrom, ":", start, "-", end)) %>%
         dplyr::select(region_format) %>%
         dplyr::distinct(.keep_all = TRUE))$region_format, collapse = ",")
-      
+
       query_type <- "locus"
-      
+
       if (stringr::str_length(regions[[1]]) == 0) {
         message(paste0(query, " not found."))
         region <- NA
@@ -67,30 +67,33 @@ snpeff <- function(...,
       region <- query
       query_type <- "region"
     }
-    
+
     if(is.na(vcf)) {
       vcf_path <- get_vcf(remote = remote)
     } else {
       vcf_path <- vcf
       gene_ids <- NA
     }
-    
+
     sample_names <- readr::read_lines(suppressWarnings(pipe(paste("bcftools","query","-l",vcf_path))))
     base_header <- c("CHROM", "POS", "REF","ALT","FILTER")
     ANN_header = c("allele", "effect", "impact",
-                   "gene_name", "gene_id", "feature_type", 
+                   "gene_name", "gene_id", "feature_type",
                    "feature_id", "transcript_biotype","exon_intron_rank",
-                   "nt_change", "aa_change", "cDNA_position/cDNA_len", 
+                   "nt_change", "aa_change", "cDNA_position/cDNA_len",
                    "protein_position", "distance_to_feature", "error", "extra")
     # If using long format provide additional information.
     format <- "'%CHROM\\t%POS\\t%REF\\t%ALT\\t%FILTER\\t%ANN[\\t%TGT]\\n'"
     if (long == T) {
       format <- "'%CHROM\\t%POS\\t%REF\\t%ALT\\t%FILTER\\t%ANN[\\t%TGT!%FT!%DP!%DP4!%SP!%HP]\\n'"
     }
-    command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path)
+    output_file <- tempfile()
+    command <- paste("bcftools","query","--regions", region, "-f", format ,vcf_path, ">", output_file)
     if (!is.na(region)) {
       message(paste0("Query: ", query, "; region - ", region, "; "))
-      result <- try(dplyr::tbl_df(data.table::fread(command, col.names = c(base_header, "ANN", sample_names ), sep = "\t")), silent = TRUE)
+      system(command)
+      result <- try(dplyr::tbl_df(data.table::fread(output_file, col.names = c(base_header, "ANN", sample_names), sep = "\t")), silent = FALSE)
+      try(file.remove(output_file))
       if(!grepl("^Error.*", result[[1]][1])) {
         tsv <- result %>%
           dplyr::mutate(REF = ifelse(REF==TRUE, "T", REF), # T nucleotides are converted to 'true'
@@ -98,7 +101,7 @@ snpeff <- function(...,
       } else {
         tsv <- as.data.frame(NULL)
       }
-      
+
       # If no results are returned, stop.
       if (typeof(tsv) == "character" | nrow(tsv) == 0) {
         warning("No Variants")
@@ -111,13 +114,13 @@ snpeff <- function(...,
           #dplyr::mutate(gene_name = as.character(gene_ids[gene_name])) %>%
           dplyr::mutate(query = query, region = region) %>%
           dplyr::select(CHROM, POS, query, region, dplyr::everything())
-        
+
         # For locus queries, filter out non-matching genes.
         if (query_type == 'locus') {
           tsv <- dplyr::filter(tsv, (query == gene_id) | (query == gene_name) | (query == feature_id) )
         }
-        
-        tsv <-  dplyr::filter(tsv, impact %in% severity) 
+
+        tsv <-  dplyr::filter(tsv, impact %in% severity)
         if (nrow(tsv) == 0) {
           message(paste("No Results for", region, "after filtering"))
         }
@@ -133,7 +136,7 @@ snpeff <- function(...,
             dplyr::mutate(GT = ifelse(a1 != a2 & !is.na(a1), "HET",GT)) %>%
             dplyr::mutate(GT = ifelse(a1 == a2 & a1 != REF & !is.na(a1), "ALT",GT)) %>%
             dplyr::select(CHROM, POS, strain, REF, ALT, a1, a2, GT, FT, FILTER, DP, DP4, SP, HP, dplyr::everything()) %>%
-            dplyr::arrange(CHROM, POS) 
+            dplyr::arrange(CHROM, POS)
         }
         tsv
       }
@@ -142,7 +145,7 @@ snpeff <- function(...,
   ))
   results <- do.call(rbind, results)
   if (!"CHROM" %in% names(results)){
-    stop("No Results")
+    warning("No Results")
   }
   results <- results %>% dplyr::filter(!is.na(CHROM))
   results
@@ -151,14 +154,14 @@ snpeff <- function(...,
 #' Generate directory path to VCF file
 #'
 #' \code{get_vcf} Generate directory path to VCF file
-#' 
+#'
 #' @param remote logical, to use remote VCF stored on google or local in Andersen lab dropbox
 #' @param impute logical, to use imputed VCF file or non imputed
 #' @return character value corresponding to VCF location
 #' @export
 
 get_vcf <- function(remote = F, version = vcf_version) {
-  
+
   # Set vcf path; determine whether local or remote
   vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/_SEQ/WI/WI-", vcf_version, "/vcf/WI.", vcf_version, ".snpeff.vcf.gz")
   # Use remote if not available.
@@ -196,7 +199,7 @@ get_db <- function() {
 #' Fetch Variant Type
 #'
 #' \code{fetch_id_type} Fetches wormbase identifiers of a certain class. These can be piped into \code{snpeff}
-#' 
+#'
 #' @param id_type Type of genetic element. Omit for list of options.
 #' @return Vector of identifiers.
 #' @examples fetch_id_type("lincRNA")
@@ -215,14 +218,14 @@ fetch_id_type <- function(id_type = NA) {
                       dplyr::filter(biotype == id_type, type_of == "exon") %>%
                       dplyr::select(gene_id)))$gene_id
   }
-  
+
 }
 
 
 #' VCF To Matrix
 #'
-#' \code{vcf_to_matrix} converts variant calls from a bcf, vcf.gz or vcf file into an R dataframe. 
-#' Uses only biallelic variants. Heterozygous calls are ignored. Requires bcftools. 
+#' \code{vcf_to_matrix} converts variant calls from a bcf, vcf.gz or vcf file into an R dataframe.
+#' Uses only biallelic variants. Heterozygous calls are ignored. Requires bcftools.
 #'
 #' @param vcf a bcf, vcf, or vcf.gz file
 #' @param allele_freq allele frequency to filter on. Default is 0
@@ -242,12 +245,12 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, region = NA) {
   if (!is.na(region)) {
     region <- paste0("--regions ", region)
   } else {
-    region <- "" 
+    region <- ""
   }
   command <- paste0("bcftools view ", tag_snps, " ", region, " -m2 -M2 --min-af ", allele_freq, " ", vcf," | ",
                     "bcftools query --print-header -f '%CHROM\\t%POS\\t%REF\\t%ALT[\\t%GT]\\n' | ",
-                    "sed 's/[[# 0-9]*\\]//g' | ", 
-                    "sed 's/:GT//g' | ",         
+                    "sed 's/[[# 0-9]*\\]//g' | ",
+                    "sed 's/:GT//g' | ",
                     "sed 's/0|0/-1/g'   | ",
                     "sed 's/1|1/1/g'   | ",
                     "sed 's/0|1/NA/g'  | ",
@@ -262,7 +265,7 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, region = NA) {
   # Generate simplified representation of genotypes
   system(command, intern = T)
   df <- dplyr::tbl_df(data.table::fread(gt_file))
-  
+
   df
 }
 
@@ -273,7 +276,7 @@ vcf_to_matrix <- function(vcf, allele_freq = 0.0, tag_snps = NA, region = NA) {
 #' This function is used to generate a kinship matrix for mapping in conjunction with \code{\link{gwas_mappings}}.
 #'
 #' @param a vcf file.
-#' @return A kinship matrix. 
+#' @return A kinship matrix.
 #' @seealso \link{vcf_to_matrix} \link{generate_kinship}
 #' @export
 
@@ -286,17 +289,17 @@ generate_kinship <- function(vcf, region=NA) {
 #' Generate Mapping variant set
 #'
 #' \code{generate_mapping} generates a dataframe suitable for mapping. This function uses bcftools to filter out variants with low allele frequencies <5%. This can be customized by setting
-#' the af parameter. Additionally, this function uses a subset of variants from the \emph{C. elegans} genome that tag haplotype blocks. 
+#' the af parameter. Additionally, this function uses a subset of variants from the \emph{C. elegans} genome that tag haplotype blocks.
 #' Tag SNPs were generated in \emph{\href{https://dx.doi.org/10.1038/ng.1050}{Andersen 2012 et al}}. Tag snps used can
 #' be adjusted using a text file that specifies \emph{CHROM}    \emph{POS}. A custom set of variants can be used with the \code{variants} parameter.
 #'
 #' @return Mapping Snpset
 #' @param vcf a bcf, vcf.gz, or vcf file
 #' @param allele_freq minimum allele frequency. Default is >= 5\%
-#' @param tag_snps A set of variants to filter on. By default, a set of tag snps is used 
+#' @param tag_snps A set of variants to filter on. By default, a set of tag snps is used
 #' @seealso \link{vcf_to_matrix} \link{generate_mapping}
 #' @export
 
 generate_mapping <- function(vcf, allele_freq = 0.00, tag_snps = paste0(path.package("cegwas"),"/41188.WS245.txt.gz")) {
-  vcf_to_matrix(vcf, allele_freq = allele_freq, tag_snps = tag_snps) 
+  vcf_to_matrix(vcf, allele_freq = allele_freq, tag_snps = tag_snps)
 }
