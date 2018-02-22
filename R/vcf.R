@@ -120,7 +120,9 @@ snpeff <- function(...,
           tsv <- dplyr::filter(tsv, (query == gene_id) | (query == gene_name) | (query == feature_id) )
         }
 
-        tsv <-  dplyr::filter(tsv, impact %in% severity)
+        if (severity != "ALL") {
+          tsv <-  dplyr::filter(tsv, impact %in% severity)
+        }
         if (nrow(tsv) == 0) {
           message(paste("No Results for", region, "after filtering"))
         }
