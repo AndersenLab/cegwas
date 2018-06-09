@@ -20,14 +20,14 @@ variant_correlation(df, quantile_cutoff = 0.9,
 \item{kin}{is a strain by strain relatedness matrix you want to correct you trait with}
 }
 \value{
-Outputs a list. Each list contains two data frames, the first contains mapping information (e.g. log10p, confidence interval start and stop), phenotype information, and gene ids. 
+Outputs a list. Each list contains two data frames, the first contains mapping information (e.g. log10p, confidence interval start and stop), phenotype information, and gene ids.
 The second element of the list contains more detailed gene information
 }
 \description{
 \code{variant_correlation} Returns all highly correlated variants in a QTL confidence interval
 }
 \details{
-This function losely identifies unique intervals for QTL in a data set and browses a whole-genome variant set for variants that are highly correlated with the phenotype that gave rise to the QTL. Spearman rank correlation is used. 
+This function losely identifies unique intervals for QTL in a data set and browses a whole-genome variant set for variants that are highly correlated with the phenotype that gave rise to the QTL. Spearman rank correlation is used.
 Heterozygotes are ignored in the analysis. Correlations are only calculated for variants that are present in at least 5% of the assayed strains. Additionally, variant information needs to have been
 acquired for at least 80% of the phenotyped strains, this removes the possibility of discrepency between correlated variants and the correlation that led to the QTL.
 }

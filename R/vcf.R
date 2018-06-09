@@ -24,7 +24,7 @@ snpeff <- function(...,
 
   # Allow user to specify 'ALL'
   if ("ALL" %in% severity) {
-    severity <-  c("LOW", "MODERATE", "HIGH", 'MODIFIER')
+    severity <-  c("LOW", "MODERATE", "HIGH", "MODIFIER")
   }
   if ("ALL" %in% elements) {
     elements <- c("CDS", "five_prime_UTR", "exon", "intron", "three_prime_UTR")

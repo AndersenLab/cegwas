@@ -17,7 +17,7 @@ pxg_plot(plot_df, loc = NA, use_base = F, color_strains = c("N2",
 \item{color_strains}{character vector containing strains to color in plot. Default is c("N2","CB4856")}
 }
 \value{
-Ouput is a ggplot object facetted by peak SNP (if there are multiple peaks in a mapping). 
+Ouput is a ggplot object facetted by peak SNP (if there are multiple peaks in a mapping).
 Genotypes are encoded as REF or ALT and are on the x-axis. Phenotypes are on y-axis.
 }
 \description{

@@ -19,7 +19,7 @@ vcf_to_matrix(vcf, allele_freq = 0, tag_snps = NA, region = NA)
 Matrix of genotype calls
 }
 \description{
-\code{vcf_to_matrix} converts variant calls from a bcf, vcf.gz or vcf file into an R dataframe. 
+\code{vcf_to_matrix} converts variant calls from a bcf, vcf.gz or vcf file into an R dataframe.
 Uses only biallelic variants. Heterozygous calls are ignored. Requires bcftools.
 }
 \seealso{

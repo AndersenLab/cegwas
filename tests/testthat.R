@@ -1,4 +1,5 @@
 library(testthat)
-library(cegwas)
+library(cegwas2)
 
-test_check("cegwas")
+test_check("cegwas2", reporter="summary")
+

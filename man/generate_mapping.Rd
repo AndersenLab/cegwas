@@ -19,7 +19,7 @@ Mapping Snpset
 }
 \description{
 \code{generate_mapping} generates a dataframe suitable for mapping. This function uses bcftools to filter out variants with low allele frequencies <5%. This can be customized by setting
-the af parameter. Additionally, this function uses a subset of variants from the \emph{C. elegans} genome that tag haplotype blocks. 
+the af parameter. Additionally, this function uses a subset of variants from the \emph{C. elegans} genome that tag haplotype blocks.
 Tag SNPs were generated in \emph{\href{https://dx.doi.org/10.1038/ng.1050}{Andersen 2012 et al}}. Tag snps used can
 be adjusted using a text file that specifies \emph{CHROM}    \emph{POS}. A custom set of variants can be used with the \code{variants} parameter.
 }
