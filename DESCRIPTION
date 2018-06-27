@@ -29,7 +29,9 @@ Imports:
     plyr,
     maps,
     sp,
-    regress
+    regress,
+    furrr,
+    future
 License: GPL
 LazyData: true
 Suggests:

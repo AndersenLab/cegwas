@@ -46,7 +46,8 @@ variant_correlation <- function(df,
   strains <- as.character(na.omit(unique(df$strain)))
   intervalGENES <- list()
 
-  process_interval <- function(x) {
+  process_interval <- function(i) {
+
     nstrains <- data.frame(df) %>% na.omit() %>% dplyr::filter(trait ==
                                                                  as.character(intervals[i, "trait"]))
     nstrains <- length(unique(nstrains$strain))
@@ -102,7 +103,6 @@ variant_correlation <- function(df,
         dplyr::group_by(trait, CHROM, POS, effect, feature_type) %>%
         # na.omit()%>%
         dplyr::left_join(., correct_df, by=c("strain","trait")) %>%
-        dplyr::filter(!is.na(trait)) %>% dplyr::select(corrected_pheno, num_allele, pheno_value) %>%
         dplyr::mutate(corrected_spearman_cor_p = cor.test(corrected_pheno, num_allele, method = "spearman", use = "pairwise.complete.obs",exact = F)$p.value,
                       spearman_cor_p = cor.test(pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs",exact = F)$p.value) %>%
         dplyr::ungroup() %>%
@@ -117,8 +117,7 @@ variant_correlation <- function(df,
       NA
     }
   }
-  result <- furrr::future_map(1:nrow(intervals), ~process_interval(.x), .progress=TRUE)
-  intervalGENES <- dplyr::bind_rows(result)
+  intervalGENES <- furrr::future_map(1:nrow(intervals), ~process_interval(.x), .progress=TRUE)
   return(intervalGENES)
 }
 
