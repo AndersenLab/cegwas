@@ -24,7 +24,7 @@ variant_correlation <- function(df,
                                 condition_trait) {
 
   # source("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/read_vcf.R") # Get snpeff function
-
+  future::plan(future::multiprocess)
 
   # loosely identify unique peaks
   intervals <- df %>% na.omit() %>%
@@ -46,9 +46,7 @@ variant_correlation <- function(df,
   strains <- as.character(na.omit(unique(df$strain)))
   intervalGENES <- list()
 
-  for (i in 1:nrow(intervals)) {
-    print(paste(100 * signif(i/nrow(intervals), 3), "%",
-                sep = ""))
+  process_interval <- function(x) {
     nstrains <- data.frame(df) %>% na.omit() %>% dplyr::filter(trait ==
                                                                  as.character(intervals[i, "trait"]))
     nstrains <- length(unique(nstrains$strain))
@@ -86,15 +84,14 @@ variant_correlation <- function(df,
 
 
 
-      correct_it <- list()
-      for(j in 1:length(unique(interval_df$trait))){
+      correct_it <- lapply(1:length(unique(interval_df$trait)), function(j) {
 
         temp_pheno <- dplyr::filter(interval_df, trait == unique(interval_df$trait)[j])%>%
           dplyr::select(trait, strain, value = pheno_value)
 
-        correct_it[[j]] <- kinship_correction(temp_pheno) %>%
+        kinship_correction(temp_pheno) %>%
           dplyr::mutate(trait = unique(interval_df$trait)[j])
-      }
+      })
 
       correct_df <- dplyr::bind_rows(correct_it)
 
@@ -105,7 +102,7 @@ variant_correlation <- function(df,
         dplyr::group_by(trait, CHROM, POS, effect, feature_type) %>%
         # na.omit()%>%
         dplyr::left_join(., correct_df, by=c("strain","trait")) %>%
-        dplyr::filter(!is.na(trait))%>%
+        dplyr::filter(!is.na(trait)) %>% dplyr::select(corrected_pheno, num_allele, pheno_value) %>%
         dplyr::mutate(corrected_spearman_cor_p = cor.test(corrected_pheno, num_allele, method = "spearman", use = "pairwise.complete.obs",exact = F)$p.value,
                       spearman_cor_p = cor.test(pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs",exact = F)$p.value) %>%
         dplyr::ungroup() %>%
@@ -114,12 +111,14 @@ variant_correlation <- function(df,
         dplyr::ungroup() %>%
         dplyr::arrange(corrected_spearman_cor_p)
 
-      intervalGENES[[i]] <- pheno_snpeff_df
+      pheno_snpeff_df
     }
     else {
-      intervalGENES[[i]] <- NA
+      NA
     }
   }
+  result <- furrr::future_map(1:nrow(intervals), ~process_interval(.x), .progress=TRUE)
+  intervalGENES <- dplyr::bind_rows(result)
   return(intervalGENES)
 }
 
