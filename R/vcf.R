@@ -169,7 +169,7 @@ get_vcf <- function(remote = F, version = vcf_version) {
   # Use remote if not available.
   local_or_remote <- "locally"
   if (!file.exists(vcf_path) | remote == T) {
-    vcf_path <- paste0("http://storage.googleapis.com/elegansvariation.org/releases/", vcf_version, "/WI.", vcf_version, ".soft-filtered.vcf.gz")
+    vcf_path <- paste0("http://storage.googleapis.com/elegansvariation.org/releases/", vcf_version, "/variation/WI.", vcf_version, ".soft-filter.vcf.gz")
     message("Using remote vcf")
   } else {
     system(paste0("touch ", vcf_path,".csi"))
