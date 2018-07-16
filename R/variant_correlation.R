@@ -24,7 +24,7 @@ variant_correlation <- function(df,
                                 condition_trait) {
 
   # source("~/Dropbox/Andersenlab/WormReagents/Variation/Andersen_VCF/read_vcf.R") # Get snpeff function
-  future::plan(future::multiprocess)
+
 
   # loosely identify unique peaks
   intervals <- df %>% na.omit() %>%
@@ -46,8 +46,9 @@ variant_correlation <- function(df,
   strains <- as.character(na.omit(unique(df$strain)))
   intervalGENES <- list()
 
-  process_interval <- function(i) {
-
+  for (i in 1:nrow(intervals)) {
+    print(paste(100 * signif(i/nrow(intervals), 3), "%",
+                sep = ""))
     nstrains <- data.frame(df) %>% na.omit() %>% dplyr::filter(trait ==
                                                                  as.character(intervals[i, "trait"]))
     nstrains <- length(unique(nstrains$strain))
@@ -55,19 +56,18 @@ variant_correlation <- function(df,
     left <- intervals[i, ]$startPOS
     right <- intervals[i, ]$endPOS
     region_of_interest <- paste0(chr, ":", left, "-", right)
-    snpeff_output <- query_vcf(region_of_interest, impact = "ALL", format=c("GT", "FT"))
+    snpeff_output <- snpeff(region = region_of_interest, severity = variant_severity, elements = gene_types)
     pruned_snpeff_output <- snpeff_output %>%
-      dplyr::rename(strain = SAMPLE) %>%
       dplyr::filter(strain %in% strains) %>%
       dplyr::filter(!is.na(impact)) %>%
       dplyr::distinct(CHROM, POS, strain, .keep_all = TRUE) %>%
       dplyr::arrange(effect) %>%
-      dplyr::select(CHROM, POS, REF, ALT, FILTER, FT, GT = genotype, effect, nt_change,
+      dplyr::select(CHROM, POS, REF, ALT, FILTER, FT, GT, effect, nt_change,
                     aa_change, gene_name, gene_id, transcript_biotype,
                     feature_type, impact, strain)  %>%
       dplyr::group_by(CHROM, POS, effect) %>%
       dplyr::filter(!is.na(GT), FILTER == "PASS", FT == "PASS") %>%
-      dplyr::mutate(num_allele = ifelse(GT == 0, 0, ifelse(GT == 2, 1, NA))) %>%
+      dplyr::mutate(num_allele = ifelse(GT == "REF", 0, ifelse(GT == "ALT", 1, NA))) %>%
       dplyr::mutate(num_alt_allele = sum(num_allele,  na.rm = T), num_strains = n()) %>%
       dplyr::filter(num_alt_allele/num_strains > 0.05) %>%
       dplyr::filter(num_strains > nstrains * 0.8) %>%
@@ -86,14 +86,15 @@ variant_correlation <- function(df,
 
 
 
-      correct_it <- lapply(1:length(unique(interval_df$trait)), function(j) {
+      correct_it <- list()
+      for(j in 1:length(unique(interval_df$trait))){
 
         temp_pheno <- dplyr::filter(interval_df, trait == unique(interval_df$trait)[j])%>%
           dplyr::select(trait, strain, value = pheno_value)
 
-        kinship_correction(temp_pheno) %>%
+        correct_it[[j]] <- kinship_correction(temp_pheno) %>%
           dplyr::mutate(trait = unique(interval_df$trait)[j])
-      })
+      }
 
       correct_df <- dplyr::bind_rows(correct_it)
 
@@ -104,21 +105,21 @@ variant_correlation <- function(df,
         dplyr::group_by(trait, CHROM, POS, effect, feature_type) %>%
         # na.omit()%>%
         dplyr::left_join(., correct_df, by=c("strain","trait")) %>%
+        dplyr::filter(!is.na(trait))%>%
         dplyr::mutate(corrected_spearman_cor_p = cor.test(corrected_pheno, num_allele, method = "spearman", use = "pairwise.complete.obs",exact = F)$p.value,
                       spearman_cor_p = cor.test(pheno_value, num_allele, method = "spearman", use = "pairwise.complete.obs",exact = F)$p.value) %>%
         dplyr::ungroup() %>%
         dplyr::filter(corrected_spearman_cor_p < quantile(corrected_spearman_cor_p,
-                                                  probs = quantile_cutoff, na.rm = T)) %>%
+                                                          probs = quantile_cutoff, na.rm = T)) %>%
         dplyr::ungroup() %>%
         dplyr::arrange(corrected_spearman_cor_p)
 
-      pheno_snpeff_df
+      intervalGENES[[i]] <- pheno_snpeff_df
     }
     else {
-      NA
+      intervalGENES[[i]] <- NA
     }
   }
-  intervalGENES <- furrr::future_map(1:nrow(intervals), ~process_interval(.x), .progress=TRUE)
   return(intervalGENES)
 }
 
@@ -191,7 +192,7 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
     dplyr::select(biotype, locus) %>%
     dplyr::group_by(biotype)
 
-  variants <- query_vcf(interval, impact="ALL") %>%
+  variants <- snpeff(interval, severity = "ALL", elements = "ALL", impute = impute) %>%
     dplyr::filter(GT != "REF")
 
   if (filter_variants == TRUE & impute == FALSE) {
