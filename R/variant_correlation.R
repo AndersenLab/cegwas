@@ -56,18 +56,18 @@ variant_correlation <- function(df,
     left <- intervals[i, ]$startPOS
     right <- intervals[i, ]$endPOS
     region_of_interest <- paste0(chr, ":", left, "-", right)
-    snpeff_output <- snpeff(region = region_of_interest, severity = variant_severity, elements = gene_types)
+    snpeff_output <- query_vcf(region_of_interest, impact = "ALL", format=c("GT", "FT"))
     pruned_snpeff_output <- snpeff_output %>%
-      dplyr::filter(strain %in% strains) %>%
+      dplyr::rename(strain = SAMPLE) %>%
       dplyr::filter(!is.na(impact)) %>%
       dplyr::distinct(CHROM, POS, strain, .keep_all = TRUE) %>%
       dplyr::arrange(effect) %>%
-      dplyr::select(CHROM, POS, REF, ALT, FILTER, FT, GT, effect, nt_change,
+      dplyr::select(CHROM, POS, REF, ALT, FILTER, FT, GT = genotype, effect, nt_change,
                     aa_change, gene_name, gene_id, transcript_biotype,
                     feature_type, impact, strain)  %>%
       dplyr::group_by(CHROM, POS, effect) %>%
       dplyr::filter(!is.na(GT), FILTER == "PASS", FT == "PASS") %>%
-      dplyr::mutate(num_allele = ifelse(GT == "REF", 0, ifelse(GT == "ALT", 1, NA))) %>%
+      dplyr::mutate(num_allele = ifelse(GT == 0, 0, ifelse(GT == 2, 1, NA))) %>%
       dplyr::mutate(num_alt_allele = sum(num_allele,  na.rm = T), num_strains = n()) %>%
       dplyr::filter(num_alt_allele/num_strains > 0.05) %>%
       dplyr::filter(num_strains > nstrains * 0.8) %>%
@@ -192,7 +192,7 @@ interval_summary <- function(query, filter_variants = T, impute = F) {
     dplyr::select(biotype, locus) %>%
     dplyr::group_by(biotype)
 
-  variants <- snpeff(interval, severity = "ALL", elements = "ALL", impute = impute) %>%
+  variants <- query_vcf(interval, impact="ALL") %>%
     dplyr::filter(GT != "REF")
 
   if (filter_variants == TRUE & impute == FALSE) {
