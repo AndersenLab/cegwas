@@ -32,8 +32,8 @@ snpeff <- function(...,
 
   # Ensure that bcftools is available:
   bcftools_version <- as.double(stringr::str_replace(stringr::str_extract(readLines(pipe("bcftools --version"))[1], "[0-9]+\\.[0-9]+"), "\\.", ""))
-  if(is.na(bcftools_version) | bcftools_version < 12) {
-    stop("bcftools 1.2+ required for this function")
+  if(is.na(bcftools_version) | bcftools_version < 19) {
+    stop("bcftools 1.9+ required for this function")
   }
 
   results <- suppressWarnings(lapply(regions, function(query) {
@@ -42,6 +42,10 @@ snpeff <- function(...,
     # Fix region specifications
     query <- gsub("\\.\\.", "-", query)
     query <- gsub(",", "", query)
+
+    db <- paste0("~/.WS", wb_build, ".elegans_gff.db")
+    con <- DBI::dbConnect(RSQLite::SQLite(), dbname = db)
+    tbl(con, "flights")
 
     # Resolve region names
     if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
@@ -169,7 +173,7 @@ get_vcf <- function(remote = F, version = vcf_version) {
   # Use remote if not available.
   local_or_remote <- "locally"
   if (!file.exists(vcf_path) | remote == T) {
-    vcf_path <- paste0("http://storage.googleapis.com/elegansvariation.org/releases/", vcf_version, "/variation/WI.", vcf_version, ".soft-filter.vcf.gz")
+    vcf_path <- paste0("https://storage.googleapis.com/elegansvariation.org/releases/", vcf_version, "/variation/WI.", vcf_version, ".soft-filter.vcf.gz")
     message("Using remote vcf")
   } else {
     system(paste0("touch ", vcf_path,".csi"))
@@ -190,7 +194,7 @@ get_db <- function() {
   file_path <- paste0("~/.WS", wb_build, ".elegans_gff.db")
   if (file.info(file_path)$size < 128 | is.na(file.info(file_path)$size == 0)) {
     message(paste0("Downloading Gene Database to ", file_path))
-    url <- paste0("http://storage.googleapis.com/cegwas/WS", wb_build , ".celegans_gff.db")
+    url <- paste0("https://storage.googleapis.com/cegwas/WS", wb_build , ".celegans_gff.db")
     download.file(url, file_path)
   }
   dplyr::tbl(dplyr::src_sqlite(paste0("~/.WS", wb_build, ".elegans_gff.db")), "feature_set")
