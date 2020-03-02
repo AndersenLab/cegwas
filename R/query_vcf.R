@@ -46,8 +46,8 @@ query_vcf <- function(...,
 
   # Ensure that bcftools is available:
   bcftools_version <- as.double(stringr::str_replace(stringr::str_extract(readLines(pipe("bcftools --version"))[1], "[0-9]+\\.[0-9]+"), "\\.", ""))
-  if(is.na(bcftools_version) | bcftools_version < 19) {
-    stop("bcftools 1.9+ required for this function")
+  if(is.na(bcftools_version) | bcftools_version < 12) {
+    stop("bcftools 1.2+ required for this function")
   }
 
   # Samples
