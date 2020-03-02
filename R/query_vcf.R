@@ -152,7 +152,7 @@ query_vcf <- function(...,
 
     # Resolve region names
     if (!grepl("(I|II|III|IV|V|X|MtDNA).*", query)) {
-      elegans_gff <- get_db(table = "wormbase_gene")
+      elegans_gff <- get_db()
       # Pull out regions by element type.
       region <- dplyr::collect(dplyr::filter(elegans_gff,
                                              locus == query |
