@@ -1,22 +1,3 @@
-
-get_vcf <- function(remote = F, version = vcf_version) {
-
-  # Set vcf path; determine whether local or remote
-  vcf_path <- paste0("~/Dropbox/Andersenlab/Reagents/WormReagents/_SEQ/WI/WI-", vcf_version, "/vcf/WI.", vcf_version, ".snpeff.vcf.gz")
-  # Use remote if not available.
-  local_or_remote <- "locally"
-  if (!file.exists(vcf_path) | remote == T) {
-    vcf_path <- paste0("http://storage.googleapis.com/elegansvariation.org/releases/", vcf_version, "/WI.", vcf_version, ".soft-filtered.vcf.gz")
-    message("Using remote vcf")
-  } else {
-    system(paste0("touch ", vcf_path,".csi"))
-    message("Using local vcf")
-  }
-  vcf_path
-}
-
-
-
 #' Query VCF Data
 #'
 #' \code{query_vcf} enables you to query variants within a VCF
@@ -64,12 +45,10 @@ query_vcf <- function(...,
   }
 
   # Ensure that bcftools is available:
-  conn <- pipe("bcftools --version")
-  bcftools_version <- as.double(stringr::str_extract(readLines(conn)[1], "[0-9]+\\.[0-9]+"))
-  close(conn)
-  assertthat::assert_that(!(is.na(bcftools_version) | bcftools_version < 1.2),
-                          msg = "bcftools 1.2+ required for this query_vcf")
-
+  bcftools_version <- as.double(stringr::str_replace(stringr::str_extract(readLines(pipe("bcftools --version"))[1], "[0-9]+\\.[0-9]+"), "\\.", ""))
+  if(is.na(bcftools_version) | bcftools_version < 19) {
+    stop("bcftools 1.9+ required for this function")
+  }
 
   # Samples
   sample_query <- glue::glue("bcftools query -l {vcf}")
@@ -158,7 +137,7 @@ query_vcf <- function(...,
                                              locus == query |
                                                gene_id == query |
                                                transcript_id == query) %>%
-                                 dplyr::select(chrom, start, end, gene_id, locus,  exon_id, transcript_id, transcript_biotype) %>%
+                                 dplyr::select(chrom, start, end, gene_id, locus, transcript_id) %>%
                                  dplyr::distinct(.keep_all = TRUE)) %>%
         dplyr::summarize(chrom = chrom[1], start = min(start), end = max(end)) %>%
         dplyr::mutate(region_format = paste0(chrom, ":", start, "-", end)) %>%
@@ -269,7 +248,8 @@ query_vcf <- function(...,
           tsv <- dplyr::mutate(tsv, ANN = "")
         }
         tsv <- tsv %>%
-          tidyr::unnest(ANN, .sep = ",") %>%
+          dplyr::mutate(ANN=stringr::str_split(ANN, ",")) %>%
+          tidyr::unnest(ANN) %>%
           {
             if (!is.null(ann_header))
               tidyr::separate(., ANN, into = ann_header, sep = "\\|") %>%
