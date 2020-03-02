@@ -12,26 +12,18 @@ Imports:
     doParallel,
     iterators,
     parallel,
-    reshape2,
     foreach,
     stringr,
     tidyr,
     data.table,
     ggplot2,
-    jsonlite,
-    RCurl,
-    httr,
     stringr,
     rrBLUP,
     readr,
     dplyr,
     ggmap,
-    plyr,
-    maps,
     sp,
-    regress,
-    furrr,
-    future
+    regress
 License: GPL
 LazyData: true
 Suggests:
